@@ -39,6 +39,6 @@ module RptSolution
     # Don't generate system test files.
     config.generators.system_tests = nil
 
-    config.secret_key_base = ENV["SECRET_KEY_BASE"] if ENV["SECRET_KEY_BASE"].present?
+    config.secret_key_base = ENV.fetch("SECRET_KEY_BASE") { "dummy_key_for_build_only" }
   end
 end
