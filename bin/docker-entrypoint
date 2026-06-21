@@ -11,4 +11,9 @@ if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
 fi
 
+# Also run migrations if using puma directly
+if [ "${1}" == "bundle" ] && echo "${@}" | grep -q "puma"; then
+  ./bin/rails db:prepare
+fi
+
 exec "${@}"
