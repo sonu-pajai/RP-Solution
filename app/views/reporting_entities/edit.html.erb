@@ -1,0 +1,65 @@
+<h2>Edit Reporting Entity</h2>
+
+<%= form_with(model: @reporting_entity) do |f| %>
+  <% if @reporting_entity.errors.any? %>
+    <div class="form-errors">
+      <% @reporting_entity.errors.full_messages.each do |msg| %>
+        <p><%= msg %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :name %>
+    <%= f.text_field :name, placeholder: "Enter entity name" %>
+  </div>
+
+  <fieldset style="border:1px solid #e2e8f0; border-radius:8px; padding:16px; margin-top:16px;">
+    <legend style="font-size:14px; font-weight:600; color:#374151; padding:0 8px;">Reporting Units</legend>
+    <div id="units-container">
+      <% @reporting_entity.reporting_units.each_with_index do |unit, index| %>
+        <%= f.fields_for :reporting_units, unit, child_index: index do |uf| %>
+          <div class="unit-row" style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+            <%= uf.hidden_field :id %>
+            <%= uf.text_field :name, placeholder: "Unit name" %>
+            <%= uf.hidden_field :_destroy, class: "destroy-field" %>
+            <a href="#" class="action-link danger remove-unit">✕</a>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+    <a href="#" id="add-unit" class="action-link" style="margin-top:8px; display:inline-block;">+ Add Unit</a>
+  </fieldset>
+
+  <div class="form-actions" style="margin-top:20px;">
+    <%= f.submit "Update", class: "btn-primary btn-submit" %>
+    <%= link_to "Cancel", reporting_entities_path, class: "cancel-link" %>
+  </div>
+<% end %>
+
+<script>
+  var unitIndex = <%= @reporting_entity.reporting_units.size %>;
+  document.getElementById('add-unit').addEventListener('click', function(e) {
+    e.preventDefault();
+    var container = document.getElementById('units-container');
+    var html = '<div class="unit-row" style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">' +
+      '<input type="text" name="reporting_entity[reporting_units_attributes][' + unitIndex + '][name]" placeholder="Unit name" style="flex:1; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; font-size:14px;" />' +
+      '<a href="#" class="action-link danger remove-unit">✕</a></div>';
+    container.insertAdjacentHTML('beforeend', html);
+    unitIndex++;
+  });
+
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-unit')) {
+      e.preventDefault();
+      var row = e.target.closest('.unit-row');
+      var destroyField = row.querySelector('.destroy-field');
+      if (destroyField) {
+        destroyField.value = '1';
+        row.style.display = 'none';
+      } else {
+        row.remove();
+      }
+    }
+  });
+</script>

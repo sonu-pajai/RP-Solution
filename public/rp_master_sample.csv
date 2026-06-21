@@ -1,0 +1,7 @@
+Reporting Entity,Salutation,Name,PAN,Category,Specific Relationship,DOB/Incorporation Date,Related to Director,RP as per SEBI,RP as per Companies Act,RP as per AS-18,RP as per IND AS-24,Other Guidelines,Active
+AD Group,Mr.,Rahul Sharma,ABCDE1234F,Director/KMP,Managing Director,1980-05-15,Yes,Yes,Yes,Yes,Yes,,Yes
+AD Group,Mrs.,Priya Sharma,FGHIJ5678K,Relatives of KMP,Spouse,1983-08-22,No,Yes,Yes,No,Yes,,Yes
+Vertex Healthcare Pvt Ltd,M/s,Zenith Infra Pvt Ltd,LMNOP9012Q,Subsidiary,Subsidiary Company,2010-03-01,No,Yes,Yes,Yes,Yes,Wholly owned subsidiary,Yes
+Vertex Healthcare Pvt Ltd,Mr.,Amit Verma,RSTUV3456W,Director/KMP,CFO,1975-11-10,Yes,Yes,Yes,Yes,Yes,,Yes
+Crystal Packaging Pvt Ltd,Dr.,Suresh Patel,WXYZA7890B,Entity Controlled by KMP / Director,Entity Controlled by KMP / Director,1968-02-28,Yes,Yes,Yes,Yes,Yes,Holds 60% stake,Yes
+Crystal Packaging Pvt Ltd,Ms.,Neha Gupta,CDEFG1234H,Relatives of KMP,Daughter,1995-07-19,No,No,Yes,No,Yes,,No

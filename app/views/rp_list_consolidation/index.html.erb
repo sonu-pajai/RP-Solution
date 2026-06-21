@@ -1,0 +1,137 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP List", rp_list_path %><span class="separator">›</span> RP List Consolidation
+<% end %>
+
+<h2>RP List Consolidation</h2>
+
+<!-- Selection Parameters -->
+<div style="background:#fff; padding:24px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:16px;">
+  <h3 style="margin:0 0 16px;">Select Parameters</h3>
+  <div style="display:flex; gap:16px; align-items:flex-end;">
+    <div class="form-group" style="flex:1; margin-bottom:0;">
+      <%= label_tag :reporting_entity_id, "Reporting Entity" %>
+      <%= select_tag :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name, @reporting_entity_id.to_i), prompt: "Select Reporting Entity", id: "entity-select" %>
+    </div>
+
+    <div class="form-group" style="flex:1; margin-bottom:0;">
+      <%= label_tag :period_id, "Period" %>
+      <%= select_tag :period_id, options_from_collection_for_select(Period.all, :id, :month, @period_id.to_i), prompt: "Select Period", id: "period-select" %>
+    </div>
+  </div>
+</div>
+
+<% if @rp_masters %>
+  <!-- Search & Export -->
+  <div style="background:#fff; padding:16px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:16px;">
+    <div style="display:flex; gap:16px; align-items:flex-end;">
+      <div class="form-group" style="flex:1; margin-bottom:0;">
+        <%= label_tag :search, "Search" %>
+        <%= text_field_tag :search, params[:search], placeholder: "Search by unique code or name", id: "search-filter" %>
+      </div>
+      <a href="#" id="search-btn" class="btn-primary btn-sm">Search</a>
+      <% if params[:search].present? %>
+        <%= link_to "Clear", rp_list_consolidation_path(reporting_entity_id: @reporting_entity_id, period_id: @period_id), class: "action-link" %>
+      <% end %>
+      <%= link_to "Export CSV", rp_list_consolidation_export_path(reporting_entity_id: @reporting_entity_id, period_id: @period_id, search: params[:search]), class: "btn-primary btn-sm btn-outline" %>
+      <%= link_to "Bulk Upload", rp_list_consolidation_bulk_upload_path, class: "btn-primary btn-sm btn-outline" %>
+    </div>
+  </div>
+
+  <%= form_with(url: rp_list_consolidation_submit_path, method: :post) do |f| %>
+    <%= hidden_field_tag :reporting_entity_id, @reporting_entity_id %>
+    <%= hidden_field_tag :period_id, @period_id %>
+
+    <div class="page-header">
+      <div>
+        <label style="font-size:14px; cursor:pointer;">
+          <input type="checkbox" id="select-all"> Select All
+        </label>
+      </div>
+      <%= f.submit "Submit", class: "btn-primary btn-sm" %>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:40px;">
+            <input type="checkbox" id="select-all-header">
+          </th>
+          <th>Unique Code</th>
+          <th>Name</th>
+          <th>Related Party From</th>
+          <th>Related Party Upto</th>
+          <th>Any Other Input (Custom)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @rp_masters.each do |rp| %>
+          <tr>
+            <td><%= check_box_tag "rp_master_ids[]", rp.id, false, class: "rp-checkbox" %></td>
+            <td><%= rp.unique_code %></td>
+            <td><%= rp.name %></td>
+            <td><%= date_field_tag "related_party_from[#{rp.id}]", nil, style: "padding:6px 8px; border:1px solid #d1d5db; border-radius:4px; font-size:13px; width:100%;" %></td>
+            <td><%= date_field_tag "related_party_upto[#{rp.id}]", nil, style: "padding:6px 8px; border:1px solid #d1d5db; border-radius:4px; font-size:13px; width:100%;" %></td>
+            <td><%= text_field_tag "custom_input[#{rp.id}]", nil, placeholder: "Enter value", style: "padding:6px 8px; border:1px solid #d1d5db; border-radius:4px; font-size:13px; width:100%;" %></td>
+          </tr>
+        <% end %>
+        <% if @rp_masters.empty? %>
+          <tr><td colspan="6" class="empty-row">No records found.</td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+<% end %>
+
+<script>
+  var entitySelect = document.getElementById('entity-select');
+  var periodSelect = document.getElementById('period-select');
+
+  function loadRecords() {
+    if (entitySelect.value && periodSelect.value) {
+      window.location.href = '/rp_list_consolidation?reporting_entity_id=' + entitySelect.value + '&period_id=' + periodSelect.value;
+    }
+  }
+
+  entitySelect.addEventListener('change', loadRecords);
+  periodSelect.addEventListener('change', loadRecords);
+
+  var searchBtn = document.getElementById('search-btn');
+  var searchFilter = document.getElementById('search-filter');
+
+  if (searchBtn) {
+    searchBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      applySearch();
+    });
+  }
+
+  if (searchFilter) {
+    searchFilter.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        applySearch();
+      }
+    });
+  }
+
+  function applySearch() {
+    var params = [];
+    params.push('reporting_entity_id=' + entitySelect.value);
+    params.push('period_id=' + periodSelect.value);
+    if (searchFilter.value) params.push('search=' + encodeURIComponent(searchFilter.value));
+    window.location.href = '/rp_list_consolidation?' + params.join('&');
+  }
+
+  var selectAllHeader = document.getElementById('select-all-header');
+  var selectAll = document.getElementById('select-all');
+  var checkboxes = document.querySelectorAll('.rp-checkbox');
+
+  function toggleAll(checked) {
+    checkboxes.forEach(function(cb) { cb.checked = checked; });
+    if (selectAllHeader) selectAllHeader.checked = checked;
+    if (selectAll) selectAll.checked = checked;
+  }
+
+  if (selectAllHeader) selectAllHeader.addEventListener('change', function() { toggleAll(this.checked); });
+  if (selectAll) selectAll.addEventListener('change', function() { toggleAll(this.checked); });
+</script>

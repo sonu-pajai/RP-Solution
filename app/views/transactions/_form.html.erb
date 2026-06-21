@@ -1,0 +1,44 @@
+<%= form_with(model: @transaction, class: "form-container") do |f| %>
+  <% if @transaction.errors.any? %>
+    <div class="form-errors">
+      <% @transaction.errors.full_messages.each do |msg| %>
+        <p><%= msg %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :nature, "Nature of Transaction" %>
+    <%= f.text_field :nature, placeholder: "Enter nature" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :transaction_type, "Type of Transaction" %>
+    <%= f.text_field :transaction_type, placeholder: "Enter type" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :sub_type, "Sub-Type of Transaction" %>
+    <%= f.text_field :sub_type, placeholder: "Enter sub-type" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :as18, "AS-18" %>
+    <%= f.text_field :as18 %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :acb, "ACB" %>
+    <%= f.text_field :acb %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :sebi, "SEBI" %>
+    <%= f.text_field :sebi %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit class: "btn-primary btn-submit" %>
+    <%= link_to "Cancel", transactions_path, class: "cancel-link" %>
+  </div>
+<% end %>

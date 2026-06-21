@@ -1,0 +1,37 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP List", rp_list_path %><span class="separator">›</span> <%= link_to "RP List Consolidation", rp_list_consolidation_path %><span class="separator">›</span> Bulk Upload
+<% end %>
+
+<h2>Bulk Upload - RP List Consolidation</h2>
+
+<div style="background:#fff; padding:24px; border-radius:10px; border:1px solid #e2e8f0;">
+  <%= form_with(url: rp_list_consolidation_bulk_upload_path, method: :post, multipart: true) do |f| %>
+
+    <div style="display:flex; gap:16px; margin-bottom:20px;">
+      <div class="form-group" style="flex:1; margin-bottom:0;">
+        <%= label_tag :reporting_entity_id, "Reporting Entity" %>
+        <%= select_tag :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name), prompt: "Select Reporting Entity" %>
+      </div>
+
+      <div class="form-group" style="flex:1; margin-bottom:0;">
+        <%= label_tag :period_id, "Period" %>
+        <%= select_tag :period_id, options_from_collection_for_select(Period.all, :id, :month), prompt: "Select Period" %>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :file, "Upload CSV File" %>
+      <%= f.file_field :file, accept: ".csv" %>
+    </div>
+
+    <p style="font-size:13px; color:#64748b; margin-top:8px;">
+      CSV columns: Unique Code, Name, Related Party From, Related Party Upto, Any Other Input (Custom)
+    </p>
+
+    <div class="form-actions" style="margin-top:16px;">
+      <%= f.submit "Upload", class: "btn-primary btn-submit" %>
+      <%= link_to "Download Template", rp_list_consolidation_template_path, class: "btn-primary btn-sm btn-outline" %>
+      <%= link_to "Cancel", rp_list_consolidation_path, class: "cancel-link" %>
+    </div>
+  <% end %>
+</div>

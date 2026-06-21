@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "RPTRIX" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body>
+    <% if user_signed_in? %>
+      <nav class="navbar">
+        <div class="navbar-brand">
+          <span class="hamburger" id="sidebar-toggle">☰</span>
+          <span class="logo">RPTRIX</span>
+        </div>
+        <div class="navbar-user">
+          <span class="badge">● <%= current_user.role.capitalize %> · <%= current_user.name || current_user.email %></span>
+          <%= link_to "Sign Out", destroy_user_session_path, data: { turbo_method: :delete }, class: "sign-out" %>
+        </div>
+      </nav>
+
+      <aside class="sidebar" id="sidebar">
+        <p class="sidebar-section">MAIN</p>
+        <%= link_to "⊞ Dashboard", root_path, class: "sidebar-link" %>
+
+        <p class="sidebar-section">MODULES</p>
+        <%= link_to "◆ RP Identification", "#", class: "sidebar-link" %>
+        <%= link_to "◆ RP List", rp_list_path, class: "sidebar-link" %>
+        <%= link_to "⇌ RP Transaction", "#", class: "sidebar-link" %>
+        <%= link_to "◎ Omnibus Limit", "#", class: "sidebar-link" %>
+
+        <p class="sidebar-section">ANALYSIS</p>
+        <%= link_to "■ Reports", "#", class: "sidebar-link" %>
+        <%= link_to "⇄ IC Reconciliation", "#", class: "sidebar-link" %>
+
+        <p class="sidebar-section">GOVERNANCE</p>
+        <%= link_to "✓ Arm Length Approval", "#", class: "sidebar-link" %>
+
+        <p class="sidebar-section">MASTERS</p>
+        <%= link_to "◇ Reporting Entities", reporting_entities_path, class: "sidebar-link" %>
+        <%= link_to "◇ Relationships", relationships_path, class: "sidebar-link" %>
+        <%= link_to "◇ Transactions", transactions_path, class: "sidebar-link" %>
+        <%= link_to "◇ Periods", periods_path, class: "sidebar-link" %>
+      </aside>
+
+      <main class="main-content" id="main-content">
+        <nav class="breadcrumb">
+          <%= yield :breadcrumb %>
+        </nav>
+        <% if notice.present? %>
+          <p class="flash-notice"><%= notice %></p>
+        <% end %>
+        <% if alert.present? %>
+          <p class="flash-alert"><%= alert %></p>
+        <% end %>
+        <%= yield %>
+      </main>
+
+      <script>
+        var toggle = document.getElementById('sidebar-toggle');
+        var sidebar = document.getElementById('sidebar');
+        var main = document.getElementById('main-content');
+
+        toggle.addEventListener('click', function() {
+          sidebar.classList.toggle('collapsed');
+          main.classList.toggle('expanded');
+        });
+      </script>
+    <% else %>
+      <%= yield %>
+    <% end %>
+  </body>
+</html>

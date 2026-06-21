@@ -1,0 +1,22 @@
+databases:
+  - name: rpt-solution-db
+    plan: free
+    databaseName: rpt_solution_production
+    user: rpt_solution
+
+services:
+  - type: web
+    name: rpt-solution
+    runtime: ruby
+    plan: free
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec puma -C config/puma.rb"
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rpt-solution-db
+          property: connectionString

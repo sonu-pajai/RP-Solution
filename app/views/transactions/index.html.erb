@@ -1,0 +1,47 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "Masters", reporting_entities_path %><span class="separator">›</span> Transactions
+<% end %>
+
+<div class="page-header">
+  <h2>Transactions</h2>
+  <% if can? :create, Transaction %>
+    <%= link_to "＋ Add New", new_transaction_path, class: "btn-primary btn-sm" %>
+  <% end %>
+</div>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Nature of Transaction</th>
+      <th>Type of Transaction</th>
+      <th>Sub-Type of Transaction</th>
+      <th>AS-18</th>
+      <th>ACB</th>
+      <th>SEBI</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @transactions.each do |txn| %>
+      <tr>
+        <td><%= txn.nature %></td>
+        <td><%= txn.transaction_type %></td>
+        <td><%= txn.sub_type %></td>
+        <td><%= txn.as18 %></td>
+        <td><%= txn.acb %></td>
+        <td><%= txn.sebi %></td>
+        <td>
+          <% if can? :update, txn %>
+            <%= link_to "Edit", edit_transaction_path(txn), class: "action-link" %>
+          <% end %>
+          <% if can? :destroy, txn %>
+            <%= link_to "Delete", transaction_path(txn), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+    <% if @transactions.empty? %>
+      <tr><td colspan="7" class="empty-row">No transactions yet.</td></tr>
+    <% end %>
+  </tbody>
+</table>

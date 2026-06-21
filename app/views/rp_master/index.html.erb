@@ -1,0 +1,85 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP List", rp_list_path %><span class="separator">›</span> RP Master
+<% end %>
+
+<div class="page-header">
+  <h2>RP Master</h2>
+  <div style="display:flex; gap:8px;">
+    <%= link_to "Create", new_rp_master_path, class: "btn-primary btn-sm" %>
+    <%= link_to "Bulk Upload", rp_master_bulk_upload_path, class: "btn-primary btn-sm btn-outline" %>
+    <%= link_to "Export CSV", rp_master_export_path(reporting_entity_id: params[:reporting_entity_id], unique_code: params[:unique_code]), class: "btn-primary btn-sm btn-outline" %>
+  </div>
+</div>
+
+<!-- Filters -->
+<div style="background:#fff; padding:16px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:20px;">
+  <div style="display:flex; gap:16px; align-items:flex-end;">
+    <div class="form-group" style="flex:1; margin-bottom:0;">
+      <%= label_tag :reporting_entity_id, "Reporting Entity" %>
+      <%= select_tag :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name, params[:reporting_entity_id].to_i), prompt: "All Entities", id: "entity-filter" %>
+    </div>
+
+    <div class="form-group" style="flex:1; margin-bottom:0;">
+      <%= label_tag :unique_code, "Unique Code" %>
+      <%= text_field_tag :unique_code, params[:unique_code], placeholder: "Search by unique code", id: "code-filter" %>
+    </div>
+
+    <a href="#" id="filter-btn" class="btn-primary btn-sm">Filter</a>
+    <% if params[:reporting_entity_id].present? || params[:unique_code].present? %>
+      <%= link_to "Clear", rp_master_path, class: "action-link" %>
+    <% end %>
+  </div>
+</div>
+
+<!-- RP Master List -->
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Unique Code</th>
+      <th>Salutation</th>
+      <th>Name</th>
+      <th>PAN</th>
+      <th>Category</th>
+      <th>Specific Relationship</th>
+      <th>Related to Director</th>
+      <th>DOB / Incorporation</th>
+      <th>Active</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if @rp_masters.present? %>
+      <% @rp_masters.each do |rp| %>
+        <tr>
+          <td><%= rp.unique_code %></td>
+          <td><%= rp.salutation %></td>
+          <td><%= rp.name %></td>
+          <td><%= rp.pan %></td>
+          <td><%= rp.category %></td>
+          <td><%= rp.specific_relationship %></td>
+          <td><%= rp.related_to_director ? "Yes" : "No" %></td>
+          <td><%= rp.dob_or_incorporation %></td>
+          <td><%= rp.active ? "Yes" : "No" %></td>
+          <td>
+            <%= link_to "Edit", edit_rp_master_path(rp), class: "action-link" %>
+            <%= link_to "Delete", destroy_rp_master_path(rp), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
+          </td>
+        </tr>
+      <% end %>
+    <% else %>
+      <tr><td colspan="10" class="empty-row">No records found.</td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<script>
+  document.getElementById('filter-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    var entity = document.getElementById('entity-filter').value;
+    var code = document.getElementById('code-filter').value;
+    var params = [];
+    if (entity) params.push('reporting_entity_id=' + entity);
+    if (code) params.push('unique_code=' + encodeURIComponent(code));
+    window.location.href = '/rp_master' + (params.length ? '?' + params.join('&') : '');
+  });
+</script>

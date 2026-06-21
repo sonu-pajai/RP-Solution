@@ -1,0 +1,2 @@
+module ReportingEntitiesHelper
+end

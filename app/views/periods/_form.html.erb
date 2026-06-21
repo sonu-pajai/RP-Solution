@@ -1,0 +1,24 @@
+<%= form_with(model: @period, class: "form-container") do |f| %>
+  <% if @period.errors.any? %>
+    <div class="form-errors">
+      <% @period.errors.full_messages.each do |msg| %>
+        <p><%= msg %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :month %>
+    <%= f.text_field :month, placeholder: "e.g. Apr-25" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :financial_year, "Financial Year" %>
+    <%= f.text_field :financial_year, placeholder: "e.g. 2025-2026" %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit class: "btn-primary btn-submit" %>
+    <%= link_to "Cancel", periods_path, class: "cancel-link" %>
+  </div>
+<% end %>

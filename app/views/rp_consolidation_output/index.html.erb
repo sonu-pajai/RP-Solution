@@ -1,0 +1,132 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP List", rp_list_path %><span class="separator">›</span> Consolidation Output
+<% end %>
+
+<h2>RP List Consolidation Output</h2>
+
+<div style="background:#fff; padding:24px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:24px;">
+  <div style="display:flex; gap:16px; align-items:flex-end;">
+    <div class="form-group" style="flex:1; margin-bottom:0;">
+      <%= label_tag :reporting_entity_id, "Reporting Entity" %>
+      <%= select_tag :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name, params[:reporting_entity_id].to_i), prompt: "All Entities", id: "entity-filter" %>
+    </div>
+
+    <div class="form-group" style="flex:1; margin-bottom:0;">
+      <%= label_tag :period_id, "Period" %>
+      <%= select_tag :period_id, options_from_collection_for_select(Period.all, :id, :month, params[:period_id].to_i), prompt: "All Periods", id: "period-filter" %>
+    </div>
+
+    <div class="form-group" style="flex:1; margin-bottom:0;">
+      <%= label_tag :view_type, "View" %>
+      <%= select_tag :view_type, options_for_select([["List", "list"], ["Consolidated", "consolidated"], ["Standalone", "standalone"]], @view_type), id: "view-filter" %>
+    </div>
+  </div>
+</div>
+
+<% if @view_type == "consolidated" && @consolidated_records %>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Unique Code</th>
+        <th>Name</th>
+        <th>Period</th>
+        <th>Related Party From</th>
+        <th>Related Party Upto</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @consolidated_records.each do |rec| %>
+        <tr>
+          <td><%= rec[:rp_master].unique_code %></td>
+          <td><%= rec[:rp_master].name %></td>
+          <td><%= rec[:period].month %></td>
+          <td><%= rec[:related_party_from] %></td>
+          <td><%= rec[:related_party_upto] %></td>
+        </tr>
+      <% end %>
+      <% if @consolidated_records.empty? %>
+        <tr><td colspan="5" class="empty-row">No consolidated records found.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<% elsif @view_type == "standalone" && @rp_consolidations %>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Unique Code</th>
+        <th>Name</th>
+        <th>Reporting Entity</th>
+        <th>Period</th>
+        <th>Related Party From</th>
+        <th>Related Party Upto</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @rp_consolidations.each do |rc| %>
+        <tr>
+          <td><%= rc.rp_master.unique_code %></td>
+          <td><%= rc.rp_master.name %></td>
+          <td><%= rc.reporting_entity.name %></td>
+          <td><%= rc.period.month %></td>
+          <td><%= rc.first_from %></td>
+          <td><%= rc.last_upto %></td>
+        </tr>
+      <% end %>
+      <% if @rp_consolidations.empty? %>
+        <tr><td colspan="6" class="empty-row">No records found.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<% else %>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Unique Code</th>
+        <th>Name</th>
+        <th>Reporting Entity</th>
+        <th>Period</th>
+        <th>Related Party From</th>
+        <th>Related Party Upto</th>
+        <th>Custom Input</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @rp_consolidations.each do |rc| %>
+        <tr>
+          <td><%= rc.rp_master.unique_code %></td>
+          <td><%= rc.rp_master.name %></td>
+          <td><%= rc.reporting_entity.name %></td>
+          <td><%= rc.period.month %></td>
+          <td><%= rc.related_party_from %></td>
+          <td><%= rc.related_party_upto %></td>
+          <td><%= rc.custom_input %></td>
+          <td><%= rc.created_at.strftime("%d-%b-%Y") %></td>
+        </tr>
+      <% end %>
+      <% if @rp_consolidations.empty? %>
+        <tr><td colspan="8" class="empty-row">No consolidated records found.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<script>
+  var entityFilter = document.getElementById('entity-filter');
+  var periodFilter = document.getElementById('period-filter');
+  var viewFilter = document.getElementById('view-filter');
+
+  function applyFilters() {
+    var params = [];
+    if (entityFilter.value) params.push('reporting_entity_id=' + entityFilter.value);
+    if (periodFilter.value) params.push('period_id=' + periodFilter.value);
+    if (viewFilter.value) params.push('view_type=' + viewFilter.value);
+    window.location.href = '/rp_consolidation_output' + (params.length ? '?' + params.join('&') : '');
+  }
+
+  entityFilter.addEventListener('change', applyFilters);
+  periodFilter.addEventListener('change', applyFilters);
+  viewFilter.addEventListener('change', applyFilters);
+</script>

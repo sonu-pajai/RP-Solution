@@ -1,0 +1,41 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "Masters", reporting_entities_path %><span class="separator">›</span> Reporting Entities
+<% end %>
+
+<div class="page-header">
+  <h2>Reporting Entities</h2>
+  <% if can? :create, ReportingEntity %>
+    <%= link_to "＋ Add New", new_reporting_entity_path, class: "btn-primary btn-sm" %>
+  <% end %>
+</div>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Reporting Units</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @reporting_entities.each do |entity| %>
+      <tr>
+        <td><%= entity.id %></td>
+        <td><%= entity.name %></td>
+        <td><%= entity.reporting_units.pluck(:name).join(", ") %></td>
+        <td>
+          <% if can? :update, entity %>
+            <%= link_to "Edit", edit_reporting_entity_path(entity), class: "action-link" %>
+          <% end %>
+          <% if can? :destroy, entity %>
+            <%= link_to "Delete", reporting_entity_path(entity), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+    <% if @reporting_entities.empty? %>
+      <tr><td colspan="4" class="empty-row">No reporting entities yet.</td></tr>
+    <% end %>
+  </tbody>
+</table>

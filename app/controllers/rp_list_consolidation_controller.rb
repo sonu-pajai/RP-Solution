@@ -1,0 +1,101 @@
+class RpListConsolidationController < ApplicationController
+  def index
+    @reporting_entity_id = params[:reporting_entity_id]
+    @period_id = params[:period_id]
+    if @reporting_entity_id.present? && @period_id.present?
+      @rp_masters = RpMaster.all
+      @rp_masters = @rp_masters.where(reporting_entity_id: @reporting_entity_id)
+      @rp_masters = @rp_masters.where("unique_code ILIKE ? OR name ILIKE ?", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
+      @rp_masters = @rp_masters.order(:created_at)
+    end
+  end
+
+  def consolidate
+    ids = params[:rp_master_ids]
+    if ids.blank?
+      redirect_to rp_list_consolidation_path(reporting_entity_id: params[:reporting_entity_id], period_id: params[:period_id]), alert: "Please select at least one record."
+      return
+    end
+
+    count = 0
+    ids.each do |id|
+      record = RpConsolidation.find_or_initialize_by(
+        rp_master_id: id,
+        reporting_entity_id: params[:reporting_entity_id],
+        period_id: params[:period_id]
+      )
+      record.assign_attributes(
+        related_party_from: params[:related_party_from][id],
+        related_party_upto: params[:related_party_upto][id],
+        custom_input: params[:custom_input][id]
+      )
+      record.save!
+      count += 1
+    end
+
+    redirect_to rp_list_consolidation_path(reporting_entity_id: params[:reporting_entity_id], period_id: params[:period_id]), notice: "#{count} records consolidated successfully."
+  end
+
+  def export
+    require "csv"
+    rp_masters = RpMaster.all
+    rp_masters = rp_masters.where(reporting_entity_id: params[:reporting_entity_id]) if params[:reporting_entity_id].present?
+    rp_masters = rp_masters.where("unique_code ILIKE ? OR name ILIKE ?", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
+    rp_masters = rp_masters.includes(:reporting_entity).order(:created_at)
+
+    csv_data = CSV.generate do |csv|
+      csv << ["Unique Code", "Name", "Reporting Entity", "PAN", "Category", "Specific Relationship", "Related to Director", "Active"]
+      rp_masters.each do |rp|
+        csv << [
+          rp.unique_code, rp.name, rp.reporting_entity&.name, rp.pan,
+          rp.category, rp.specific_relationship,
+          rp.related_to_director ? "Yes" : "No", rp.active ? "Active" : "Inactive"
+        ]
+      end
+    end
+    send_data csv_data, filename: "rp_list_consolidation_#{Date.today}.csv", type: "text/csv"
+  end
+
+  def bulk_upload
+    if request.post?
+      file = params[:file]
+      reporting_entity_id = params[:reporting_entity_id]
+      period_id = params[:period_id]
+
+      if file.blank? || reporting_entity_id.blank? || period_id.blank?
+        redirect_to rp_list_consolidation_bulk_upload_path, alert: "Please select a file, reporting entity, and period."
+        return
+      end
+
+      require "csv"
+      count = 0
+      CSV.foreach(file.path, headers: true) do |row|
+        rp_master = RpMaster.find_by(unique_code: row["Unique Code"])
+        next unless rp_master
+
+        record = RpConsolidation.find_or_initialize_by(
+          rp_master_id: rp_master.id,
+          reporting_entity_id: reporting_entity_id,
+          period_id: period_id
+        )
+        record.assign_attributes(
+          related_party_from: row["Related Party From"],
+          related_party_upto: row["Related Party Upto"],
+          custom_input: row["Any Other Input (Custom)"]
+        )
+        record.save!
+        count += 1
+      end
+
+      redirect_to rp_list_consolidation_path(reporting_entity_id: reporting_entity_id, period_id: period_id), notice: "#{count} records uploaded successfully."
+    end
+  end
+
+  def template
+    require "csv"
+    csv_data = CSV.generate do |csv|
+      csv << ["Unique Code", "Name", "Related Party From", "Related Party Upto", "Any Other Input (Custom)"]
+    end
+    send_data csv_data, filename: "rp_list_consolidation_template.csv", type: "text/csv"
+  end
+end

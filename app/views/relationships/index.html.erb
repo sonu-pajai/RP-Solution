@@ -1,0 +1,36 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "Masters", reporting_entities_path %><span class="separator">›</span> Relationships
+<% end %>
+
+<div class="page-header">
+  <h2>Relationships</h2>
+  <% if can? :create, Relationship %>
+    <%= link_to "＋ Add New", new_relationship_path, class: "btn-primary btn-sm" %>
+  <% end %>
+</div>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Relationship</th>
+      <th>Category</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @relationships.each do |rel| %>
+      <tr>
+        <td><%= rel.name %></td>
+        <td><%= rel.category %></td>
+        <td>
+          <% if can? :update, rel %>
+            <%= link_to "Edit", edit_relationship_path(rel), class: "action-link" %>
+          <% end %>
+          <% if can? :destroy, rel %>
+            <%= link_to "Delete", relationship_path(rel), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

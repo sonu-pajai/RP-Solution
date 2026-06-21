@@ -1,0 +1,112 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP Master", rp_master_path %> <span class="separator">›</span> Edit
+<% end %>
+
+<h2>Edit RP Master</h2>
+
+<div style="background:#fff; padding:24px; border-radius:10px; border:1px solid #e2e8f0;">
+  <%= form_with(model: @rp_master, url: update_rp_master_path(@rp_master), method: :patch) do |f| %>
+    <% if @rp_master.errors.any? %>
+      <div class="form-errors">
+        <% @rp_master.errors.full_messages.each do |msg| %>
+          <p><%= msg %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
+      <div class="form-group">
+        <%= f.label :reporting_entity_id, "Reporting Entity" %>
+        <%= f.select :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name, @rp_master.reporting_entity_id), { prompt: "Select Reporting Entity" } %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :salutation %>
+        <%= f.select :salutation, ["Mr.", "Mrs.", "Ms.", "Dr.", "M/s"], { prompt: "Select Salutation" } %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :name %>
+        <%= f.text_field :name, placeholder: "Enter name" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :pan, "PAN" %>
+        <%= f.text_field :pan, placeholder: "Enter PAN" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :category %>
+        <%= f.select :category, Relationship::CATEGORIES, { prompt: "Select Category" } %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :specific_relationship, "Specific Relationship" %>
+        <%= f.select :specific_relationship, Relationship.pluck(:name), { prompt: "Select Relationship" } %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :dob_or_incorporation, "DOB / Incorporation Date" %>
+        <%= f.date_field :dob_or_incorporation, max: Date.today %>
+      </div>
+
+      <div class="form-group" style="grid-column: span 2;">
+        <%= f.label :other_guidelines, "Other Guidelines / Remarks" %>
+        <%= f.text_area :other_guidelines, placeholder: "Enter remarks", rows: 1 %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :related_to_director, "Related to Director" %>
+        <div class="radio-group">
+          <label><%= f.radio_button :related_to_director, true %> Yes</label>
+          <label><%= f.radio_button :related_to_director, false %> No</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :related_party_sebi, "RP as per SEBI" %>
+        <div class="radio-group">
+          <label><%= f.radio_button :related_party_sebi, true %> Yes</label>
+          <label><%= f.radio_button :related_party_sebi, false %> No</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :related_party_companies_act, "RP as per Companies Act, 2013" %>
+        <div class="radio-group">
+          <label><%= f.radio_button :related_party_companies_act, true %> Yes</label>
+          <label><%= f.radio_button :related_party_companies_act, false %> No</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :related_party_as18, "RP as per AS-18" %>
+        <div class="radio-group">
+          <label><%= f.radio_button :related_party_as18, true %> Yes</label>
+          <label><%= f.radio_button :related_party_as18, false %> No</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :related_party_ind_as24, "RP as per IND AS-24" %>
+        <div class="radio-group">
+          <label><%= f.radio_button :related_party_ind_as24, true %> Yes</label>
+          <label><%= f.radio_button :related_party_ind_as24, false %> No</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :active, "Active/Inactive" %>
+        <div class="radio-group">
+          <label><%= f.radio_button :active, true %> Active</label>
+          <label><%= f.radio_button :active, false %> Inactive</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions" style="margin-top:24px;">
+      <%= f.submit "Update", class: "btn-primary btn-submit" %>
+      <%= link_to "Cancel", rp_master_path, class: "cancel-link" %>
+    </div>
+  <% end %>
+</div>
