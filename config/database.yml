@@ -80,4 +80,8 @@ test:
 #
 production:
   <<: *default
-  url: <%= ENV["DATABASE_URL"] %>
+  database: railway
+  username: postgres
+  password: IrzWZKqZsFBmpJvmXqqOPHwiVMjhvgXD
+  host: reseau.proxy.rlwy.net
+  port: 28676
