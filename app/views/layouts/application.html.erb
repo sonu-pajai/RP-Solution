@@ -62,10 +62,19 @@
         var toggle = document.getElementById('sidebar-toggle');
         var sidebar = document.getElementById('sidebar');
         var main = document.getElementById('main-content');
+        var isMobile = window.innerWidth <= 768;
 
         toggle.addEventListener('click', function() {
-          sidebar.classList.toggle('collapsed');
-          main.classList.toggle('expanded');
+          if (isMobile) {
+            sidebar.classList.toggle('mobile-open');
+          } else {
+            sidebar.classList.toggle('collapsed');
+            main.classList.toggle('expanded');
+          }
+        });
+
+        window.addEventListener('resize', function() {
+          isMobile = window.innerWidth <= 768;
         });
       </script>
     <% else %>

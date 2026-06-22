@@ -233,3 +233,23 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ro
 .btn-primary:hover { background: #1d4ed8; }
 .login-footer { margin-top: 16px; text-align: center; font-size: 12px; }
 .login-footer a { color: #3b82f6; text-decoration: none; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar { width: 0; padding: 24px 0; overflow: hidden; }
+  .sidebar.mobile-open { width: 220px; padding: 24px 16px; }
+  .main-content { margin-left: 0; padding: 16px; }
+  .main-content.expanded { margin-left: 0; }
+  .module-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .recents-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .data-table { display: block; overflow-x: auto; }
+  .navbar { padding: 0 12px; }
+  .navbar-user .badge { display: none; }
+  .login-card { margin: 16px; padding: 24px; }
+}
+
+@media (max-width: 480px) {
+  .module-grid { grid-template-columns: 1fr; }
+  .recents-grid { grid-template-columns: 1fr; }
+}
