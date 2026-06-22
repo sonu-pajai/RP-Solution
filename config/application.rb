@@ -18,6 +18,11 @@ require "action_cable/engine"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# Set DATABASE_URL for production if not already set
+if ENV["RAILS_ENV"] == "production" && ENV["DATABASE_URL"].blank?
+  ENV["DATABASE_URL"] = "postgresql://postgres:IrzWZKqZsFBmpJvmXqqOPHwiVMjhvgXD@reseau.proxy.rlwy.net:28676/railway"
+end
+
 module RptSolution
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.

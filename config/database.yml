@@ -85,3 +85,4 @@ production:
   password: IrzWZKqZsFBmpJvmXqqOPHwiVMjhvgXD
   host: reseau.proxy.rlwy.net
   port: 28676
+  url: postgresql://postgres:IrzWZKqZsFBmpJvmXqqOPHwiVMjhvgXD@reseau.proxy.rlwy.net:28676/railway
