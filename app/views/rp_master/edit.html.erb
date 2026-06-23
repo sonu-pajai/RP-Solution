@@ -57,10 +57,7 @@
 
       <div class="form-group">
         <%= f.label :related_to_director, "Related to Director" %>
-        <div class="radio-group">
-          <label><%= f.radio_button :related_to_director, true %> Yes</label>
-          <label><%= f.radio_button :related_to_director, false %> No</label>
-        </div>
+        <%= f.select :related_to_director, RpMaster.where(category: "Director/KMP").pluck(:name), { prompt: "-- Select Director --", include_blank: "NA" } %>
       </div>
 
       <div class="form-group">

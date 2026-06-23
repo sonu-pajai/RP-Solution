@@ -1,0 +1,136 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP Transaction", rp_transactions_path %><span class="separator">›</span> New
+<% end %>
+
+<div class="page-header">
+  <h2>New RP Transaction</h2>
+</div>
+
+<div class="card">
+  <%= form_with model: @rp_transaction, url: rp_transactions_path do |f| %>
+    <% if @rp_transaction.errors.any? %>
+      <div class="flash-alert" style="margin-bottom: 16px;">
+        <% @rp_transaction.errors.full_messages.each do |msg| %>
+          <p><%= msg %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div class="form-group">
+        <%= f.label :reporting_entity_id, "Reporting Entity" %>
+        <%= f.select :reporting_entity_id, @reporting_entities.map { |e| [e.name, e.id] }, { prompt: "-- Select --" }, { class: "form-control", id: "form_reporting_entity" } %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :reporting_unit_id, "Reporting Unit" %>
+        <%= f.select :reporting_unit_id, [], { prompt: "-- Select Reporting Entity first --" }, { class: "form-control", id: "form_reporting_unit", disabled: true } %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :period_id, "Period" %>
+        <%= f.select :period_id, @periods.map { |p| ["#{p.month} - #{p.financial_year}", p.id] }, { prompt: "-- Select --" }, { class: "form-control" } %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :counterparty %>
+        <%= f.select :counterparty, @counterparties.map { |name| [name, name] }, { prompt: "-- Select Counterparty --" }, { class: "form-control" } %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :nature, "Nature of Transaction" %>
+        <%= f.select :nature, @natures.map { |n| [n, n] }, { prompt: "-- Select --" }, { class: "form-control", id: "form_nature" } %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :sub_nature, "Sub-Nature of Transaction" %>
+        <%= f.select :sub_nature, [], { prompt: "-- Select Nature first --" }, { class: "form-control", id: "form_sub_nature", disabled: true } %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :transaction_type, "Type of Transaction" %>
+        <%= f.select :transaction_type, [], { prompt: "-- Select Sub-Nature first --" }, { class: "form-control", id: "form_transaction_type", disabled: true } %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :amount %>
+        <%= f.text_field :amount, placeholder: "Enter Amount", class: "form-control" %>
+      </div>
+    </div>
+
+    <div style="margin-top: 16px;">
+      <%= f.submit "Create Transaction", class: "btn-primary" %>
+      <%= link_to "Cancel", rp_transactions_path, class: "btn-secondary", style: "margin-left: 8px;" %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  document.getElementById('form_reporting_entity').addEventListener('change', function() {
+    var entityId = this.value;
+    var unitSelect = document.getElementById('form_reporting_unit');
+
+    if (!entityId) {
+      unitSelect.innerHTML = '<option value="">-- Select Reporting Entity first --</option>';
+      unitSelect.disabled = true;
+      return;
+    }
+
+    fetch('/rp_transactions/reporting_units?reporting_entity_id=' + entityId)
+      .then(function(response) { return response.json(); })
+      .then(function(units) {
+        unitSelect.innerHTML = '<option value="">-- Select Reporting Unit --</option>';
+        units.forEach(function(unit) {
+          unitSelect.innerHTML += '<option value="' + unit.id + '">' + unit.name + '</option>';
+        });
+        unitSelect.disabled = false;
+      });
+  });
+
+  document.getElementById('form_nature').addEventListener('change', function() {
+    var nature = this.value;
+    var subNatureSelect = document.getElementById('form_sub_nature');
+    var typeSelect = document.getElementById('form_transaction_type');
+
+    typeSelect.innerHTML = '<option value="">-- Select Sub-Nature first --</option>';
+    typeSelect.disabled = true;
+
+    if (!nature) {
+      subNatureSelect.innerHTML = '<option value="">-- Select Nature first --</option>';
+      subNatureSelect.disabled = true;
+      return;
+    }
+
+    fetch('/rp_transactions/sub_natures?nature=' + encodeURIComponent(nature))
+      .then(function(response) { return response.json(); })
+      .then(function(items) {
+        subNatureSelect.innerHTML = '<option value="">-- Select --</option>';
+        items.forEach(function(item) {
+          subNatureSelect.innerHTML += '<option value="' + item + '">' + item + '</option>';
+        });
+        subNatureSelect.disabled = false;
+      });
+  });
+
+  document.getElementById('form_sub_nature').addEventListener('change', function() {
+    var subNature = this.value;
+    var nature = document.getElementById('form_nature').value;
+    var typeSelect = document.getElementById('form_transaction_type');
+
+    if (!subNature) {
+      typeSelect.innerHTML = '<option value="">-- Select Sub-Nature first --</option>';
+      typeSelect.disabled = true;
+      return;
+    }
+
+    fetch('/rp_transactions/transaction_types?nature=' + encodeURIComponent(nature) + '&sub_type=' + encodeURIComponent(subNature))
+      .then(function(response) { return response.json(); })
+      .then(function(items) {
+        typeSelect.innerHTML = '<option value="">-- Select --</option>';
+        items.forEach(function(item) {
+          typeSelect.innerHTML += '<option value="' + item + '">' + item + '</option>';
+        });
+        typeSelect.disabled = false;
+      });
+  });
+</script>

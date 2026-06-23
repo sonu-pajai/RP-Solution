@@ -29,6 +29,9 @@
       <tr>
         <th>Unique Code</th>
         <th>Name</th>
+        <th>PAN</th>
+        <th>DOB / Incorporation</th>
+        <th>Relationship</th>
         <th>Period</th>
         <th>Related Party From</th>
         <th>Related Party Upto</th>
@@ -39,13 +42,16 @@
         <tr>
           <td><%= rec[:rp_master].unique_code %></td>
           <td><%= rec[:rp_master].name %></td>
+          <td><%= rec[:rp_master].pan %></td>
+          <td><%= rec[:rp_master].dob_or_incorporation %></td>
+          <td><%= rec[:rp_master].specific_relationship %></td>
           <td><%= rec[:period].month %></td>
           <td><%= rec[:related_party_from] %></td>
           <td><%= rec[:related_party_upto] %></td>
         </tr>
       <% end %>
       <% if @consolidated_records.empty? %>
-        <tr><td colspan="5" class="empty-row">No consolidated records found.</td></tr>
+        <tr><td colspan="8" class="empty-row">No consolidated records found.</td></tr>
       <% end %>
     </tbody>
   </table>
@@ -56,6 +62,9 @@
       <tr>
         <th>Unique Code</th>
         <th>Name</th>
+        <th>PAN</th>
+        <th>DOB / Incorporation</th>
+        <th>Relationship</th>
         <th>Reporting Entity</th>
         <th>Period</th>
         <th>Related Party From</th>
@@ -67,6 +76,9 @@
         <tr>
           <td><%= rc.rp_master.unique_code %></td>
           <td><%= rc.rp_master.name %></td>
+          <td><%= rc.rp_master.pan %></td>
+          <td><%= rc.rp_master.dob_or_incorporation %></td>
+          <td><%= rc.rp_master.specific_relationship %></td>
           <td><%= rc.reporting_entity.name %></td>
           <td><%= rc.period.month %></td>
           <td><%= rc.first_from %></td>
@@ -74,7 +86,7 @@
         </tr>
       <% end %>
       <% if @rp_consolidations.empty? %>
-        <tr><td colspan="6" class="empty-row">No records found.</td></tr>
+        <tr><td colspan="9" class="empty-row">No records found.</td></tr>
       <% end %>
     </tbody>
   </table>
@@ -85,6 +97,9 @@
       <tr>
         <th>Unique Code</th>
         <th>Name</th>
+        <th>PAN</th>
+        <th>DOB / Incorporation</th>
+        <th>Relationship</th>
         <th>Reporting Entity</th>
         <th>Period</th>
         <th>Related Party From</th>
@@ -98,6 +113,9 @@
         <tr>
           <td><%= rc.rp_master.unique_code %></td>
           <td><%= rc.rp_master.name %></td>
+          <td><%= rc.rp_master.pan %></td>
+          <td><%= rc.rp_master.dob_or_incorporation %></td>
+          <td><%= rc.rp_master.specific_relationship %></td>
           <td><%= rc.reporting_entity.name %></td>
           <td><%= rc.period.month %></td>
           <td><%= rc.related_party_from %></td>
@@ -107,7 +125,7 @@
         </tr>
       <% end %>
       <% if @rp_consolidations.empty? %>
-        <tr><td colspan="8" class="empty-row">No consolidated records found.</td></tr>
+        <tr><td colspan="11" class="empty-row">No consolidated records found.</td></tr>
       <% end %>
     </tbody>
   </table>

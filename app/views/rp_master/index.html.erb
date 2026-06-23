@@ -32,10 +32,10 @@
 </div>
 
 <!-- RP Master List -->
+<div style="overflow-x: auto;">
 <table class="data-table">
   <thead>
     <tr>
-      <th>Unique Code</th>
       <th>Salutation</th>
       <th>Name</th>
       <th>PAN</th>
@@ -43,7 +43,16 @@
       <th>Specific Relationship</th>
       <th>Related to Director</th>
       <th>DOB / Incorporation</th>
-      <th>Active</th>
+      <th>Period</th>
+      <th>RP SEBI</th>
+      <th>RP Companies Act</th>
+      <th>RP AS-18</th>
+      <th>RP IND AS-24</th>
+      <th>Other Guidelines</th>
+      <th>Status</th>
+      <th>Created By</th>
+      <th>Approved By</th>
+      <th>Admin Approved By</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -51,26 +60,35 @@
     <% if @rp_masters.present? %>
       <% @rp_masters.each do |rp| %>
         <tr>
-          <td><%= rp.unique_code %></td>
-          <td><%= rp.salutation %></td>
           <td><%= rp.name %></td>
           <td><%= rp.pan %></td>
           <td><%= rp.category %></td>
           <td><%= rp.specific_relationship %></td>
-          <td><%= rp.related_to_director ? "Yes" : "No" %></td>
+          <td><%= rp.related_to_director %></td>
           <td><%= rp.dob_or_incorporation %></td>
+          <td><%= rp.reporting_entity&.name %></td>
+          <td><%= rp.period ? "#{rp.period.month} - #{rp.period.financial_year}" : "" %></td>
+          <td><%= rp.related_party_sebi %></td>
+          <td><%= rp.related_party_companies_act %></td>
+          <td><%= rp.related_party_as18 %></td>
+          <td><%= rp.related_party_ind_as24 %></td>
+          <td><%= rp.other_guidelines %></td>
           <td><%= rp.active ? "Yes" : "No" %></td>
-          <td>
+          <td><%= rp.created_by&.name %></td>
+          <td><%= rp.approved_by&.name %></td>
+          <td><%= rp.admin_approved_by&.name %></td>
+          <td style="white-space: nowrap;">
             <%= link_to "Edit", edit_rp_master_path(rp), class: "action-link" %>
             <%= link_to "Delete", destroy_rp_master_path(rp), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
           </td>
         </tr>
       <% end %>
     <% else %>
-      <tr><td colspan="10" class="empty-row">No records found.</td></tr>
+      <tr><td colspan="20" class="empty-row">No records found.</td></tr>
     <% end %>
   </tbody>
 </table>
+</div>
 
 <script>
   document.getElementById('filter-btn').addEventListener('click', function(e) {

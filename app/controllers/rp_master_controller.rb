@@ -7,7 +7,7 @@ class RpMasterController < ApplicationController
   end
 
   def new
-    @rp_master = RpMaster.new
+    @rp_master = RpMaster.new(active: true)
     @reporting_entity_id = params[:reporting_entity_id]
   end
 
@@ -51,11 +51,16 @@ class RpMasterController < ApplicationController
 
       require "csv"
       count = 0
-      CSV.foreach(file.path, headers: true) do |row|
-        entity = ReportingEntity.find_by(name: row["Reporting Entity"])
-        next unless entity
+      errors = []
 
-        RpMaster.create!(
+      CSV.foreach(file.path, headers: true).with_index(2) do |row, line|
+        entity = ReportingEntity.find_by(name: row["Reporting Entity"]&.strip)
+        if entity.nil?
+          errors << "Row #{line}: Reporting Entity '#{row['Reporting Entity']}' not found"
+          next
+        end
+
+        rp = RpMaster.new(
           reporting_entity: entity,
           salutation: row["Salutation"],
           name: row["Name"],
@@ -63,19 +68,28 @@ class RpMasterController < ApplicationController
           category: row["Category"],
           specific_relationship: row["Specific Relationship"],
           dob_or_incorporation: row["DOB/Incorporation Date"],
-          related_to_director: row["Related to Director"]&.downcase == "yes",
-          related_party_sebi: row["RP as per SEBI"]&.downcase == "yes",
-          related_party_companies_act: row["RP as per Companies Act"]&.downcase == "yes",
-          related_party_as18: row["RP as per AS-18"]&.downcase == "yes",
-          related_party_ind_as24: row["RP as per IND AS-24"]&.downcase == "yes",
+          related_to_director: row["Related to Director"]&.strip,
+          related_party_sebi: row["RP as per SEBI"]&.strip&.downcase == "yes",
+          related_party_companies_act: row["RP as per Companies Act"]&.strip&.downcase == "yes",
+          related_party_as18: row["RP as per AS-18"]&.strip&.downcase == "yes",
+          related_party_ind_as24: row["RP as per IND AS-24"]&.strip&.downcase == "yes",
           other_guidelines: row["Other Guidelines"],
-          active: row["Active"]&.downcase != "no",
+          active: row["Active"]&.strip&.downcase != "no",
           created_by: current_user
         )
-        count += 1
+
+        if rp.save
+          count += 1
+        else
+          errors << "Row #{line}: #{rp.errors.full_messages.join(', ')}"
+        end
       end
 
-      redirect_to rp_master_path, notice: "#{count} records uploaded successfully."
+      if errors.empty?
+        redirect_to rp_master_path, notice: "#{count} records uploaded successfully."
+      else
+        redirect_to rp_master_bulk_upload_path, alert: "#{count} valid records created. #{errors.size} skipped. #{errors.first(5).join(' | ')}"
+      end
     end
   end
 
@@ -100,7 +114,7 @@ class RpMasterController < ApplicationController
       records.each do |rp|
         csv << [
           rp.unique_code, rp.reporting_entity&.name, rp.salutation, rp.name, rp.pan,
-          rp.category, rp.specific_relationship, rp.related_to_director ? "Yes" : "No",
+          rp.category, rp.specific_relationship, rp.related_to_director,
           rp.dob_or_incorporation, rp.related_party_sebi ? "Yes" : "No",
           rp.related_party_companies_act ? "Yes" : "No", rp.related_party_as18 ? "Yes" : "No",
           rp.related_party_ind_as24 ? "Yes" : "No", rp.other_guidelines, rp.active ? "Active" : "Inactive"

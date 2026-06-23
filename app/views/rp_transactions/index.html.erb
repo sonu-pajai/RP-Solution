@@ -1,0 +1,148 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> RP Transaction
+<% end %>
+
+<div class="page-header">
+  <h2>RP Transaction</h2>
+  <div>
+    <%= link_to "＋ Create Record", new_rp_transaction_path, class: "btn-primary" %>
+    <%= link_to "Bulk Upload", rp_transactions_bulk_upload_path, class: "btn-primary btn-sm btn-outline" %>
+
+  </div>
+</div>
+
+<div class="card">
+  <div style="display: flex; gap: 16px;">
+    <div class="form-group" style="flex: 1;">
+      <label for="reporting_entity">Reporting Entity</label>
+      <select id="reporting_entity" class="form-control">
+        <option value="">-- All Reporting Entities --</option>
+        <% @reporting_entities.each do |entity| %>
+          <option value="<%= entity.id %>" <%= entity.id == @selected_entity_id ? "selected" : "" %>><%= entity.name %></option>
+        <% end %>
+      </select>
+    </div>
+
+    <div class="form-group" style="flex: 1;">
+      <label for="reporting_unit">Reporting Unit</label>
+      <select id="reporting_unit" class="form-control" <%= @selected_entity_id.blank? ? "disabled" : "" %>>
+        <% if @selected_entity_id.blank? %>
+          <option value="">-- Select Reporting Entity first --</option>
+        <% else %>
+          <option value="">-- All Reporting Units --</option>
+          <% @reporting_units.each do |unit| %>
+            <option value="<%= unit.id %>" <%= unit.id == @selected_unit_id ? "selected" : "" %>><%= unit.name %></option>
+          <% end %>
+        <% end %>
+      </select>
+    </div>
+
+    <div class="form-group" style="flex: 1;">
+      <label for="period">Period</label>
+      <select id="period" class="form-control">
+        <option value="">-- All Periods --</option>
+        <% @periods.each do |period| %>
+          <option value="<%= period.id %>" <%= period.id == @selected_period_id ? "selected" : "" %>><%= period.month %> - <%= period.financial_year %></option>
+        <% end %>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top: 16px;">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Reporting Entity</th>
+        <th>Reporting Unit</th>
+        <th>Period</th>
+        <th>Counterparty</th>
+        <th>Type</th>
+        <th>Nature</th>
+        <th>Sub-Nature</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @rp_transactions.each do |txn| %>
+        <tr class="clickable-row" style="cursor: pointer;"
+            data-entity-id="<%= txn.reporting_entity_id %>"
+            data-unit-id="<%= txn.reporting_unit_id %>"
+            data-period-id="<%= txn.period_id %>">
+          <td><%= txn.reporting_entity.name %></td>
+          <td><%= txn.reporting_unit.name %></td>
+          <td><%= txn.period.month %> - <%= txn.period.financial_year %></td>
+          <td><%= txn.counterparty %></td>
+          <td><%= txn.transaction_type %></td>
+          <td><%= txn.nature %></td>
+          <td><%= txn.sub_nature %></td>
+          <td class="amount"><%= number_to_currency(txn.amount, unit: "₹") %></td>
+        </tr>
+      <% end %>
+      <% if @rp_transactions.empty? %>
+        <tr><td colspan="8" class="empty-row" style="text-align:center; color:#94a3b8;">No transactions found.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  var entitySelect = document.getElementById('reporting_entity');
+  var unitSelect = document.getElementById('reporting_unit');
+  var periodSelect = document.getElementById('period');
+
+  function applyFilter() {
+    var params = [];
+    if (entitySelect.value) params.push('reporting_entity_id=' + entitySelect.value);
+    if (unitSelect.value) params.push('reporting_unit_id=' + unitSelect.value);
+    if (periodSelect.value) params.push('period_id=' + periodSelect.value);
+    window.location = '/rp_transactions' + (params.length ? '?' + params.join('&') : '');
+  }
+
+  entitySelect.addEventListener('change', function() {
+    var entityId = this.value;
+    if (!entityId) {
+      unitSelect.innerHTML = '<option value="">-- Select Reporting Entity first --</option>';
+      unitSelect.disabled = true;
+      applyFilter();
+      return;
+    }
+
+    fetch('/rp_transactions/reporting_units?reporting_entity_id=' + entityId)
+      .then(function(response) { return response.json(); })
+      .then(function(units) {
+        unitSelect.innerHTML = '<option value="">-- All Reporting Units --</option>';
+        units.forEach(function(unit) {
+          unitSelect.innerHTML += '<option value="' + unit.id + '">' + unit.name + '</option>';
+        });
+        unitSelect.disabled = false;
+        applyFilter();
+      });
+  });
+
+  unitSelect.addEventListener('change', applyFilter);
+  periodSelect.addEventListener('change', applyFilter);
+
+  // On row click, autofill dropdowns
+  document.querySelectorAll('.clickable-row').forEach(function(row) {
+    row.addEventListener('click', function() {
+      var entityId = this.dataset.entityId;
+      var unitId = this.dataset.unitId;
+      var periodId = this.dataset.periodId;
+
+      entitySelect.value = entityId;
+      periodSelect.value = periodId;
+
+      fetch('/rp_transactions/reporting_units?reporting_entity_id=' + entityId)
+        .then(function(response) { return response.json(); })
+        .then(function(units) {
+          unitSelect.innerHTML = '<option value="">-- All Reporting Units --</option>';
+          units.forEach(function(unit) {
+            unitSelect.innerHTML += '<option value="' + unit.id + '">' + unit.name + '</option>';
+          });
+          unitSelect.value = unitId;
+          unitSelect.disabled = false;
+        });
+    });
+  });
+</script>

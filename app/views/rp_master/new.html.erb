@@ -16,11 +16,6 @@
 
     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
       <div class="form-group">
-        <%= f.label :reporting_entity_id, "Reporting Entity" %>
-        <%= f.select :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name, @reporting_entity_id.to_i), { prompt: "Select Reporting Entity" } %>
-      </div>
-
-      <div class="form-group">
         <%= f.label :salutation %>
         <%= f.select :salutation, ["Mr.", "Mrs.", "Ms.", "Dr.", "M/s"], { prompt: "Select Salutation" } %>
       </div>
@@ -49,19 +44,16 @@
         <%= f.label :dob_or_incorporation, "DOB / Incorporation Date" %>
         <%= f.date_field :dob_or_incorporation, max: Date.today %>
       </div>
-
+     <div class="form-group">
+        <%= f.label :related_to_director, "Related to Director" %>
+        <%= f.select :related_to_director, RpMaster.where(category: "Director/KMP").pluck(:name), { prompt: "-- Select Director --", include_blank: "NA" } %>
+      </div>
+    
       <div class="form-group" style="grid-column: span 2;">
         <%= f.label :other_guidelines, "Other Guidelines / Remarks" %>
         <%= f.text_area :other_guidelines, placeholder: "Enter remarks", rows: 1 %>
       </div>
 
-      <div class="form-group">
-        <%= f.label :related_to_director, "Related to Director" %>
-        <div class="radio-group">
-          <label><%= f.radio_button :related_to_director, true %> Yes</label>
-          <label><%= f.radio_button :related_to_director, false %> No</label>
-        </div>
-      </div>
 
       <div class="form-group">
         <%= f.label :related_party_sebi, "RP as per SEBI" %>
@@ -96,10 +88,10 @@
       </div>
 
       <div class="form-group">
-        <%= f.label :active, "Is Active?" %>
+        <%= f.label :active, "Status" %>
         <div class="radio-group">
-          <label><%= f.radio_button :active, true %> Yes</label>
-          <label><%= f.radio_button :active, false %> No</label>
+          <label><%= f.radio_button :active, true %> Active</label>
+          <label><%= f.radio_button :active, false %> In-Active</label>
         </div>
       </div>
     </div>

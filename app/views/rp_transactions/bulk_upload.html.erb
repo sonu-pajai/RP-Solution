@@ -1,0 +1,25 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP Transaction", rp_transactions_path %><span class="separator">›</span> Bulk Upload
+<% end %>
+
+<div class="page-header">
+  <h2>Bulk Upload RP Transactions</h2>
+</div>
+
+<div class="card">
+  <p style="margin-bottom: 16px; color: #64748b; font-size: 13px;">
+    Upload an Excel file with columns: <strong>Reporting Entity, Period, Reporting Unit, Counterparty, Type of Transaction, Nature of Transaction, Sub-Nature of Transaction, Amount</strong>
+  </p>
+
+  <%= form_tag bulk_upload_rp_transactions_path, multipart: true do %>
+    <div class="form-group">
+      <label for="file">Select File (.xlsx)</label>
+      <%= file_field_tag :file, accept: ".xlsx,.xls,.csv", class: "form-control" %>
+    </div>
+
+    <div style="margin-top: 16px;">
+      <%= submit_tag "Upload", class: "btn-primary" %>
+      <%= link_to "Cancel", rp_transactions_path, class: "btn-secondary", style: "margin-left: 8px;" %>
+    </div>
+  <% end %>
+</div>

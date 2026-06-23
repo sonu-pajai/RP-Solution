@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_21_114941) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_21_115001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -80,7 +80,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_21_114941) do
     t.boolean "related_party_ind_as24"
     t.string "other_guidelines"
     t.boolean "active"
-    t.boolean "related_to_director", default: false
+    t.string "related_to_director", default: "false"
     t.bigint "created_by_id"
     t.bigint "approved_by_id"
     t.bigint "admin_approved_by_id"
@@ -89,6 +89,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_21_114941) do
     t.index ["created_by_id"], name: "index_rp_masters_on_created_by_id"
     t.index ["period_id"], name: "index_rp_masters_on_period_id"
     t.index ["reporting_entity_id"], name: "index_rp_masters_on_reporting_entity_id"
+  end
+
+  create_table "rp_transactions", force: :cascade do |t|
+    t.bigint "reporting_entity_id", null: false
+    t.bigint "reporting_unit_id", null: false
+    t.bigint "period_id", null: false
+    t.string "counterparty", null: false
+    t.string "transaction_type", null: false
+    t.string "nature", null: false
+    t.string "sub_nature", null: false
+    t.decimal "amount", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["period_id"], name: "index_rp_transactions_on_period_id"
+    t.index ["reporting_entity_id"], name: "index_rp_transactions_on_reporting_entity_id"
+    t.index ["reporting_unit_id"], name: "index_rp_transactions_on_reporting_unit_id"
   end
 
   create_table "transactions", force: :cascade do |t|
@@ -125,4 +141,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_21_114941) do
   add_foreign_key "rp_masters", "users", column: "admin_approved_by_id"
   add_foreign_key "rp_masters", "users", column: "approved_by_id"
   add_foreign_key "rp_masters", "users", column: "created_by_id"
+  add_foreign_key "rp_transactions", "periods"
+  add_foreign_key "rp_transactions", "reporting_entities"
+  add_foreign_key "rp_transactions", "reporting_units"
 end

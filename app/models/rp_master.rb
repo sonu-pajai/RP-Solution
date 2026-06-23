@@ -10,10 +10,18 @@ class RpMaster < ApplicationRecord
   validates :name, presence: true
   validates :category, presence: true
   validates :specific_relationship, presence: true
+  validates :pan, format: { with: /\A[A-Z]{5}[0-9]{4}[A-Z]\z/, message: "must be a valid PAN (e.g. ABCDE1234F)" }, allow_blank: true
+  validate :dob_must_be_in_past
 
   private
 
   def generate_unique_code
     update_column(:unique_code, "RP_#{id}")
+  end
+
+  def dob_must_be_in_past
+    if dob_or_incorporation.present? && dob_or_incorporation >= Date.current
+      errors.add(:dob_or_incorporation, "must be before today")
+    end
   end
 end

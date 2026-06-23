@@ -58,6 +58,8 @@
           </th>
           <th>Unique Code</th>
           <th>Name</th>
+          <th>PAN</th>
+          <th>Relationship</th>
           <th>Related Party From</th>
           <th>Related Party Upto</th>
           <th>Any Other Input (Custom)</th>
@@ -69,13 +71,15 @@
             <td><%= check_box_tag "rp_master_ids[]", rp.id, false, class: "rp-checkbox" %></td>
             <td><%= rp.unique_code %></td>
             <td><%= rp.name %></td>
+            <td><%= rp.pan %></td>
+            <td><%= rp.specific_relationship %></td>
             <td><%= date_field_tag "related_party_from[#{rp.id}]", nil, style: "padding:6px 8px; border:1px solid #d1d5db; border-radius:4px; font-size:13px; width:100%;" %></td>
             <td><%= date_field_tag "related_party_upto[#{rp.id}]", nil, style: "padding:6px 8px; border:1px solid #d1d5db; border-radius:4px; font-size:13px; width:100%;" %></td>
             <td><%= text_field_tag "custom_input[#{rp.id}]", nil, placeholder: "Enter value", style: "padding:6px 8px; border:1px solid #d1d5db; border-radius:4px; font-size:13px; width:100%;" %></td>
           </tr>
         <% end %>
         <% if @rp_masters.empty? %>
-          <tr><td colspan="6" class="empty-row">No records found.</td></tr>
+          <tr><td colspan="8" class="empty-row">No records found.</td></tr>
         <% end %>
       </tbody>
     </table>

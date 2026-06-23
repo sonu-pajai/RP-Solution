@@ -23,4 +23,12 @@ Rails.application.routes.draw do
   post "rp_list_consolidation/bulk_upload", to: "rp_list_consolidation#bulk_upload"
   get "rp_list_consolidation/template", to: "rp_list_consolidation#template", as: :rp_list_consolidation_template
   get "rp_consolidation_output", to: "rp_consolidation_output#index", as: :rp_consolidation_output
+  get "rp_transactions", to: "rp_transactions#index", as: :rp_transactions
+  get "rp_transactions/new", to: "rp_transactions#new", as: :new_rp_transaction
+  post "rp_transactions", to: "rp_transactions#create"
+  get "rp_transactions/bulk_upload", to: "rp_transactions#bulk_upload", as: :bulk_upload_rp_transactions
+  post "rp_transactions/bulk_upload", to: "rp_transactions#bulk_upload"
+  get "rp_transactions/reporting_units", to: "rp_transactions#reporting_units"
+  get "rp_transactions/sub_natures", to: "rp_transactions#sub_natures"
+  get "rp_transactions/transaction_types", to: "rp_transactions#transaction_types"
 end

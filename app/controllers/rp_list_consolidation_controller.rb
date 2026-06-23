@@ -67,11 +67,24 @@ class RpListConsolidationController < ApplicationController
         return
       end
 
+      entity = ReportingEntity.find_by(id: reporting_entity_id)
+      period = Period.find_by(id: period_id)
+
+      unless entity && period
+        redirect_to rp_list_consolidation_bulk_upload_path, alert: "Invalid Reporting Entity or Period."
+        return
+      end
+
       require "csv"
       count = 0
-      CSV.foreach(file.path, headers: true) do |row|
-        rp_master = RpMaster.find_by(unique_code: row["Unique Code"])
-        next unless rp_master
+      errors = []
+
+      CSV.foreach(file.path, headers: true).with_index(2) do |row, line|
+        rp_master = RpMaster.find_by(unique_code: row["Unique Code"]&.strip)
+        unless rp_master
+          errors << "Row #{line}: Unique Code '#{row['Unique Code']}' not found"
+          next
+        end
 
         record = RpConsolidation.find_or_initialize_by(
           rp_master_id: rp_master.id,
@@ -83,11 +96,19 @@ class RpListConsolidationController < ApplicationController
           related_party_upto: row["Related Party Upto"],
           custom_input: row["Any Other Input (Custom)"]
         )
-        record.save!
-        count += 1
+
+        if record.save
+          count += 1
+        else
+          errors << "Row #{line}: #{record.errors.full_messages.join(', ')}"
+        end
       end
 
-      redirect_to rp_list_consolidation_path(reporting_entity_id: reporting_entity_id, period_id: period_id), notice: "#{count} records uploaded successfully."
+      if errors.empty?
+        redirect_to rp_list_consolidation_path(reporting_entity_id: reporting_entity_id, period_id: period_id), notice: "#{count} records uploaded successfully."
+      else
+        redirect_to rp_list_consolidation_bulk_upload_path, alert: "#{count} valid records created. #{errors.size} skipped. #{errors.first(5).join(' | ')}"
+      end
     end
   end
 
