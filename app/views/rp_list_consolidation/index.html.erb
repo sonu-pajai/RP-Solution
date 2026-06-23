@@ -41,7 +41,7 @@
         <%= link_to "Clear", rp_list_consolidation_path(reporting_entity_id: @reporting_entity_id, period_id: @period_id, tab: @tab), class: "action-link" %>
       <% end %>
       <%= link_to "Export CSV", rp_list_consolidation_export_path(reporting_entity_id: @reporting_entity_id, period_id: @period_id, search: params[:search]), class: "btn-primary btn-sm btn-outline" %>
-      <%= link_to "Bulk Upload", rp_list_consolidation_bulk_upload_path, class: "btn-primary btn-sm btn-outline" %>
+      <%= link_to "Bulk Upload", rp_list_consolidation_bulk_upload_path(reporting_entity_id: @reporting_entity_id, period_id: @period_id), class: "btn-primary btn-sm btn-outline" %>
     </div>
   </div>
 

@@ -76,13 +76,17 @@ class RpListConsolidationController < ApplicationController
   end
 
   def bulk_upload
+    @reporting_entity_id = params[:reporting_entity_id]
+    @period_id = params[:period_id]
+
     if request.post?
       file = params[:file]
       reporting_entity_id = params[:reporting_entity_id]
       period_id = params[:period_id]
+      mode = params[:mode] || "create"
 
       if file.blank? || reporting_entity_id.blank? || period_id.blank?
-        redirect_to rp_list_consolidation_bulk_upload_path, alert: "Please select a file, reporting entity, and period."
+        redirect_to rp_list_consolidation_bulk_upload_path(reporting_entity_id: reporting_entity_id, period_id: period_id), alert: "Please select a file, reporting entity, and period."
         return
       end
 
@@ -90,12 +94,14 @@ class RpListConsolidationController < ApplicationController
       period = Period.find_by(id: period_id)
 
       unless entity && period
-        redirect_to rp_list_consolidation_bulk_upload_path, alert: "Invalid Reporting Entity or Period."
+        redirect_to rp_list_consolidation_bulk_upload_path(reporting_entity_id: reporting_entity_id, period_id: period_id), alert: "Invalid Reporting Entity or Period."
         return
       end
 
       require "csv"
-      count = 0
+      created = 0
+      updated = 0
+      deleted = 0
       errors = []
 
       CSV.foreach(file.path, headers: true).with_index(2) do |row, line|
@@ -105,38 +111,73 @@ class RpListConsolidationController < ApplicationController
           next
         end
 
-        record = RpConsolidation.find_or_initialize_by(
-          rp_master_id: rp_master.id,
-          reporting_entity_id: reporting_entity_id,
-          period_id: period_id
-        )
-        record.assign_attributes(
-          related_party_from: row["Related Party From"],
-          related_party_upto: row["Related Party Upto"],
-          custom_input: row["Any Other Input (Custom)"]
-        )
-
-        if record.save
-          count += 1
+        if mode == "delete"
+          record = RpConsolidation.find_by(
+            rp_master_id: rp_master.id,
+            reporting_entity_id: reporting_entity_id,
+            period_id: period_id,
+            related_party_from: row["Related Party From"],
+            related_party_upto: row["Related Party Upto"]
+          )
+          if record
+            record.destroy
+            deleted += 1
+          else
+            errors << "Row #{line}: No matching record found for deletion"
+          end
+        elsif mode == "update"
+          record = RpConsolidation.find_by(
+            rp_master_id: rp_master.id,
+            reporting_entity_id: reporting_entity_id,
+            period_id: period_id
+          )
+          if record
+            record.assign_attributes(
+              related_party_from: row["Related Party From"],
+              related_party_upto: row["Related Party Upto"],
+              custom_input: row["Any Other Input (Custom)"]
+            )
+            record.save ? updated += 1 : (errors << "Row #{line}: #{record.errors.full_messages.join(', ')}")
+          else
+            errors << "Row #{line}: No existing record found for Unique Code '#{row['Unique Code']}'"
+          end
         else
-          errors << "Row #{line}: #{record.errors.full_messages.join(', ')}"
+          record = RpConsolidation.new(
+            rp_master_id: rp_master.id,
+            reporting_entity_id: reporting_entity_id,
+            period_id: period_id,
+            related_party_from: row["Related Party From"],
+            related_party_upto: row["Related Party Upto"],
+            custom_input: row["Any Other Input (Custom)"]
+          )
+          record.save ? created += 1 : (errors << "Row #{line}: #{record.errors.full_messages.join(', ')}")
         end
       end
 
+      msg = "#{created} created, #{updated} updated, #{deleted} deleted."
       if errors.empty?
-        redirect_to rp_list_consolidation_path(reporting_entity_id: reporting_entity_id, period_id: period_id), notice: "#{count} records uploaded successfully."
+        redirect_to rp_list_consolidation_path(reporting_entity_id: reporting_entity_id, period_id: period_id, tab: "submitted"), notice: msg
       else
-        redirect_to rp_list_consolidation_bulk_upload_path, alert: "#{count} valid records created. #{errors.size} skipped. #{errors.first(5).join(' | ')}"
+        redirect_to rp_list_consolidation_bulk_upload_path(reporting_entity_id: reporting_entity_id, period_id: period_id), alert: "#{msg} #{errors.size} skipped. #{errors.first(5).join(' | ')}"
       end
     end
   end
 
   def template
     require "csv"
+    mode = params[:mode] || "create"
     csv_data = CSV.generate do |csv|
       csv << ["Unique Code", "Name", "Related Party From", "Related Party Upto", "Any Other Input (Custom)"]
+      case mode
+      when "update"
+        csv << ["RP_1", "Sample Name", "2025-04-01", "2026-03-31", "Updated value"]
+      when "delete"
+        csv << ["RP_1", "Sample Name", "2025-04-01", "2026-03-31", ""]
+      else
+        csv << ["RP_1", "Sample Name", "2025-04-01", "2026-03-31", "Custom note"]
+      end
     end
-    send_data csv_data, filename: "rp_list_consolidation_template.csv", type: "text/csv"
+    send_data csv_data, filename: "rp_list_consolidation_#{mode}_template.csv", type: "text/csv"
   end
 
   def edit

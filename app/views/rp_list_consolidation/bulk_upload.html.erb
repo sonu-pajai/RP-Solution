@@ -1,10 +1,10 @@
 <% content_for :breadcrumb do %>
-  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP List", rp_list_path %><span class="separator">›</span> <%= link_to "RP List Consolidation", rp_list_consolidation_path %><span class="separator">›</span> Bulk Upload
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP List", rp_list_path %><span class="separator">›</span> <%= link_to "RP List Consolidation", rp_list_consolidation_path(reporting_entity_id: @reporting_entity_id, period_id: @period_id) %><span class="separator">›</span> Bulk Upload
 <% end %>
 
 <div class="page-header">
   <h2>Bulk Upload - RP List Consolidation</h2>
-  <%= link_to "← Back", rp_list_consolidation_path, class: "action-link" %>
+  <%= link_to "← Back", rp_list_consolidation_path(reporting_entity_id: @reporting_entity_id, period_id: @period_id), class: "action-link" %>
 </div>
 
 <div class="card">
@@ -16,23 +16,34 @@
     </p>
   </div>
 
-  <div class="mb-24">
-    <%= link_to rp_list_consolidation_template_path, class: "sample-download" do %>
+  <div class="flex-row-center mb-24">
+    <a href="#" id="download-template" class="sample-download">
       <span class="sample-download-icon">📥</span>
-      <span><strong>Download Template</strong><br><span class="sample-download-subtitle">CSV template with correct headers</span></span>
-    <% end %>
+      <span><strong>Download Template</strong><br><span class="sample-download-subtitle">CSV template based on selected mode</span></span>
+    </a>
+
+    <div class="form-group mb-0">
+      <label>Upload Mode</label>
+      <%= select_tag :mode, options_for_select([["Create", "create"], ["Update", "update"], ["Delete", "delete"]], "create"), class: "form-control", form: "bulk-upload-form", id: "mode-select" %>
+    </div>
   </div>
 
-  <%= form_with(url: rp_list_consolidation_bulk_upload_path, method: :post, multipart: true) do |f| %>
+  <%= form_with(url: rp_list_consolidation_bulk_upload_path, method: :post, multipart: true, id: "bulk-upload-form") do |f| %>
     <div class="grid-2 mb-16">
       <div class="form-group mb-0">
         <label>Reporting Entity</label>
-        <%= select_tag :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name), prompt: "Select Reporting Entity", class: "form-control" %>
+        <%= select_tag :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name, @reporting_entity_id.to_i), prompt: "Select Reporting Entity", class: "form-control", disabled: @reporting_entity_id.present? %>
+        <% if @reporting_entity_id.present? %>
+          <%= hidden_field_tag :reporting_entity_id, @reporting_entity_id %>
+        <% end %>
       </div>
 
       <div class="form-group mb-0">
         <label>Period</label>
-        <%= select_tag :period_id, options_from_collection_for_select(Period.all, :id, :month), prompt: "Select Period", class: "form-control" %>
+        <%= select_tag :period_id, options_from_collection_for_select(Period.all, :id, :month, @period_id.to_i), prompt: "Select Period", class: "form-control", disabled: @period_id.present? %>
+        <% if @period_id.present? %>
+          <%= hidden_field_tag :period_id, @period_id %>
+        <% end %>
       </div>
     </div>
 
@@ -44,16 +55,27 @@
 
     <div class="warning-box">
       <p>
-        <strong>💡 Validations:</strong><br>
-        • Reporting Entity and Period must be selected<br>
-        • Unique Code must exist in RP Master<br>
-        • Rows with invalid Unique Code will be skipped
+        <strong>💡 Create:</strong> Inserts new consolidation records.<br>
+        <strong>💡 Update:</strong> Matches by Unique Code — updates From Date, To Date & Custom Input.<br>
+        <strong>💡 Delete:</strong> Matches by Unique Code + From Date + To Date — deletes matching records.
       </p>
     </div>
 
     <div class="flex-row">
       <%= f.submit "⬆ Upload", class: "btn-primary btn-lg" %>
-      <%= link_to "Cancel", rp_list_consolidation_path, class: "btn-secondary" %>
+      <%= link_to "Cancel", rp_list_consolidation_path(reporting_entity_id: @reporting_entity_id, period_id: @period_id), class: "btn-secondary" %>
     </div>
   <% end %>
 </div>
+
+<script>
+  var modeSelect = document.getElementById('mode-select');
+  var downloadLink = document.getElementById('download-template');
+
+  function updateTemplateLink() {
+    downloadLink.href = '<%= rp_list_consolidation_template_path %>' + '?mode=' + modeSelect.value;
+  }
+
+  updateTemplateLink();
+  modeSelect.addEventListener('change', updateTemplateLink);
+</script>
