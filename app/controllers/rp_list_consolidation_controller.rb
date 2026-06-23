@@ -2,12 +2,26 @@ class RpListConsolidationController < ApplicationController
   def index
     @reporting_entity_id = params[:reporting_entity_id]
     @period_id = params[:period_id]
+    @tab = params[:tab] || "to_submit"
+
     if @reporting_entity_id.present? && @period_id.present?
-      @rp_masters = RpMaster.includes(:reporting_entity)
-      @rp_masters = @rp_masters.where(reporting_entity_id: @reporting_entity_id)
-      @rp_masters = @rp_masters.where("unique_code ILIKE ? OR name ILIKE ?", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
-      @rp_masters = @rp_masters.order(:created_at)
-      @rp_masters = @rp_masters.page(params[:page])
+      submitted_ids = RpConsolidation.where(reporting_entity_id: @reporting_entity_id, period_id: @period_id).pluck(:rp_master_id)
+
+      if @tab == "submitted"
+        @rp_consolidations = RpConsolidation.includes(:rp_master).where(reporting_entity_id: @reporting_entity_id, period_id: @period_id)
+        @rp_consolidations = @rp_consolidations.joins(:rp_master).where("rp_masters.unique_code ILIKE ? OR rp_masters.name ILIKE ?", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
+        @rp_consolidations = @rp_consolidations.order(:created_at)
+        @rp_consolidations = @rp_consolidations.page(params[:page])
+      else
+        @rp_masters = RpMaster.includes(:reporting_entity)
+        @rp_masters = @rp_masters.where.not(id: submitted_ids) if submitted_ids.any?
+        @rp_masters = @rp_masters.where("unique_code ILIKE ? OR name ILIKE ?", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
+        @rp_masters = @rp_masters.order(:created_at)
+        @rp_masters = @rp_masters.page(params[:page])
+      end
+
+      @to_submit_count = RpMaster.count - submitted_ids.size
+      @submitted_count = submitted_ids.size
     end
   end
 
@@ -123,5 +137,32 @@ class RpListConsolidationController < ApplicationController
       csv << ["Unique Code", "Name", "Related Party From", "Related Party Upto", "Any Other Input (Custom)"]
     end
     send_data csv_data, filename: "rp_list_consolidation_template.csv", type: "text/csv"
+  end
+
+  def edit
+    @rp_consolidation = RpConsolidation.includes(:rp_master).find(params[:id])
+  end
+
+  def update
+    @rp_consolidation = RpConsolidation.find(params[:id])
+    if @rp_consolidation.update(consolidation_params)
+      redirect_to rp_list_consolidation_path(reporting_entity_id: @rp_consolidation.reporting_entity_id, period_id: @rp_consolidation.period_id, tab: "submitted"), notice: "Record updated."
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @rp_consolidation = RpConsolidation.find(params[:id])
+    reporting_entity_id = @rp_consolidation.reporting_entity_id
+    period_id = @rp_consolidation.period_id
+    @rp_consolidation.destroy
+    redirect_to rp_list_consolidation_path(reporting_entity_id: reporting_entity_id, period_id: period_id, tab: "submitted"), notice: "Record deleted."
+  end
+
+  private
+
+  def consolidation_params
+    params.require(:rp_consolidation).permit(:related_party_from, :related_party_upto, :custom_input)
   end
 end

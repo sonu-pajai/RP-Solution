@@ -1,0 +1,51 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP List", rp_list_path %><span class="separator">›</span> <%= link_to "RP List Consolidation", rp_list_consolidation_path(reporting_entity_id: @rp_consolidation.reporting_entity_id, period_id: @rp_consolidation.period_id, tab: "submitted") %><span class="separator">›</span> Edit
+<% end %>
+
+<div class="page-header">
+  <h2>Edit Consolidation — <%= @rp_consolidation.rp_master.name %></h2>
+</div>
+
+<div class="card">
+  <%= form_with model: @rp_consolidation, url: update_rp_consolidation_path(@rp_consolidation), method: :patch do |f| %>
+    <% if @rp_consolidation.errors.any? %>
+      <div class="form-errors mb-16">
+        <% @rp_consolidation.errors.full_messages.each do |msg| %>
+          <p><%= msg %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Unique Code</label>
+        <p class="detail-value"><%= @rp_consolidation.rp_master.unique_code %></p>
+      </div>
+
+      <div class="form-group">
+        <label>Name</label>
+        <p class="detail-value"><%= @rp_consolidation.rp_master.name %></p>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :related_party_from, "Related Party From" %>
+        <%= f.date_field :related_party_from, class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :related_party_upto, "Related Party Upto" %>
+        <%= f.date_field :related_party_upto, class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :custom_input, "Any Other Input (Custom)" %>
+        <%= f.text_field :custom_input, class: "form-control" %>
+      </div>
+    </div>
+
+    <div class="mt-16">
+      <%= f.submit "Update", class: "btn-primary" %>
+      <%= link_to "Cancel", rp_list_consolidation_path(reporting_entity_id: @rp_consolidation.reporting_entity_id, period_id: @rp_consolidation.period_id, tab: "submitted"), class: "btn-secondary ml-8" %>
+    </div>
+  <% end %>
+</div>

@@ -23,6 +23,9 @@ Rails.application.routes.draw do
   get "rp_list_consolidation/bulk_upload", to: "rp_list_consolidation#bulk_upload", as: :rp_list_consolidation_bulk_upload
   post "rp_list_consolidation/bulk_upload", to: "rp_list_consolidation#bulk_upload"
   get "rp_list_consolidation/template", to: "rp_list_consolidation#template", as: :rp_list_consolidation_template
+  get "rp_list_consolidation/:id/edit", to: "rp_list_consolidation#edit", as: :edit_rp_consolidation
+  patch "rp_list_consolidation/:id", to: "rp_list_consolidation#update", as: :update_rp_consolidation
+  delete "rp_list_consolidation/:id", to: "rp_list_consolidation#destroy", as: :destroy_rp_consolidation
   get "rp_consolidation_output", to: "rp_consolidation_output#index", as: :rp_consolidation_output
   get "rp_transactions", to: "rp_transactions#index", as: :rp_transactions
   get "rp_transactions/new", to: "rp_transactions#new", as: :new_rp_transaction
