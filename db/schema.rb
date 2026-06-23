@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_21_115001) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_21_115002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -19,6 +19,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_21_115001) do
     t.string "financial_year"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["month"], name: "index_periods_on_month"
   end
 
   create_table "relationship_categories", force: :cascade do |t|
@@ -38,6 +39,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_21_115001) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_reporting_entities_on_name", unique: true
   end
 
   create_table "reporting_units", force: :cascade do |t|
@@ -59,6 +61,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_21_115001) do
     t.datetime "updated_at", null: false
     t.index ["period_id"], name: "index_rp_consolidations_on_period_id"
     t.index ["reporting_entity_id"], name: "index_rp_consolidations_on_reporting_entity_id"
+    t.index ["rp_master_id", "reporting_entity_id", "period_id"], name: "idx_rp_consolidations_composite"
     t.index ["rp_master_id"], name: "index_rp_consolidations_on_rp_master_id"
   end
 
@@ -84,11 +87,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_21_115001) do
     t.bigint "created_by_id"
     t.bigint "approved_by_id"
     t.bigint "admin_approved_by_id"
+    t.index ["active"], name: "index_rp_masters_on_active"
     t.index ["admin_approved_by_id"], name: "index_rp_masters_on_admin_approved_by_id"
     t.index ["approved_by_id"], name: "index_rp_masters_on_approved_by_id"
+    t.index ["category"], name: "index_rp_masters_on_category"
     t.index ["created_by_id"], name: "index_rp_masters_on_created_by_id"
+    t.index ["name"], name: "index_rp_masters_on_name"
     t.index ["period_id"], name: "index_rp_masters_on_period_id"
     t.index ["reporting_entity_id"], name: "index_rp_masters_on_reporting_entity_id"
+    t.index ["unique_code"], name: "index_rp_masters_on_unique_code"
   end
 
   create_table "rp_transactions", force: :cascade do |t|
@@ -103,6 +110,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_21_115001) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["period_id"], name: "index_rp_transactions_on_period_id"
+    t.index ["reporting_entity_id", "reporting_unit_id", "period_id", "counterparty", "nature", "sub_nature", "transaction_type"], name: "idx_rp_transactions_upsert_match"
     t.index ["reporting_entity_id"], name: "index_rp_transactions_on_reporting_entity_id"
     t.index ["reporting_unit_id"], name: "index_rp_transactions_on_reporting_unit_id"
   end
@@ -116,6 +124,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_21_115001) do
     t.string "sebi"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["nature", "sub_type"], name: "idx_transactions_nature_sub_type"
+    t.index ["nature"], name: "index_transactions_on_nature"
   end
 
   create_table "users", force: :cascade do |t|
