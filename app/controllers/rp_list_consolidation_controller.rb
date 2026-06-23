@@ -3,10 +3,11 @@ class RpListConsolidationController < ApplicationController
     @reporting_entity_id = params[:reporting_entity_id]
     @period_id = params[:period_id]
     if @reporting_entity_id.present? && @period_id.present?
-      @rp_masters = RpMaster.all
+      @rp_masters = RpMaster.includes(:reporting_entity)
       @rp_masters = @rp_masters.where(reporting_entity_id: @reporting_entity_id)
       @rp_masters = @rp_masters.where("unique_code ILIKE ? OR name ILIKE ?", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
       @rp_masters = @rp_masters.order(:created_at)
+      @rp_masters = @rp_masters.page(params[:page])
     end
   end
 

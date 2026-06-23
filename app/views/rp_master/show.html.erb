@@ -1,0 +1,97 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP List", rp_list_path %><span class="separator">›</span> <%= link_to "RP Master", rp_master_path %><span class="separator">›</span> Details
+<% end %>
+
+<div class="page-header">
+  <h2>RP Master — <%= @rp_master.name %></h2>
+  <div>
+    <%= link_to "Edit", edit_rp_master_path(@rp_master), class: "btn-primary btn-sm" %>
+    <%= link_to "Delete", destroy_rp_master_path(@rp_master), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "btn-sm btn-danger ml-8" %>
+    <%= link_to "← Back", rp_master_path, class: "action-link ml-8" %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="detail-grid">
+    <div>
+      <p class="detail-label">Unique Code</p>
+      <p class="detail-value"><%= @rp_master.unique_code %></p>
+    </div>
+    <div>
+      <p class="detail-label">Salutation</p>
+      <p class="detail-value"><%= @rp_master.salutation %></p>
+    </div>
+    <div>
+      <p class="detail-label">Name</p>
+      <p class="detail-value"><%= @rp_master.name %></p>
+    </div>
+    <div>
+      <p class="detail-label">PAN</p>
+      <p class="detail-value"><%= @rp_master.pan %></p>
+    </div>
+    <div>
+      <p class="detail-label">Category</p>
+      <p class="detail-value"><%= @rp_master.category %></p>
+    </div>
+    <div>
+      <p class="detail-label">Specific Relationship</p>
+      <p class="detail-value"><%= @rp_master.specific_relationship %></p>
+    </div>
+    <div>
+      <p class="detail-label">Related to Director</p>
+      <p class="detail-value"><%= @rp_master.related_to_director %></p>
+    </div>
+    <div>
+      <p class="detail-label">DOB / Incorporation</p>
+      <p class="detail-value"><%= @rp_master.dob_or_incorporation %></p>
+    </div>
+    <div>
+      <p class="detail-label">Reporting Entity</p>
+      <p class="detail-value"><%= @rp_master.reporting_entity&.name %></p>
+    </div>
+    <div>
+      <p class="detail-label">Period</p>
+      <p class="detail-value"><%= @rp_master.period ? "#{@rp_master.period.month} - #{@rp_master.period.financial_year}" : "—" %></p>
+    </div>
+    <div>
+      <p class="detail-label">RP as per SEBI</p>
+      <p class="detail-value"><%= @rp_master.related_party_sebi ? "Yes" : "No" %></p>
+    </div>
+    <div>
+      <p class="detail-label">RP as per Companies Act</p>
+      <p class="detail-value"><%= @rp_master.related_party_companies_act ? "Yes" : "No" %></p>
+    </div>
+    <div>
+      <p class="detail-label">RP as per AS-18</p>
+      <p class="detail-value"><%= @rp_master.related_party_as18 ? "Yes" : "No" %></p>
+    </div>
+    <div>
+      <p class="detail-label">RP as per IND AS-24</p>
+      <p class="detail-value"><%= @rp_master.related_party_ind_as24 ? "Yes" : "No" %></p>
+    </div>
+    <div>
+      <p class="detail-label">Other Guidelines</p>
+      <p class="detail-value"><%= @rp_master.other_guidelines.presence || "—" %></p>
+    </div>
+    <div>
+      <p class="detail-label">Status</p>
+      <p class="detail-value"><%= @rp_master.active ? "Active" : "Inactive" %></p>
+    </div>
+    <div>
+      <p class="detail-label">Created By</p>
+      <p class="detail-value"><%= @rp_master.created_by&.name || "—" %></p>
+    </div>
+    <div>
+      <p class="detail-label">Approved By</p>
+      <p class="detail-value"><%= @rp_master.approved_by&.name || "—" %></p>
+    </div>
+    <div>
+      <p class="detail-label">Admin Approved By</p>
+      <p class="detail-value"><%= @rp_master.admin_approved_by&.name || "—" %></p>
+    </div>
+    <div>
+      <p class="detail-label">Created At</p>
+      <p class="detail-value"><%= @rp_master.created_at.strftime("%d-%b-%Y %H:%M") %></p>
+    </div>
+  </div>
+</div>

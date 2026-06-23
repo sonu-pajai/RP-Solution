@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   get "rp_master/template", to: "rp_master#template", as: :rp_master_template
   get "rp_master/export", to: "rp_master#export", as: :rp_master_export
   get "rp_master/:id/edit", to: "rp_master#edit", as: :edit_rp_master
+  get "rp_master/:id", to: "rp_master#show", as: :show_rp_master
   patch "rp_master/:id", to: "rp_master#update", as: :update_rp_master
   delete "rp_master/:id", to: "rp_master#destroy", as: :destroy_rp_master
   get "rp_list_consolidation", to: "rp_list_consolidation#index", as: :rp_list_consolidation

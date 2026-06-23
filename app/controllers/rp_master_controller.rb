@@ -1,9 +1,9 @@
 class RpMasterController < ApplicationController
   def index
-    @rp_masters = RpMaster.all
-    @rp_masters = @rp_masters.where(reporting_entity_id: params[:reporting_entity_id]) if params[:reporting_entity_id].present?
+    @rp_masters = RpMaster.includes(:reporting_entity, :period, :created_by, :approved_by, :admin_approved_by)
     @rp_masters = @rp_masters.where("unique_code ILIKE ?", "%#{params[:unique_code]}%") if params[:unique_code].present?
     @rp_masters = @rp_masters.order(:created_at)
+    @rp_masters = @rp_masters.page(params[:page])
   end
 
   def new
@@ -24,6 +24,10 @@ class RpMasterController < ApplicationController
 
   def edit
     @rp_master = RpMaster.find(params[:id])
+  end
+
+  def show
+    @rp_master = RpMaster.includes(:reporting_entity, :period, :created_by, :approved_by, :admin_approved_by).find(params[:id])
   end
 
   def update
@@ -104,10 +108,10 @@ class RpMasterController < ApplicationController
 
   def export
     require "csv"
-    records = RpMaster.all
+    records = RpMaster.includes(:reporting_entity)
     records = records.where(reporting_entity_id: params[:reporting_entity_id]) if params[:reporting_entity_id].present?
     records = records.where("unique_code ILIKE ?", "%#{params[:unique_code]}%") if params[:unique_code].present?
-    records = records.includes(:reporting_entity).order(:created_at)
+    records = records.order(:created_at)
 
     csv_data = CSV.generate do |csv|
       csv << ["Reporting Entity", "Salutation", "Name", "PAN", "Category", "Specific Relationship", "DOB/Incorporation Date", "Related to Director", "RP as per SEBI", "RP as per Companies Act", "RP as per AS-18", "RP as per IND AS-24", "Other Guidelines", "Active"]

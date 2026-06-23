@@ -83,7 +83,8 @@
       </tbody>
     </table>
   <% end %>
-<% end %>
+
+  <%= render "shared/pagination", collection: @rp_masters %><% end %>
 
 <script>
   var entitySelect = document.getElementById('entity-select');

@@ -13,10 +13,11 @@ class RpTransactionsController < ApplicationController
     @rp_transactions = @rp_transactions.where(reporting_unit_id: @selected_unit_id) if @selected_unit_id
     @rp_transactions = @rp_transactions.where(period_id: @selected_period_id) if @selected_period_id
     @rp_transactions = @rp_transactions.order(created_at: :desc)
+    @rp_transactions = @rp_transactions.page(params[:page])
   end
 
   def show
-    @rp_transaction = RpTransaction.find(params[:id])
+    @rp_transaction = RpTransaction.includes(:reporting_entity, :reporting_unit, :period).find(params[:id])
   end
 
   def new

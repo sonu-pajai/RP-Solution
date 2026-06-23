@@ -58,16 +58,17 @@
             <td><%= rp.specific_relationship %></td>
             <td><%= rp.related_to_director %></td>
             <td><%= rp.dob_or_incorporation %></td>
-            <td><%= rp.related_party_sebi %></td>
-            <td><%= rp.related_party_companies_act %></td>
-            <td><%= rp.related_party_as18 %></td>
-            <td><%= rp.related_party_ind_as24 %></td>
+            <td><%= rp.related_party_sebi ? "Yes" : "No" %></td>
+            <td><%= rp.related_party_companies_act ? "Yes" : "No" %></td>
+            <td><%= rp.related_party_as18 ? "Yes" : "No" %></td>
+            <td><%= rp.related_party_ind_as24 ? "Yes" : "No" %></td>
             <td><%= rp.other_guidelines %></td>
-            <td><%= rp.active ? "Yes" : "No" %></td>
+            <td><%= rp.active ? "Active" : "In-Active" %></td>
             <td><%= rp.created_by&.name %></td>
             <td><%= rp.approved_by&.name %></td>
             <td><%= rp.admin_approved_by&.name %></td>
             <td class="nowrap">
+              <%= link_to "View", show_rp_master_path(rp), class: "action-link" %>
               <%= link_to "Edit", edit_rp_master_path(rp), class: "action-link" %>
               <%= link_to "Delete", destroy_rp_master_path(rp), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
             </td>
@@ -103,3 +104,5 @@
     }
   });
 </script>
+
+<%= render "shared/pagination", collection: @rp_masters %>

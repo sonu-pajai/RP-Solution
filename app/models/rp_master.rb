@@ -1,5 +1,5 @@
 class RpMaster < ApplicationRecord
-  belongs_to :reporting_entity
+  belongs_to :reporting_entity, optional: true
   belongs_to :period, optional: true
   belongs_to :created_by, class_name: "User", optional: true
   belongs_to :approved_by, class_name: "User", optional: true
@@ -20,8 +20,8 @@ class RpMaster < ApplicationRecord
   end
 
   def dob_must_be_in_past
-    if dob_or_incorporation.present? && dob_or_incorporation >= Date.current
-      errors.add(:dob_or_incorporation, "must be before today")
+    if dob_or_incorporation.present? && dob_or_incorporation > Date.current
+      errors.add(:dob_or_incorporation, "should not be a future date")
     end
   end
 end
