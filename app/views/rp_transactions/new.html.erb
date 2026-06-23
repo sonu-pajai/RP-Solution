@@ -19,13 +19,19 @@
     <div class="grid-2">
       <div class="form-group">
         <%= f.label :reporting_entity_id, "Reporting Entity" %>
-        <%= f.select :reporting_entity_id, @reporting_entities.map { |e| [e.name, e.id] }, { prompt: "-- Select --" }, { class: "form-control", id: "form_reporting_entity" } %>
+        <%= f.select :reporting_entity_id, @reporting_entities.map { |e| [e.name, e.id] }, { prompt: "-- Select --" }, { class: "form-control", id: "form_reporting_entity", disabled: @rp_transaction.reporting_entity_id.present? } %>
+        <% if @rp_transaction.reporting_entity_id.present? %>
+          <%= f.hidden_field :reporting_entity_id %>
+        <% end %>
       </div>
 
       <div class="form-group">
         <%= f.label :reporting_unit_id, "Reporting Unit" %>
         <% if @reporting_units.present? %>
-          <%= f.select :reporting_unit_id, @reporting_units.map { |u| [u.name, u.id] }, { prompt: "-- Select Reporting Unit --" }, { class: "form-control", id: "form_reporting_unit" } %>
+          <%= f.select :reporting_unit_id, @reporting_units.map { |u| [u.name, u.id] }, { prompt: "-- Select Reporting Unit --" }, { class: "form-control", id: "form_reporting_unit", disabled: @rp_transaction.reporting_unit_id.present? } %>
+          <% if @rp_transaction.reporting_unit_id.present? %>
+            <%= f.hidden_field :reporting_unit_id %>
+          <% end %>
         <% else %>
           <%= f.select :reporting_unit_id, [], { prompt: "-- Select Reporting Entity first --" }, { class: "form-control", id: "form_reporting_unit", disabled: true } %>
         <% end %>
@@ -33,7 +39,10 @@
 
       <div class="form-group">
         <%= f.label :period_id, "Period" %>
-        <%= f.select :period_id, @periods.map { |p| ["#{p.month} - #{p.financial_year}", p.id] }, { prompt: "-- Select --" }, { class: "form-control" } %>
+        <%= f.select :period_id, @periods.map { |p| ["#{p.month} - #{p.financial_year}", p.id] }, { prompt: "-- Select --" }, { class: "form-control", disabled: @rp_transaction.period_id.present? } %>
+        <% if @rp_transaction.period_id.present? %>
+          <%= f.hidden_field :period_id %>
+        <% end %>
       </div>
 
       <div class="form-group">
