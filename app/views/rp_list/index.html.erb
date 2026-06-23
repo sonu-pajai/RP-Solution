@@ -1,22 +1,36 @@
 <% content_for :breadcrumb do %>
-  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP List", rp_list_path %> <span class="separator">›</span> RP List
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> RP List
 <% end %>
 
-<h2>RP List</h2>
+<div class="page-header">
+  <h2>RP List</h2>
+</div>
 
-<div class="module-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
-  <%= link_to rp_master_path, class: "module-card" do %>
-    <div class="module-card-header blue">RP Master</div>
-    <div class="module-card-body">RP Master</div>
+<div class="rp-list-grid">
+  <%= link_to rp_master_path, class: "rp-list-card" do %>
+    <div class="rp-list-card-icon">📋</div>
+    <div class="rp-list-card-content">
+      <h3>RP Master</h3>
+      <p>Manage related party master data, create & maintain records</p>
+    </div>
+    <div class="rp-list-card-arrow">→</div>
   <% end %>
 
-  <%= link_to rp_list_consolidation_path, class: "module-card" do %>
-    <div class="module-card-header white-bordered">RP List Consolidation</div>
-    <div class="module-card-body">Input</div>
+  <%= link_to rp_list_consolidation_path, class: "rp-list-card" do %>
+    <div class="rp-list-card-icon">📥</div>
+    <div class="rp-list-card-content">
+      <h3>RP List Consolidation — Input</h3>
+      <p>Select and consolidate related parties for a period</p>
+    </div>
+    <div class="rp-list-card-arrow">→</div>
   <% end %>
 
-  <%= link_to rp_consolidation_output_path, class: "module-card" do %>
-    <div class="module-card-header white-bordered">RP List Consolidation</div>
-    <div class="module-card-body">Output</div>
+  <%= link_to rp_consolidation_output_path, class: "rp-list-card" do %>
+    <div class="rp-list-card-icon">📤</div>
+    <div class="rp-list-card-content">
+      <h3>RP List Consolidation — Output</h3>
+      <p>View consolidated related party list across entities</p>
+    </div>
+    <div class="rp-list-card-arrow">→</div>
   <% end %>
 </div>

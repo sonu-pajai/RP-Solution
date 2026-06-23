@@ -46,7 +46,7 @@
       </div>
      <div class="form-group">
         <%= f.label :related_to_director, "Related to Director" %>
-        <%= f.select :related_to_director, RpMaster.where(category: "Director/KMP").pluck(:name), { prompt: "-- Select Director --", include_blank: "NA" } %>
+        <%= f.select :related_to_director, RpMaster.where(category: "Director/KMP").pluck(:name), { prompt: "-- Select Director --", include_blank: "Select" } %>
       </div>
     
       <div class="form-group" style="grid-column: span 2;">

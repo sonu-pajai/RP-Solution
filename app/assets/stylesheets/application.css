@@ -396,3 +396,39 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ro
 /* Empty State */
 .text-center { text-align: center; }
 .text-muted { color: #94a3b8; }
+
+
+/* RP List Cards */
+.rp-list-grid {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.rp-list-card {
+  display: flex; align-items: center; gap: 16px;
+  background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 10px; padding: 20px 24px;
+  text-decoration: none; color: inherit;
+  transition: all 0.2s;
+}
+.rp-list-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+  transform: translateX(4px);
+}
+.rp-list-card-icon {
+  font-size: 32px; width: 56px; height: 56px;
+  display: flex; align-items: center; justify-content: center;
+  background: #f0f9ff; border-radius: 10px; flex-shrink: 0;
+}
+.rp-list-card-content { flex: 1; }
+.rp-list-card-content h3 {
+  margin: 0 0 4px; font-size: 15px;
+  font-weight: 600; color: #1e293b;
+}
+.rp-list-card-content p {
+  margin: 0; font-size: 13px; color: #64748b;
+}
+.rp-list-card-arrow {
+  font-size: 20px; color: #94a3b8;
+  transition: color 0.2s;
+}
+.rp-list-card:hover .rp-list-card-arrow { color: #3b82f6; }

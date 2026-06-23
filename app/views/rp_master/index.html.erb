@@ -13,26 +13,20 @@
 
 <div class="filter-bar">
   <div class="flex-row-end">
-    <div class="form-group flex-1 mb-0">
-      <%= label_tag :reporting_entity_id, "Reporting Entity" %>
-      <%= select_tag :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name, params[:reporting_entity_id].to_i), prompt: "All Entities", id: "entity-filter", class: "form-control" %>
+    <div class="form-group mb-0" style="max-width:500px;">
+      <%= text_field_tag :unique_code, params[:unique_code], placeholder: "Type Unique Code..", id: "code-filter", autocomplete: "off", class: "form-control" %>
     </div>
-
-    <div class="form-group flex-1 mb-0">
-      <%= label_tag :unique_code, "Unique Code" %>
-      <%= text_field_tag :unique_code, params[:unique_code], placeholder: "Type to search...", id: "code-filter", autocomplete: "off", class: "form-control" %>
-    </div>
-
-    <% if params[:reporting_entity_id].present? || params[:unique_code].present? %>
+    <a href="#" id="search-btn" class="btn-primary btn-sm">Search</a>
+    <% if params[:unique_code].present? %>
       <%= link_to "Clear", rp_master_path, class: "action-link" %>
     <% end %>
   </div>
 </div>
-
 <div class="overflow-x">
   <table class="data-table">
     <thead>
       <tr>
+        <th>Unique Code</th>
         <th>Salutation</th>
         <th>Name</th>
         <th>PAN</th>
@@ -40,7 +34,6 @@
         <th>Specific Relationship</th>
         <th>Related to Director</th>
         <th>DOB / Incorporation</th>
-        <th>Period</th>
         <th>RP SEBI</th>
         <th>RP Companies Act</th>
         <th>RP AS-18</th>
@@ -57,6 +50,7 @@
       <% if @rp_masters.present? %>
         <% @rp_masters.each do |rp| %>
           <tr>
+            <td><%= rp.unique_code %></td>
             <td><%= rp.salutation %></td>
             <td><%= rp.name %></td>
             <td><%= rp.pan %></td>
@@ -64,7 +58,6 @@
             <td><%= rp.specific_relationship %></td>
             <td><%= rp.related_to_director %></td>
             <td><%= rp.dob_or_incorporation %></td>
-            <td><%= rp.period ? "#{rp.period.month} - #{rp.period.financial_year}" : "" %></td>
             <td><%= rp.related_party_sebi %></td>
             <td><%= rp.related_party_companies_act %></td>
             <td><%= rp.related_party_as18 %></td>
@@ -87,21 +80,26 @@
   </table>
 </div>
 
+
 <script>
-  var debounceTimer;
-  var entityFilter = document.getElementById('entity-filter');
   var codeFilter = document.getElementById('code-filter');
+  var searchBtn = document.getElementById('search-btn');
 
   function applyFilters() {
     var params = [];
-    if (entityFilter.value) params.push('reporting_entity_id=' + entityFilter.value);
     if (codeFilter.value) params.push('unique_code=' + encodeURIComponent(codeFilter.value));
     window.location.href = '/rp_master' + (params.length ? '?' + params.join('&') : '');
   }
 
-  entityFilter.addEventListener('change', applyFilters);
-  codeFilter.addEventListener('input', function() {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(applyFilters, 500);
+  searchBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    applyFilters();
+  });
+
+  codeFilter.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      applyFilters();
+    }
   });
 </script>
