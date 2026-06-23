@@ -15,34 +15,73 @@ class RpTransactionsController < ApplicationController
     @rp_transactions = @rp_transactions.order(created_at: :desc)
   end
 
+  def show
+    @rp_transaction = RpTransaction.find(params[:id])
+  end
+
   def new
-    @rp_transaction = RpTransaction.new
+    @rp_transaction = RpTransaction.new(
+      reporting_entity_id: params[:reporting_entity_id],
+      reporting_unit_id: params[:reporting_unit_id],
+      period_id: params[:period_id]
+    )
     @reporting_entities = ReportingEntity.all
     @periods = Period.all
-    @counterparties = RpMaster.where(category: "Director/KMP", active: true).pluck(:name)
-    @transaction_types = Transaction.distinct.pluck(:transaction_type).compact
+    @counterparties = RpMaster.where(active: true).pluck(:name)
     @natures = Transaction.distinct.pluck(:nature).compact
-    @sub_natures = Transaction.distinct.pluck(:sub_type).compact
+    @reporting_units = params[:reporting_entity_id].present? ? ReportingUnit.where(reporting_entity_id: params[:reporting_entity_id]) : []
   end
 
   def create
     @rp_transaction = RpTransaction.new(rp_transaction_params)
     if @rp_transaction.save
-      redirect_to rp_transactions_path, notice: "Transaction created."
+      redirect_to rp_transactions_path(
+        reporting_entity_id: @rp_transaction.reporting_entity_id,
+        reporting_unit_id: @rp_transaction.reporting_unit_id,
+        period_id: @rp_transaction.period_id
+      ), notice: "Transaction created."
     else
       @reporting_entities = ReportingEntity.all
       @periods = Period.all
-      @counterparties = RpMaster.where(category: "Director/KMP", active: true).pluck(:name)
-      @transaction_types = Transaction.distinct.pluck(:transaction_type).compact
+      @counterparties = RpMaster.where(active: true).pluck(:name)
       @natures = Transaction.distinct.pluck(:nature).compact
-      @sub_natures = Transaction.distinct.pluck(:sub_type).compact
+      @reporting_units = @rp_transaction.reporting_entity_id.present? ? ReportingUnit.where(reporting_entity_id: @rp_transaction.reporting_entity_id) : []
       render :new, status: :unprocessable_entity
     end
+  end
+
+  def edit
+    @rp_transaction = RpTransaction.find(params[:id])
+    @reporting_entities = ReportingEntity.all
+    @periods = Period.all
+    @counterparties = RpMaster.where(active: true).pluck(:name)
+    @natures = Transaction.distinct.pluck(:nature).compact
+  end
+
+  def update
+    @rp_transaction = RpTransaction.find(params[:id])
+    if @rp_transaction.update(rp_transaction_params)
+      redirect_to rp_transactions_path, notice: "Transaction updated."
+    else
+      @reporting_entities = ReportingEntity.all
+      @periods = Period.all
+      @counterparties = RpMaster.where(active: true).pluck(:name)
+      @natures = Transaction.distinct.pluck(:nature).compact
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @rp_transaction = RpTransaction.find(params[:id])
+    @rp_transaction.destroy
+    redirect_to rp_transactions_path, notice: "Transaction deleted."
   end
 
   def bulk_upload
     if request.post?
       file = params[:file]
+      mode = params[:mode] || "create"
+
       if file.blank?
         redirect_to bulk_upload_rp_transactions_path, alert: "Please select a file."
         return
@@ -52,7 +91,8 @@ class RpTransactionsController < ApplicationController
       spreadsheet = Roo::Spreadsheet.open(file.path, extension: File.extname(file.original_filename))
       header = spreadsheet.row(1).map(&:strip)
       errors = []
-      count = 0
+      created = 0
+      updated = 0
 
       (2..spreadsheet.last_row).each do |i|
         row = Hash[[header, spreadsheet.row(i)].transpose]
@@ -74,30 +114,81 @@ class RpTransactionsController < ApplicationController
           next
         end
 
-        txn = RpTransaction.new(
-          reporting_entity: entity,
-          reporting_unit: unit,
-          period: period,
-          counterparty: row["Counterparty"],
-          transaction_type: row["Type of Transaction"],
-          nature: row["Nature of Transaction"],
-          sub_nature: row["Sub-Nature of Transaction"],
-          amount: row["Amount"]
-        )
+        counterparty_name = row["Counterparty"]&.strip
+        unless counterparty_name.present? && RpMaster.where(name: counterparty_name, active: true).exists?
+          errors << "Row #{i}: Counterparty '#{counterparty_name}' not found in active RP Master"
+          next
+        end
+
+        if mode == "upsert"
+          txn = RpTransaction.find_or_initialize_by(
+            reporting_entity: entity,
+            reporting_unit: unit,
+            period: period,
+            counterparty: counterparty_name,
+            nature: row["Nature of Transaction"],
+            sub_nature: row["Sub-Nature of Transaction"],
+            transaction_type: row["Type of Transaction"]
+          )
+          is_new = txn.new_record?
+          txn.amount = row["Amount"]
+        else
+          txn = RpTransaction.new(
+            reporting_entity: entity,
+            reporting_unit: unit,
+            period: period,
+            counterparty: counterparty_name,
+            transaction_type: row["Type of Transaction"],
+            nature: row["Nature of Transaction"],
+            sub_nature: row["Sub-Nature of Transaction"],
+            amount: row["Amount"]
+          )
+          is_new = true
+        end
 
         if txn.save
-          count += 1
+          is_new ? created += 1 : updated += 1
         else
           errors << "Row #{i}: #{txn.errors.full_messages.join(', ')}"
         end
       end
 
+      msg = "#{created} created, #{updated} updated."
       if errors.empty?
-        redirect_to rp_transactions_path, notice: "#{count} records uploaded successfully."
+        redirect_to rp_transactions_path, notice: msg
       else
-        redirect_to bulk_upload_rp_transactions_path, alert: "#{count} valid records created. #{errors.size} skipped. #{errors.first(5).join(' | ')}"
+        redirect_to bulk_upload_rp_transactions_path, alert: "#{msg} #{errors.size} skipped. #{errors.first(5).join(' | ')}"
       end
     end
+  end
+
+  def sample
+    require "csv"
+    csv_data = CSV.generate do |csv|
+      csv << ["Reporting Entity", "Reporting Unit", "Period", "Counterparty", "Nature of Transaction", "Sub-Nature of Transaction", "Type of Transaction", "Amount"]
+      csv << ["Sample Entity", "Sample Unit", "April", "Sample Name", "Asset", "Investment", "Purchase", "10000"]
+    end
+    send_data csv_data, filename: "rp_transactions_sample.csv", type: "text/csv"
+  end
+
+  def export
+    require "csv"
+    records = RpTransaction.includes(:reporting_entity, :reporting_unit, :period).order(created_at: :desc)
+    records = records.where(reporting_entity_id: params[:reporting_entity_id]) if params[:reporting_entity_id].present?
+    records = records.where(reporting_unit_id: params[:reporting_unit_id]) if params[:reporting_unit_id].present?
+    records = records.where(period_id: params[:period_id]) if params[:period_id].present?
+
+    csv_data = CSV.generate do |csv|
+      csv << ["Reporting Entity", "Reporting Unit", "Period", "Counterparty", "Nature of Transaction", "Sub-Nature of Transaction", "Type of Transaction", "Amount"]
+      records.each do |txn|
+        csv << [
+          txn.reporting_entity.name, txn.reporting_unit.name,
+          txn.period.month, txn.counterparty,
+          txn.nature, txn.sub_nature, txn.transaction_type, txn.amount
+        ]
+      end
+    end
+    send_data csv_data, filename: "rp_transactions_export_#{Date.today}.csv", type: "text/csv"
   end
 
   def reporting_units

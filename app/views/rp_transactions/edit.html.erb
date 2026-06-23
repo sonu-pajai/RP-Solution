@@ -1,13 +1,13 @@
 <% content_for :breadcrumb do %>
-  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP Transaction", rp_transactions_path %><span class="separator">›</span> New
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP Transaction", rp_transactions_path %><span class="separator">›</span> Edit
 <% end %>
 
 <div class="page-header">
-  <h2>New RP Transaction</h2>
+  <h2>Edit RP Transaction</h2>
 </div>
 
 <div class="card">
-  <%= form_with model: @rp_transaction, url: rp_transactions_path do |f| %>
+  <%= form_with model: @rp_transaction, url: rp_transaction_path(@rp_transaction), method: :patch do |f| %>
     <% if @rp_transaction.errors.any? %>
       <div class="form-errors mb-16">
         <% @rp_transaction.errors.full_messages.each do |msg| %>
@@ -24,11 +24,7 @@
 
       <div class="form-group">
         <%= f.label :reporting_unit_id, "Reporting Unit" %>
-        <% if @reporting_units.present? %>
-          <%= f.select :reporting_unit_id, @reporting_units.map { |u| [u.name, u.id] }, { prompt: "-- Select Reporting Unit --" }, { class: "form-control", id: "form_reporting_unit" } %>
-        <% else %>
-          <%= f.select :reporting_unit_id, [], { prompt: "-- Select Reporting Entity first --" }, { class: "form-control", id: "form_reporting_unit", disabled: true } %>
-        <% end %>
+        <%= f.select :reporting_unit_id, ReportingUnit.where(reporting_entity_id: @rp_transaction.reporting_entity_id).map { |u| [u.name, u.id] }, { prompt: "-- Select --" }, { class: "form-control", id: "form_reporting_unit" } %>
       </div>
 
       <div class="form-group">
@@ -48,12 +44,12 @@
 
       <div class="form-group">
         <%= f.label :sub_nature, "Sub-Nature of Transaction" %>
-        <%= f.select :sub_nature, [], { prompt: "-- Select Nature first --" }, { class: "form-control", id: "form_sub_nature", disabled: true } %>
+        <%= f.select :sub_nature, Transaction.where(nature: @rp_transaction.nature).distinct.pluck(:sub_type).compact.map { |s| [s, s] }, { prompt: "-- Select --" }, { class: "form-control", id: "form_sub_nature" } %>
       </div>
 
       <div class="form-group">
         <%= f.label :transaction_type, "Type of Transaction" %>
-        <%= f.select :transaction_type, [], { prompt: "-- Select Sub-Nature first --" }, { class: "form-control", id: "form_transaction_type", disabled: true } %>
+        <%= f.select :transaction_type, Transaction.where(nature: @rp_transaction.nature, sub_type: @rp_transaction.sub_nature).distinct.pluck(:transaction_type).compact.map { |t| [t, t] }, { prompt: "-- Select --" }, { class: "form-control", id: "form_transaction_type" } %>
       </div>
 
       <div class="form-group">
@@ -63,7 +59,7 @@
     </div>
 
     <div class="mt-16">
-      <%= f.submit "Create Transaction", class: "btn-primary" %>
+      <%= f.submit "Update Transaction", class: "btn-primary" %>
       <%= link_to "Cancel", rp_transactions_path, class: "btn-secondary ml-8" %>
     </div>
   <% end %>

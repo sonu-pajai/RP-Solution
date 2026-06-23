@@ -5,15 +5,15 @@
 <div class="page-header">
   <h2>RP Transaction</h2>
   <div>
-    <%= link_to "＋ Create Record", new_rp_transaction_path, class: "btn-primary" %>
-    <%= link_to "Bulk Upload", rp_transactions_bulk_upload_path, class: "btn-primary btn-sm btn-outline" %>
-
+    <%= link_to "＋ Create Record", new_rp_transaction_path(reporting_entity_id: @selected_entity_id, reporting_unit_id: @selected_unit_id, period_id: @selected_period_id), class: "btn-primary btn-sm" %>
+    <%= link_to "⬆ Bulk Upload", bulk_upload_rp_transactions_path, class: "btn-primary btn-sm btn-outline ml-8" %>
+    <%= link_to "Export CSV", export_rp_transactions_path(reporting_entity_id: @selected_entity_id, reporting_unit_id: @selected_unit_id, period_id: @selected_period_id), class: "btn-primary btn-sm btn-outline ml-8" %>
   </div>
 </div>
 
-<div class="card">
-  <div style="display: flex; gap: 16px;">
-    <div class="form-group" style="flex: 1;">
+<div class="card mb-16">
+  <div class="flex-row">
+    <div class="form-group flex-1 mb-0">
       <label for="reporting_entity">Reporting Entity</label>
       <select id="reporting_entity" class="form-control">
         <option value="">-- All Reporting Entities --</option>
@@ -23,7 +23,7 @@
       </select>
     </div>
 
-    <div class="form-group" style="flex: 1;">
+    <div class="form-group flex-1 mb-0">
       <label for="reporting_unit">Reporting Unit</label>
       <select id="reporting_unit" class="form-control" <%= @selected_entity_id.blank? ? "disabled" : "" %>>
         <% if @selected_entity_id.blank? %>
@@ -37,7 +37,7 @@
       </select>
     </div>
 
-    <div class="form-group" style="flex: 1;">
+    <div class="form-group flex-1 mb-0">
       <label for="period">Period</label>
       <select id="period" class="form-control">
         <option value="">-- All Periods --</option>
@@ -49,41 +49,49 @@
   </div>
 </div>
 
-<div class="card" style="margin-top: 16px;">
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th>Reporting Entity</th>
-        <th>Reporting Unit</th>
-        <th>Period</th>
-        <th>Counterparty</th>
-        <th>Type</th>
-        <th>Nature</th>
-        <th>Sub-Nature</th>
-        <th>Amount</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @rp_transactions.each do |txn| %>
-        <tr class="clickable-row" style="cursor: pointer;"
-            data-entity-id="<%= txn.reporting_entity_id %>"
-            data-unit-id="<%= txn.reporting_unit_id %>"
-            data-period-id="<%= txn.period_id %>">
-          <td><%= txn.reporting_entity.name %></td>
-          <td><%= txn.reporting_unit.name %></td>
-          <td><%= txn.period.month %> - <%= txn.period.financial_year %></td>
-          <td><%= txn.counterparty %></td>
-          <td><%= txn.transaction_type %></td>
-          <td><%= txn.nature %></td>
-          <td><%= txn.sub_nature %></td>
-          <td class="amount"><%= number_to_currency(txn.amount, unit: "₹") %></td>
+<div class="card">
+  <div class="overflow-x">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Reporting Entity</th>
+          <th>Reporting Unit</th>
+          <th>Period</th>
+          <th>Counterparty</th>
+          <th>Type</th>
+          <th>Nature</th>
+          <th>Sub-Nature</th>
+          <th>Amount</th>
+          <th>Actions</th>
         </tr>
-      <% end %>
-      <% if @rp_transactions.empty? %>
-        <tr><td colspan="8" class="empty-row" style="text-align:center; color:#94a3b8;">No transactions found.</td></tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        <% @rp_transactions.each do |txn| %>
+          <tr class="clickable-row"
+              data-entity-id="<%= txn.reporting_entity_id %>"
+              data-unit-id="<%= txn.reporting_unit_id %>"
+              data-period-id="<%= txn.period_id %>">
+            <td><%= txn.reporting_entity.name %></td>
+            <td><%= txn.reporting_unit.name %></td>
+            <td><%= txn.period.month %> - <%= txn.period.financial_year %></td>
+            <td><%= txn.counterparty %></td>
+            <td><%= txn.transaction_type %></td>
+            <td><%= txn.nature %></td>
+            <td><%= txn.sub_nature %></td>
+            <td class="amount"><%= number_to_currency(txn.amount, unit: "₹") %></td>
+            <td class="nowrap">
+              <%= link_to "View", rp_transaction_path(txn), class: "action-link" %>
+              <%= link_to "Edit", edit_rp_transaction_path(txn), class: "action-link" %>
+              <%= link_to "Delete", rp_transaction_path(txn), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
+            </td>
+          </tr>
+        <% end %>
+        <% if @rp_transactions.empty? %>
+          <tr><td colspan="9" class="empty-row text-center text-muted">No transactions found.</td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <script>
@@ -123,9 +131,9 @@
   unitSelect.addEventListener('change', applyFilter);
   periodSelect.addEventListener('change', applyFilter);
 
-  // On row click, autofill dropdowns
   document.querySelectorAll('.clickable-row').forEach(function(row) {
-    row.addEventListener('click', function() {
+    row.addEventListener('click', function(e) {
+      if (e.target.closest('a')) return;
       var entityId = this.dataset.entityId;
       var unitId = this.dataset.unitId;
       var periodId = this.dataset.periodId;

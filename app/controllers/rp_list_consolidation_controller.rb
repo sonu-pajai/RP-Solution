@@ -38,18 +38,22 @@ class RpListConsolidationController < ApplicationController
 
   def export
     require "csv"
-    rp_masters = RpMaster.all
-    rp_masters = rp_masters.where(reporting_entity_id: params[:reporting_entity_id]) if params[:reporting_entity_id].present?
-    rp_masters = rp_masters.where("unique_code ILIKE ? OR name ILIKE ?", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
-    rp_masters = rp_masters.includes(:reporting_entity).order(:created_at)
+    records = RpConsolidation.all
+    records = records.where(reporting_entity_id: params[:reporting_entity_id]) if params[:reporting_entity_id].present?
+    records = records.where(period_id: params[:period_id]) if params[:period_id].present?
+    records = records.includes(:rp_master, :reporting_entity, :period).order(:created_at)
+
+    if params[:search].present?
+      rp_ids = RpMaster.where("unique_code ILIKE ? OR name ILIKE ?", "%#{params[:search]}%", "%#{params[:search]}%").pluck(:id)
+      records = records.where(rp_master_id: rp_ids)
+    end
 
     csv_data = CSV.generate do |csv|
-      csv << ["Unique Code", "Name", "Reporting Entity", "PAN", "Category", "Specific Relationship", "Related to Director", "Active"]
-      rp_masters.each do |rp|
+      csv << ["Unique Code", "Name", "Related Party From", "Related Party Upto", "Any Other Input (Custom)"]
+      records.each do |rc|
         csv << [
-          rp.unique_code, rp.name, rp.reporting_entity&.name, rp.pan,
-          rp.category, rp.specific_relationship,
-          rp.related_to_director ? "Yes" : "No", rp.active ? "Active" : "Inactive"
+          rc.rp_master.unique_code, rc.rp_master.name,
+          rc.related_party_from, rc.related_party_upto, rc.custom_input
         ]
       end
     end

@@ -1,24 +1,48 @@
 <% content_for :breadcrumb do %>
-  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP Master", rp_master_path %> <span class="separator">›</span> Bulk Upload
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP Master", rp_master_path %><span class="separator">›</span> Bulk Upload
 <% end %>
 
-<h2>Bulk Upload RP Master</h2>
+<div class="page-header">
+  <h2>Bulk Upload RP Master</h2>
+  <%= link_to "← Back", rp_master_path, class: "action-link" %>
+</div>
 
-<div style="background:#fff; padding:24px; border-radius:10px; border:1px solid #e2e8f0;">
+<div class="card">
+  <div class="info-box">
+    <p class="info-box-title">📋 File Format</p>
+    <p class="info-box-text">
+      Upload a CSV file with these columns:<br>
+      <code>Reporting Entity | Salutation | Name | PAN | Category | Specific Relationship | DOB/Incorporation Date | Related to Director | RP as per SEBI | RP as per Companies Act | RP as per AS-18 | RP as per IND AS-24 | Other Guidelines | Active</code>
+    </p>
+  </div>
+
+  <div class="mb-24">
+    <%= link_to rp_master_template_path, class: "sample-download" do %>
+      <span class="sample-download-icon">📥</span>
+      <span><strong>Download Template</strong><br><span class="sample-download-subtitle">CSV template with correct headers</span></span>
+    <% end %>
+  </div>
+
   <%= form_with(url: rp_master_bulk_upload_path, method: :post, multipart: true) do |f| %>
     <div class="form-group">
-      <%= f.label :file, "Upload CSV File" %>
-      <%= f.file_field :file, accept: ".csv" %>
+      <label>Select File</label>
+      <%= f.file_field :file, accept: ".csv", class: "form-control" %>
+      <span class="form-hint">Accepted: .csv</span>
     </div>
 
-    <p style="font-size:13px; color:#64748b; margin-top:8px;">
-      CSV columns: Reporting Entity, Salutation, Name, PAN, Category, Specific Relationship, DOB/Incorporation Date, Related to Director (Yes/No), RP as per SEBI (Yes/No), RP as per Companies Act (Yes/No), RP as per AS-18 (Yes/No), RP as per IND AS-24 (Yes/No), Other Guidelines, Active (Yes/No)
-    </p>
+    <div class="warning-box">
+      <p>
+        <strong>💡 Validations:</strong><br>
+        • Reporting Entity must exist in the system<br>
+        • PAN must be valid format (e.g. ABCDE1234F)<br>
+        • DOB/Incorporation Date must be before today<br>
+        • Rows with invalid data will be skipped
+      </p>
+    </div>
 
-    <div class="form-actions" style="margin-top:16px;">
-      <%= f.submit "Upload", class: "btn-primary btn-submit" %>
-      <%= link_to "Download Template", rp_master_template_path, class: "btn-primary btn-sm btn-outline" %>
-      <%= link_to "Cancel", rp_master_path, class: "cancel-link" %>
+    <div class="flex-row">
+      <%= f.submit "⬆ Upload", class: "btn-primary btn-lg" %>
+      <%= link_to "Cancel", rp_master_path, class: "btn-secondary" %>
     </div>
   <% end %>
 </div>

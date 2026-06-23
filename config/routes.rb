@@ -28,7 +28,13 @@ Rails.application.routes.draw do
   post "rp_transactions", to: "rp_transactions#create"
   get "rp_transactions/bulk_upload", to: "rp_transactions#bulk_upload", as: :bulk_upload_rp_transactions
   post "rp_transactions/bulk_upload", to: "rp_transactions#bulk_upload"
+  get "rp_transactions/sample", to: "rp_transactions#sample", as: :sample_rp_transactions
+  get "rp_transactions/export", to: "rp_transactions#export", as: :export_rp_transactions
   get "rp_transactions/reporting_units", to: "rp_transactions#reporting_units"
   get "rp_transactions/sub_natures", to: "rp_transactions#sub_natures"
   get "rp_transactions/transaction_types", to: "rp_transactions#transaction_types"
+  get "rp_transactions/:id", to: "rp_transactions#show", as: :rp_transaction
+  get "rp_transactions/:id/edit", to: "rp_transactions#edit", as: :edit_rp_transaction
+  patch "rp_transactions/:id", to: "rp_transactions#update"
+  delete "rp_transactions/:id", to: "rp_transactions#destroy"
 end

@@ -1,0 +1,49 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP Transaction", rp_transactions_path %><span class="separator">›</span> Details
+<% end %>
+
+<div class="page-header">
+  <h2>Transaction Details</h2>
+  <div>
+    <%= link_to "Edit", edit_rp_transaction_path(@rp_transaction), class: "btn-primary btn-sm" %>
+    <%= link_to "Delete", rp_transaction_path(@rp_transaction), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "btn-sm btn-danger ml-8" %>
+    <%= link_to "← Back", rp_transactions_path, class: "action-link ml-8" %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="detail-grid">
+    <div>
+      <p class="detail-label">Reporting Entity</p>
+      <p class="detail-value"><%= @rp_transaction.reporting_entity.name %></p>
+    </div>
+    <div>
+      <p class="detail-label">Reporting Unit</p>
+      <p class="detail-value"><%= @rp_transaction.reporting_unit.name %></p>
+    </div>
+    <div>
+      <p class="detail-label">Period</p>
+      <p class="detail-value"><%= @rp_transaction.period.month %> - <%= @rp_transaction.period.financial_year %></p>
+    </div>
+    <div>
+      <p class="detail-label">Counterparty</p>
+      <p class="detail-value"><%= @rp_transaction.counterparty %></p>
+    </div>
+    <div>
+      <p class="detail-label">Nature of Transaction</p>
+      <p class="detail-value"><%= @rp_transaction.nature %></p>
+    </div>
+    <div>
+      <p class="detail-label">Sub-Nature of Transaction</p>
+      <p class="detail-value"><%= @rp_transaction.sub_nature %></p>
+    </div>
+    <div>
+      <p class="detail-label">Type of Transaction</p>
+      <p class="detail-value"><%= @rp_transaction.transaction_type %></p>
+    </div>
+    <div>
+      <p class="detail-label">Amount</p>
+      <p class="detail-value amount"><%= number_to_currency(@rp_transaction.amount, unit: "₹") %></p>
+    </div>
+  </div>
+</div>

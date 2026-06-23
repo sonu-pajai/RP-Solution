@@ -4,100 +4,104 @@
 
 <div class="page-header">
   <h2>RP Master</h2>
-  <div style="display:flex; gap:8px;">
+  <div class="flex-row">
     <%= link_to "Create", new_rp_master_path, class: "btn-primary btn-sm" %>
     <%= link_to "Bulk Upload", rp_master_bulk_upload_path, class: "btn-primary btn-sm btn-outline" %>
     <%= link_to "Export CSV", rp_master_export_path(reporting_entity_id: params[:reporting_entity_id], unique_code: params[:unique_code]), class: "btn-primary btn-sm btn-outline" %>
   </div>
 </div>
 
-<!-- Filters -->
-<div style="background:#fff; padding:16px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:20px;">
-  <div style="display:flex; gap:16px; align-items:flex-end;">
-    <div class="form-group" style="flex:1; margin-bottom:0;">
+<div class="filter-bar">
+  <div class="flex-row-end">
+    <div class="form-group flex-1 mb-0">
       <%= label_tag :reporting_entity_id, "Reporting Entity" %>
-      <%= select_tag :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name, params[:reporting_entity_id].to_i), prompt: "All Entities", id: "entity-filter" %>
+      <%= select_tag :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name, params[:reporting_entity_id].to_i), prompt: "All Entities", id: "entity-filter", class: "form-control" %>
     </div>
 
-    <div class="form-group" style="flex:1; margin-bottom:0;">
+    <div class="form-group flex-1 mb-0">
       <%= label_tag :unique_code, "Unique Code" %>
-      <%= text_field_tag :unique_code, params[:unique_code], placeholder: "Search by unique code", id: "code-filter" %>
+      <%= text_field_tag :unique_code, params[:unique_code], placeholder: "Type to search...", id: "code-filter", autocomplete: "off", class: "form-control" %>
     </div>
 
-    <a href="#" id="filter-btn" class="btn-primary btn-sm">Filter</a>
     <% if params[:reporting_entity_id].present? || params[:unique_code].present? %>
       <%= link_to "Clear", rp_master_path, class: "action-link" %>
     <% end %>
   </div>
 </div>
 
-<!-- RP Master List -->
-<div style="overflow-x: auto;">
-<table class="data-table">
-  <thead>
-    <tr>
-      <th>Salutation</th>
-      <th>Name</th>
-      <th>PAN</th>
-      <th>Category</th>
-      <th>Specific Relationship</th>
-      <th>Related to Director</th>
-      <th>DOB / Incorporation</th>
-      <th>Period</th>
-      <th>RP SEBI</th>
-      <th>RP Companies Act</th>
-      <th>RP AS-18</th>
-      <th>RP IND AS-24</th>
-      <th>Other Guidelines</th>
-      <th>Status</th>
-      <th>Created By</th>
-      <th>Approved By</th>
-      <th>Admin Approved By</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% if @rp_masters.present? %>
-      <% @rp_masters.each do |rp| %>
-        <tr>
-          <td><%= rp.name %></td>
-          <td><%= rp.pan %></td>
-          <td><%= rp.category %></td>
-          <td><%= rp.specific_relationship %></td>
-          <td><%= rp.related_to_director %></td>
-          <td><%= rp.dob_or_incorporation %></td>
-          <td><%= rp.reporting_entity&.name %></td>
-          <td><%= rp.period ? "#{rp.period.month} - #{rp.period.financial_year}" : "" %></td>
-          <td><%= rp.related_party_sebi %></td>
-          <td><%= rp.related_party_companies_act %></td>
-          <td><%= rp.related_party_as18 %></td>
-          <td><%= rp.related_party_ind_as24 %></td>
-          <td><%= rp.other_guidelines %></td>
-          <td><%= rp.active ? "Yes" : "No" %></td>
-          <td><%= rp.created_by&.name %></td>
-          <td><%= rp.approved_by&.name %></td>
-          <td><%= rp.admin_approved_by&.name %></td>
-          <td style="white-space: nowrap;">
-            <%= link_to "Edit", edit_rp_master_path(rp), class: "action-link" %>
-            <%= link_to "Delete", destroy_rp_master_path(rp), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
-          </td>
-        </tr>
+<div class="overflow-x">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Salutation</th>
+        <th>Name</th>
+        <th>PAN</th>
+        <th>Category</th>
+        <th>Specific Relationship</th>
+        <th>Related to Director</th>
+        <th>DOB / Incorporation</th>
+        <th>Period</th>
+        <th>RP SEBI</th>
+        <th>RP Companies Act</th>
+        <th>RP AS-18</th>
+        <th>RP IND AS-24</th>
+        <th>Other Guidelines</th>
+        <th>Status</th>
+        <th>Created By</th>
+        <th>Approved By</th>
+        <th>Admin Approved By</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @rp_masters.present? %>
+        <% @rp_masters.each do |rp| %>
+          <tr>
+            <td><%= rp.salutation %></td>
+            <td><%= rp.name %></td>
+            <td><%= rp.pan %></td>
+            <td><%= rp.category %></td>
+            <td><%= rp.specific_relationship %></td>
+            <td><%= rp.related_to_director %></td>
+            <td><%= rp.dob_or_incorporation %></td>
+            <td><%= rp.period ? "#{rp.period.month} - #{rp.period.financial_year}" : "" %></td>
+            <td><%= rp.related_party_sebi %></td>
+            <td><%= rp.related_party_companies_act %></td>
+            <td><%= rp.related_party_as18 %></td>
+            <td><%= rp.related_party_ind_as24 %></td>
+            <td><%= rp.other_guidelines %></td>
+            <td><%= rp.active ? "Yes" : "No" %></td>
+            <td><%= rp.created_by&.name %></td>
+            <td><%= rp.approved_by&.name %></td>
+            <td><%= rp.admin_approved_by&.name %></td>
+            <td class="nowrap">
+              <%= link_to "Edit", edit_rp_master_path(rp), class: "action-link" %>
+              <%= link_to "Delete", destroy_rp_master_path(rp), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
+            </td>
+          </tr>
+        <% end %>
+      <% else %>
+        <tr><td colspan="18" class="empty-row">No records found.</td></tr>
       <% end %>
-    <% else %>
-      <tr><td colspan="20" class="empty-row">No records found.</td></tr>
-    <% end %>
-  </tbody>
-</table>
+    </tbody>
+  </table>
 </div>
 
 <script>
-  document.getElementById('filter-btn').addEventListener('click', function(e) {
-    e.preventDefault();
-    var entity = document.getElementById('entity-filter').value;
-    var code = document.getElementById('code-filter').value;
+  var debounceTimer;
+  var entityFilter = document.getElementById('entity-filter');
+  var codeFilter = document.getElementById('code-filter');
+
+  function applyFilters() {
     var params = [];
-    if (entity) params.push('reporting_entity_id=' + entity);
-    if (code) params.push('unique_code=' + encodeURIComponent(code));
+    if (entityFilter.value) params.push('reporting_entity_id=' + entityFilter.value);
+    if (codeFilter.value) params.push('unique_code=' + encodeURIComponent(codeFilter.value));
     window.location.href = '/rp_master' + (params.length ? '?' + params.join('&') : '');
+  }
+
+  entityFilter.addEventListener('change', applyFilters);
+  codeFilter.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(applyFilters, 500);
   });
 </script>

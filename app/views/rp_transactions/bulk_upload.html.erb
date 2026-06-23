@@ -4,22 +4,47 @@
 
 <div class="page-header">
   <h2>Bulk Upload RP Transactions</h2>
+  <%= link_to "← Back", rp_transactions_path, class: "action-link" %>
 </div>
 
 <div class="card">
-  <p style="margin-bottom: 16px; color: #64748b; font-size: 13px;">
-    Upload an Excel file with columns: <strong>Reporting Entity, Period, Reporting Unit, Counterparty, Type of Transaction, Nature of Transaction, Sub-Nature of Transaction, Amount</strong>
-  </p>
+  <div class="info-box">
+    <p class="info-box-title">📋 File Format</p>
+    <p class="info-box-text">
+      Upload a CSV or Excel file with these columns:<br>
+      <code>Reporting Entity | Reporting Unit | Period | Counterparty | Nature of Transaction | Sub-Nature of Transaction | Type of Transaction | Amount</code>
+    </p>
+  </div>
 
-  <%= form_tag bulk_upload_rp_transactions_path, multipart: true do %>
+  <div class="flex-row-center mb-24">
+    <%= link_to sample_rp_transactions_path, class: "sample-download" do %>
+      <span class="sample-download-icon">📥</span>
+      <span><strong>Download Sample File</strong><br><span class="sample-download-subtitle">CSV template with example data</span></span>
+    <% end %>
+
+    <div class="form-group mb-0">
+      <label>Upload Mode</label>
+      <%= select_tag :mode, options_for_select([["Create", "create"], ["Update", "upsert"]], "create"), class: "form-control", form: "bulk-upload-form" %>
+    </div>
+  </div>
+
+  <%= form_tag bulk_upload_rp_transactions_path, multipart: true, id: "bulk-upload-form" do %>
     <div class="form-group">
-      <label for="file">Select File (.xlsx)</label>
+      <label>Select File</label>
       <%= file_field_tag :file, accept: ".xlsx,.xls,.csv", class: "form-control" %>
+      <span class="form-hint">Accepted: .csv, .xlsx, .xls</span>
     </div>
 
-    <div style="margin-top: 16px;">
-      <%= submit_tag "Upload", class: "btn-primary" %>
-      <%= link_to "Cancel", rp_transactions_path, class: "btn-secondary", style: "margin-left: 8px;" %>
+    <div class="warning-box">
+      <p>
+        <strong>💡 Create:</strong> Inserts all rows as new records.<br>
+        <strong>💡 Update:</strong> Matches by Reporting Entity, Unit, Period, Counterparty, Nature, Sub-Nature & Type — updates only the <strong>Amount</strong> for existing records.
+      </p>
+    </div>
+
+    <div class="flex-row">
+      <%= submit_tag "⬆ Upload", class: "btn-primary btn-lg" %>
+      <%= link_to "Cancel", rp_transactions_path, class: "btn-secondary" %>
     </div>
   <% end %>
 </div>

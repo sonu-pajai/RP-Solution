@@ -26,9 +26,8 @@
     <div style="display:flex; gap:16px; align-items:flex-end;">
       <div class="form-group" style="flex:1; margin-bottom:0;">
         <%= label_tag :search, "Search" %>
-        <%= text_field_tag :search, params[:search], placeholder: "Search by unique code or name", id: "search-filter" %>
+        <%= text_field_tag :search, params[:search], placeholder: "Type to search by code or name...", id: "search-filter", autocomplete: "off" %>
       </div>
-      <a href="#" id="search-btn" class="btn-primary btn-sm">Search</a>
       <% if params[:search].present? %>
         <%= link_to "Clear", rp_list_consolidation_path(reporting_entity_id: @reporting_entity_id, period_id: @period_id), class: "action-link" %>
       <% end %>
@@ -89,6 +88,8 @@
 <script>
   var entitySelect = document.getElementById('entity-select');
   var periodSelect = document.getElementById('period-select');
+  var searchFilter = document.getElementById('search-filter');
+  var debounceTimer;
 
   function loadRecords() {
     if (entitySelect.value && periodSelect.value) {
@@ -99,31 +100,17 @@
   entitySelect.addEventListener('change', loadRecords);
   periodSelect.addEventListener('change', loadRecords);
 
-  var searchBtn = document.getElementById('search-btn');
-  var searchFilter = document.getElementById('search-filter');
-
-  if (searchBtn) {
-    searchBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      applySearch();
-    });
-  }
-
   if (searchFilter) {
-    searchFilter.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        applySearch();
-      }
+    searchFilter.addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(function() {
+        var params = [];
+        params.push('reporting_entity_id=' + entitySelect.value);
+        params.push('period_id=' + periodSelect.value);
+        if (searchFilter.value) params.push('search=' + encodeURIComponent(searchFilter.value));
+        window.location.href = '/rp_list_consolidation?' + params.join('&');
+      }, 500);
     });
-  }
-
-  function applySearch() {
-    var params = [];
-    params.push('reporting_entity_id=' + entitySelect.value);
-    params.push('period_id=' + periodSelect.value);
-    if (searchFilter.value) params.push('search=' + encodeURIComponent(searchFilter.value));
-    window.location.href = '/rp_list_consolidation?' + params.join('&');
   }
 
   var selectAllHeader = document.getElementById('select-all-header');

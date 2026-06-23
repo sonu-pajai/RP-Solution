@@ -110,14 +110,18 @@ class RpMasterController < ApplicationController
     records = records.includes(:reporting_entity).order(:created_at)
 
     csv_data = CSV.generate do |csv|
-      csv << ["Unique Code", "Reporting Entity", "Salutation", "Name", "PAN", "Category", "Specific Relationship", "Related to Director", "DOB/Incorporation Date", "RP as per SEBI", "RP as per Companies Act", "RP as per AS-18", "RP as per IND AS-24", "Other Guidelines", "Active"]
+      csv << ["Reporting Entity", "Salutation", "Name", "PAN", "Category", "Specific Relationship", "DOB/Incorporation Date", "Related to Director", "RP as per SEBI", "RP as per Companies Act", "RP as per AS-18", "RP as per IND AS-24", "Other Guidelines", "Active"]
       records.each do |rp|
         csv << [
-          rp.unique_code, rp.reporting_entity&.name, rp.salutation, rp.name, rp.pan,
-          rp.category, rp.specific_relationship, rp.related_to_director,
-          rp.dob_or_incorporation, rp.related_party_sebi ? "Yes" : "No",
-          rp.related_party_companies_act ? "Yes" : "No", rp.related_party_as18 ? "Yes" : "No",
-          rp.related_party_ind_as24 ? "Yes" : "No", rp.other_guidelines, rp.active ? "Active" : "Inactive"
+          rp.reporting_entity&.name, rp.salutation, rp.name, rp.pan,
+          rp.category, rp.specific_relationship, rp.dob_or_incorporation,
+          rp.related_to_director,
+          rp.related_party_sebi ? "Yes" : "No",
+          rp.related_party_companies_act ? "Yes" : "No",
+          rp.related_party_as18 ? "Yes" : "No",
+          rp.related_party_ind_as24 ? "Yes" : "No",
+          rp.other_guidelines,
+          rp.active ? "Yes" : "No"
         ]
       end
     end
