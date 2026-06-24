@@ -16,11 +16,6 @@
 
     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;">
       <div class="form-group">
-        <%= f.label :reporting_entity_id, "Reporting Entity" %>
-        <%= f.select :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name, @rp_master.reporting_entity_id), { prompt: "Select Reporting Entity" } %>
-      </div>
-
-      <div class="form-group">
         <%= f.label :salutation %>
         <%= f.select :salutation, ["Mr.", "Mrs.", "Ms.", "Dr.", "M/s"], { prompt: "Select Salutation" } %>
       </div>

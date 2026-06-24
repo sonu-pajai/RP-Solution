@@ -46,14 +46,6 @@
       <p class="detail-value"><%= @rp_master.dob_or_incorporation %></p>
     </div>
     <div>
-      <p class="detail-label">Reporting Entity</p>
-      <p class="detail-value"><%= @rp_master.reporting_entity&.name %></p>
-    </div>
-    <div>
-      <p class="detail-label">Period</p>
-      <p class="detail-value"><%= @rp_master.period ? "#{@rp_master.period.month} - #{@rp_master.period.financial_year}" : "—" %></p>
-    </div>
-    <div>
       <p class="detail-label">RP as per SEBI</p>
       <p class="detail-value"><%= @rp_master.related_party_sebi ? "Yes" : "No" %></p>
     </div>

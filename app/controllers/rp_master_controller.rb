@@ -1,6 +1,6 @@
 class RpMasterController < ApplicationController
   def index
-    @rp_masters = RpMaster.includes(:reporting_entity, :period, :created_by, :approved_by, :admin_approved_by)
+    @rp_masters = RpMaster.includes(:created_by, :approved_by, :admin_approved_by)
     @rp_masters = @rp_masters.where("unique_code ILIKE ?", "%#{params[:unique_code]}%") if params[:unique_code].present?
     @rp_masters = @rp_masters.order(:created_at)
     @rp_masters = @rp_masters.page(params[:page])
@@ -27,7 +27,7 @@ class RpMasterController < ApplicationController
   end
 
   def show
-    @rp_master = RpMaster.includes(:reporting_entity, :period, :created_by, :approved_by, :admin_approved_by).find(params[:id])
+    @rp_master = RpMaster.includes(:created_by, :approved_by, :admin_approved_by).find(params[:id])
   end
 
   def update
@@ -58,14 +58,7 @@ class RpMasterController < ApplicationController
       errors = []
 
       CSV.foreach(file.path, headers: true).with_index(2) do |row, line|
-        entity = ReportingEntity.find_by(name: row["Reporting Entity"]&.strip)
-        if entity.nil?
-          errors << "Row #{line}: Reporting Entity '#{row['Reporting Entity']}' not found"
-          next
-        end
-
         rp = RpMaster.new(
-          reporting_entity: entity,
           salutation: row["Salutation"],
           name: row["Name"],
           pan: row["PAN"],
@@ -99,7 +92,7 @@ class RpMasterController < ApplicationController
 
   def template
     require "csv"
-    headers = ["Reporting Entity", "Salutation", "Name", "PAN", "Category", "Specific Relationship", "DOB/Incorporation Date", "Related to Director", "RP as per SEBI", "RP as per Companies Act", "RP as per AS-18", "RP as per IND AS-24", "Other Guidelines", "Active"]
+    headers = ["Salutation", "Name", "PAN", "Category", "Specific Relationship", "DOB/Incorporation Date", "Related to Director", "RP as per SEBI", "RP as per Companies Act", "RP as per AS-18", "RP as per IND AS-24", "Other Guidelines", "Active"]
     csv_data = CSV.generate do |csv|
       csv << headers
     end
@@ -108,16 +101,15 @@ class RpMasterController < ApplicationController
 
   def export
     require "csv"
-    records = RpMaster.includes(:reporting_entity)
-    records = records.where(reporting_entity_id: params[:reporting_entity_id]) if params[:reporting_entity_id].present?
+    records = RpMaster.all
     records = records.where("unique_code ILIKE ?", "%#{params[:unique_code]}%") if params[:unique_code].present?
     records = records.order(:created_at)
 
     csv_data = CSV.generate do |csv|
-      csv << ["Reporting Entity", "Salutation", "Name", "PAN", "Category", "Specific Relationship", "DOB/Incorporation Date", "Related to Director", "RP as per SEBI", "RP as per Companies Act", "RP as per AS-18", "RP as per IND AS-24", "Other Guidelines", "Active"]
+      csv << ["Salutation", "Name", "PAN", "Category", "Specific Relationship", "DOB/Incorporation Date", "Related to Director", "RP as per SEBI", "RP as per Companies Act", "RP as per AS-18", "RP as per IND AS-24", "Other Guidelines", "Active"]
       records.each do |rp|
         csv << [
-          rp.reporting_entity&.name, rp.salutation, rp.name, rp.pan,
+          rp.salutation, rp.name, rp.pan,
           rp.category, rp.specific_relationship, rp.dob_or_incorporation,
           rp.related_to_director,
           rp.related_party_sebi ? "Yes" : "No",
@@ -139,7 +131,7 @@ class RpMasterController < ApplicationController
       :salutation, :name, :pan, :category, :specific_relationship,
       :related_to_director, :dob_or_incorporation, :related_party_sebi,
       :related_party_companies_act, :related_party_as18, :related_party_ind_as24,
-      :other_guidelines, :active, :reporting_entity_id
+      :other_guidelines, :active
     )
   end
 end

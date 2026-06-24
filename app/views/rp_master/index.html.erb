@@ -7,7 +7,7 @@
   <div class="flex-row">
     <%= link_to "Create", new_rp_master_path, class: "btn-primary btn-sm" %>
     <%= link_to "Bulk Upload", rp_master_bulk_upload_path, class: "btn-primary btn-sm btn-outline" %>
-    <%= link_to "Export CSV", rp_master_export_path(reporting_entity_id: params[:reporting_entity_id], unique_code: params[:unique_code]), class: "btn-primary btn-sm btn-outline" %>
+    <%= link_to "Export CSV", rp_master_export_path(unique_code: params[:unique_code]), class: "btn-primary btn-sm btn-outline" %>
   </div>
 </div>
 

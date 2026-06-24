@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_23_173905) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_24_115000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -72,8 +72,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_23_173905) do
     t.string "category"
     t.string "specific_relationship"
     t.date "dob_or_incorporation"
-    t.bigint "reporting_entity_id", null: false
-    t.bigint "period_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "pan"
@@ -93,8 +91,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_23_173905) do
     t.index ["category"], name: "index_rp_masters_on_category"
     t.index ["created_by_id"], name: "index_rp_masters_on_created_by_id"
     t.index ["name"], name: "index_rp_masters_on_name"
-    t.index ["period_id"], name: "index_rp_masters_on_period_id"
-    t.index ["reporting_entity_id"], name: "index_rp_masters_on_reporting_entity_id"
     t.index ["unique_code"], name: "index_rp_masters_on_unique_code"
   end
 
@@ -146,8 +142,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_23_173905) do
   add_foreign_key "rp_consolidations", "periods"
   add_foreign_key "rp_consolidations", "reporting_entities"
   add_foreign_key "rp_consolidations", "rp_masters"
-  add_foreign_key "rp_masters", "periods"
-  add_foreign_key "rp_masters", "reporting_entities"
   add_foreign_key "rp_masters", "users", column: "admin_approved_by_id"
   add_foreign_key "rp_masters", "users", column: "approved_by_id"
   add_foreign_key "rp_masters", "users", column: "created_by_id"
