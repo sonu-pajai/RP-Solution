@@ -13,7 +13,7 @@ class RpListConsolidationController < ApplicationController
         @rp_consolidations = @rp_consolidations.order(:created_at)
         @rp_consolidations = @rp_consolidations.page(params[:page])
       else
-        @rp_masters = RpMaster.includes(:reporting_entity)
+        @rp_masters = RpMaster.all
         @rp_masters = @rp_masters.where.not(id: submitted_ids) if submitted_ids.any?
         @rp_masters = @rp_masters.where("unique_code ILIKE ? OR name ILIKE ?", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
         @rp_masters = @rp_masters.order(:created_at)
