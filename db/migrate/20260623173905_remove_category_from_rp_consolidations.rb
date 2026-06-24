@@ -1,5 +1,5 @@
 class RemoveCategoryFromRpConsolidations < ActiveRecord::Migration[8.0]
   def change
-    remove_column :rp_consolidations, :category, :string
+    remove_column :rp_consolidations, :category, :string if column_exists?(:rp_consolidations, :category)
   end
 end
