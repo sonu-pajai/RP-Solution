@@ -29,7 +29,7 @@ class RpTransactionsController < ApplicationController
     @reporting_entities = ReportingEntity.all
     @periods = Period.all
     @counterparties = RpMaster.where(active: true).pluck(:name)
-    @natures = Transaction.distinct.pluck(:nature).compact
+    @natures = Transaction.active.distinct.pluck(:nature).compact
     @reporting_units = params[:reporting_entity_id].present? ? ReportingUnit.where(reporting_entity_id: params[:reporting_entity_id]) : []
   end
 
@@ -45,7 +45,7 @@ class RpTransactionsController < ApplicationController
       @reporting_entities = ReportingEntity.all
       @periods = Period.all
       @counterparties = RpMaster.where(active: true).pluck(:name)
-      @natures = Transaction.distinct.pluck(:nature).compact
+      @natures = Transaction.active.distinct.pluck(:nature).compact
       @reporting_units = @rp_transaction.reporting_entity_id.present? ? ReportingUnit.where(reporting_entity_id: @rp_transaction.reporting_entity_id) : []
       render :new, status: :unprocessable_entity
     end
@@ -56,7 +56,7 @@ class RpTransactionsController < ApplicationController
     @reporting_entities = ReportingEntity.all
     @periods = Period.all
     @counterparties = RpMaster.where(active: true).pluck(:name)
-    @natures = Transaction.distinct.pluck(:nature).compact
+    @natures = Transaction.active.distinct.pluck(:nature).compact
   end
 
   def update
@@ -67,7 +67,7 @@ class RpTransactionsController < ApplicationController
       @reporting_entities = ReportingEntity.all
       @periods = Period.all
       @counterparties = RpMaster.where(active: true).pluck(:name)
-      @natures = Transaction.distinct.pluck(:nature).compact
+      @natures = Transaction.active.distinct.pluck(:nature).compact
       render :edit, status: :unprocessable_entity
     end
   end
@@ -217,12 +217,12 @@ class RpTransactionsController < ApplicationController
   end
 
   def sub_natures
-    items = Transaction.where(nature: params[:nature]).distinct.pluck(:sub_type).compact
+    items = Transaction.active.where(nature: params[:nature]).distinct.pluck(:sub_type).compact
     render json: items
   end
 
   def transaction_types
-    items = Transaction.where(nature: params[:nature], sub_type: params[:sub_type]).distinct.pluck(:transaction_type).compact
+    items = Transaction.active.where(nature: params[:nature], sub_type: params[:sub_type]).distinct.pluck(:transaction_type).compact
     render json: items
   end
 

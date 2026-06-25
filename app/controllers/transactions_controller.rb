@@ -2,7 +2,7 @@ class TransactionsController < ApplicationController
   load_and_authorize_resource except: [:bulk_upload, :template]
 
   def index
-    @transactions = Transaction.order(:nature, :transaction_type).page(params[:page])
+    @transactions = Transaction.active.order(:nature, :transaction_type).page(params[:page])
   end
 
   def new
@@ -33,8 +33,8 @@ class TransactionsController < ApplicationController
 
   def destroy
     @transaction = Transaction.find(params[:id])
-    @transaction.destroy
-    redirect_to transactions_path, notice: "Transaction deleted."
+    @transaction.update(active: false)
+    redirect_to transactions_path, notice: "Transaction deactivated."
   end
 
   def bulk_upload
