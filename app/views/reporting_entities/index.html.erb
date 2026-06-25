@@ -4,9 +4,12 @@
 
 <div class="page-header">
   <h2>Reporting Entities</h2>
-  <% if can? :create, ReportingEntity %>
-    <%= link_to "＋ Add New", new_reporting_entity_path, class: "btn-primary btn-sm" %>
-  <% end %>
+  <div class="flex-row">
+    <% if can? :create, ReportingEntity %>
+      <%= link_to "＋ Add New", new_reporting_entity_path, class: "btn-primary btn-sm" %>
+      <%= link_to "Bulk Upload", bulk_upload_reporting_entities_path, class: "btn-primary btn-sm btn-outline" %>
+    <% end %>
+  </div>
 </div>
 
 <table class="data-table">

@@ -4,9 +4,12 @@
 
 <div class="page-header">
   <h2>Relationships</h2>
-  <% if can? :create, Relationship %>
-    <%= link_to "＋ Add New", new_relationship_path, class: "btn-primary btn-sm" %>
-  <% end %>
+  <div class="flex-row">
+    <% if can? :create, Relationship %>
+      <%= link_to "＋ Add New", new_relationship_path, class: "btn-primary btn-sm" %>
+      <%= link_to "Bulk Upload", bulk_upload_relationships_path, class: "btn-primary btn-sm btn-outline" %>
+    <% end %>
+  </div>
 </div>
 
 <table class="data-table">

@@ -121,15 +121,34 @@ class RpTransactionsController < ApplicationController
           next
         end
 
+        nature_val = row["Nature of Transaction"]&.strip
+        sub_nature_val = row["Sub-Nature of Transaction"]&.strip
+        txn_type_val = row["Type of Transaction"]&.strip
+
+        unless Transaction.exists?(nature: nature_val)
+          errors << "Row #{i}: Nature '#{nature_val}' not found in Transactions master"
+          next
+        end
+
+        unless Transaction.exists?(nature: nature_val, sub_type: sub_nature_val)
+          errors << "Row #{i}: Sub-Nature '#{sub_nature_val}' not found for Nature '#{nature_val}'"
+          next
+        end
+
+        unless Transaction.exists?(nature: nature_val, sub_type: sub_nature_val, transaction_type: txn_type_val)
+          errors << "Row #{i}: Type '#{txn_type_val}' not found for Nature '#{nature_val}' / Sub-Nature '#{sub_nature_val}'"
+          next
+        end
+
         if mode == "upsert"
           txn = RpTransaction.find_or_initialize_by(
             reporting_entity: entity,
             reporting_unit: unit,
             period: period,
             counterparty: counterparty_name,
-            nature: row["Nature of Transaction"],
-            sub_nature: row["Sub-Nature of Transaction"],
-            transaction_type: row["Type of Transaction"]
+            nature: nature_val,
+            sub_nature: sub_nature_val,
+            transaction_type: txn_type_val
           )
           is_new = txn.new_record?
           txn.amount = row["Amount"]
@@ -139,9 +158,9 @@ class RpTransactionsController < ApplicationController
             reporting_unit: unit,
             period: period,
             counterparty: counterparty_name,
-            transaction_type: row["Type of Transaction"],
-            nature: row["Nature of Transaction"],
-            sub_nature: row["Sub-Nature of Transaction"],
+            transaction_type: txn_type_val,
+            nature: nature_val,
+            sub_nature: sub_nature_val,
             amount: row["Amount"]
           )
           is_new = true

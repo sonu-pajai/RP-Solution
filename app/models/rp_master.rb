@@ -13,6 +13,10 @@ class RpMaster < ApplicationRecord
   validates :pan, format: { with: /\A[A-Z]{5}[0-9]{4}[A-Z]\z/, message: "must be a valid PAN (e.g. ABCDE1234F)" }, allow_blank: true
   validate :dob_must_be_in_past
 
+  def formatted_dob
+    dob_or_incorporation&.strftime("%d-%m-%Y")
+  end
+
   private
 
   def upcase_pan

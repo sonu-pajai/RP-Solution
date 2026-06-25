@@ -1,0 +1,39 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "Reporting Entities", reporting_entities_path %><span class="separator">›</span> Bulk Upload
+<% end %>
+
+<div class="page-header">
+  <h2>Bulk Upload - Reporting Entities</h2>
+  <%= link_to "← Back", reporting_entities_path, class: "action-link" %>
+</div>
+
+<div class="card">
+  <div class="info-box">
+    <p class="info-box-title">📋 File Format</p>
+    <p class="info-box-text">
+      Upload a CSV file with these columns:<br>
+      <code>Name | Reporting Units</code><br>
+      <small>Multiple reporting units can be separated by semicolons (;)</small>
+    </p>
+  </div>
+
+  <div class="mb-24">
+    <%= link_to template_reporting_entities_path, class: "sample-download" do %>
+      <span class="sample-download-icon">📥</span>
+      <span><strong>Download Template</strong><br><span class="sample-download-subtitle">CSV template with correct headers</span></span>
+    <% end %>
+  </div>
+
+  <%= form_with(url: bulk_upload_reporting_entities_path, method: :post, multipart: true) do |f| %>
+    <div class="form-group">
+      <label>Select File</label>
+      <%= f.file_field :file, accept: ".csv", class: "form-control" %>
+      <span class="form-hint">Accepted: .csv</span>
+    </div>
+
+    <div class="flex-row">
+      <%= f.submit "⬆ Upload", class: "btn-primary btn-lg" %>
+      <%= link_to "Cancel", reporting_entities_path, class: "btn-secondary" %>
+    </div>
+  <% end %>
+</div>

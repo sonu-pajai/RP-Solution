@@ -1,10 +1,34 @@
 Rails.application.routes.draw do
   devise_for :users
   root "dashboard#index"
-  resources :reporting_entities
-  resources :relationships
-  resources :transactions
-  resources :periods
+  resources :reporting_entities do
+    collection do
+      get :bulk_upload
+      post :bulk_upload
+      get :template
+    end
+  end
+  resources :relationships do
+    collection do
+      get :bulk_upload
+      post :bulk_upload
+      get :template
+    end
+  end
+  resources :transactions do
+    collection do
+      get :bulk_upload
+      post :bulk_upload
+      get :template
+    end
+  end
+  resources :periods do
+    collection do
+      get :bulk_upload
+      post :bulk_upload
+      get :template
+    end
+  end
   get "rp_list", to: "rp_list#index"
   get "rp_master", to: "rp_master#index"
   get "rp_master/new", to: "rp_master#new", as: :new_rp_master

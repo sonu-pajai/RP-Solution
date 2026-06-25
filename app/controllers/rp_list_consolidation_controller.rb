@@ -40,8 +40,8 @@ class RpListConsolidationController < ApplicationController
         period_id: params[:period_id]
       )
       record.assign_attributes(
-        related_party_from: params[:related_party_from][id],
-        related_party_upto: params[:related_party_upto][id],
+        related_party_from: parse_date(params[:related_party_from][id]),
+        related_party_upto: parse_date(params[:related_party_upto][id]),
         custom_input: params[:custom_input][id]
       )
       record.save!
@@ -186,7 +186,10 @@ class RpListConsolidationController < ApplicationController
 
   def update
     @rp_consolidation = RpConsolidation.find(params[:id])
-    if @rp_consolidation.update(consolidation_params)
+    attrs = consolidation_params.to_h
+    attrs[:related_party_from] = parse_date(attrs[:related_party_from]) if attrs[:related_party_from].present?
+    attrs[:related_party_upto] = parse_date(attrs[:related_party_upto]) if attrs[:related_party_upto].present?
+    if @rp_consolidation.update(attrs)
       redirect_to rp_list_consolidation_path(reporting_entity_id: @rp_consolidation.reporting_entity_id, period_id: @rp_consolidation.period_id, tab: "submitted"), notice: "Record updated."
     else
       render :edit, status: :unprocessable_entity
@@ -205,5 +208,11 @@ class RpListConsolidationController < ApplicationController
 
   def consolidation_params
     params.require(:rp_consolidation).permit(:related_party_from, :related_party_upto, :custom_input)
+  end
+
+  def parse_date(str)
+    Date.strptime(str, "%d/%m/%Y")
+  rescue
+    str
   end
 end

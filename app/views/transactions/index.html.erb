@@ -4,9 +4,12 @@
 
 <div class="page-header">
   <h2>Transactions</h2>
-  <% if can? :create, Transaction %>
-    <%= link_to "＋ Add New", new_transaction_path, class: "btn-primary btn-sm" %>
-  <% end %>
+  <div class="flex-row">
+    <% if can? :create, Transaction %>
+      <%= link_to "＋ Add New", new_transaction_path, class: "btn-primary btn-sm" %>
+      <%= link_to "Bulk Upload", bulk_upload_transactions_path, class: "btn-primary btn-sm btn-outline" %>
+    <% end %>
+  </div>
 </div>
 
 <table class="data-table">

@@ -84,8 +84,8 @@
                 <td><%= rp.name %></td>
                 <td><%= rp.pan %></td>
                 <td><%= rp.category %></td>
-                <td><%= date_field_tag "related_party_from[#{rp.id}]", nil, class: "form-control" %></td>
-                <td><%= date_field_tag "related_party_upto[#{rp.id}]", nil, class: "form-control" %></td>
+                <td><%= text_field_tag "related_party_from[#{rp.id}]", nil, placeholder: "DD/MM/YYYY", class: "form-control date-input" %></td>
+                <td><%= text_field_tag "related_party_upto[#{rp.id}]", nil, placeholder: "DD/MM/YYYY", class: "form-control date-input" %></td>
                 <td><%= text_field_tag "custom_input[#{rp.id}]", nil, placeholder: "Enter value", class: "form-control" %></td>
               </tr>
             <% end %>
@@ -123,8 +123,8 @@
               <td><%= rc.rp_master.name %></td>
               <td><%= rc.rp_master.pan %></td>
               <td><%= rc.rp_master.category %></td>
-              <td><%= rc.related_party_from %></td>
-              <td><%= rc.related_party_upto %></td>
+              <td><%= rc.related_party_from&.strftime("%d/%m/%Y") %></td>
+              <td><%= rc.related_party_upto&.strftime("%d/%m/%Y") %></td>
               <td><%= rc.custom_input %></td>
               <td><%= rc.created_at.strftime("%d-%b-%Y") %></td>
               <td class="nowrap">
