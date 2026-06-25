@@ -2,128 +2,213 @@
   <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP List", rp_list_path %><span class="separator">›</span> RP Master
 <% end %>
 
-<div class="page-header">
-  <h2>RP Master</h2>
-  <div class="flex-row">
-    <%= link_to "Create", new_rp_master_path, class: "btn-primary btn-sm" %>
-    <%= link_to "Bulk Upload", rp_master_bulk_upload_path, class: "btn-primary btn-sm btn-outline" %>
-    <%= link_to "Export CSV", rp_master_export_path(unique_code: params[:unique_code], name: params[:name], pan: params[:pan], category: params[:category]), class: "btn-primary btn-sm btn-outline" %>
+<div style="margin-bottom:8px;">
+  <h2 style="margin:0;">RP Master</h2>
+  <p style="margin:4px 0 0; color:#64748b; font-size:14px;">Manage and monitor Related Party master data</p>
+</div>
+
+<!-- Stat Cards -->
+<div class="rp-stat-cards">
+  <div class="rp-stat-card">
+    <div class="rp-stat-icon blue">👥</div>
+    <div class="rp-stat-info">
+      <span class="rp-stat-label">Total Related Parties</span>
+      <span class="rp-stat-value"><%= @total_count %></span>
+    </div>
+  </div>
+  <div class="rp-stat-card">
+    <div class="rp-stat-icon orange">👤</div>
+    <div class="rp-stat-info">
+      <span class="rp-stat-label">Directors / KMP</span>
+      <span class="rp-stat-value"><%= @directors_count %></span>
+    </div>
+  </div>
+  <div class="rp-stat-card">
+    <div class="rp-stat-icon green">🏢</div>
+    <div class="rp-stat-info">
+      <span class="rp-stat-label">Subsidiaries</span>
+      <span class="rp-stat-value"><%= @subsidiaries_count %></span>
+    </div>
+  </div>
+  <div class="rp-stat-card">
+    <div class="rp-stat-icon teal">📋</div>
+    <div class="rp-stat-info">
+      <span class="rp-stat-label">Pending Review</span>
+      <span class="rp-stat-value"><%= @pending_count %></span>
+    </div>
   </div>
 </div>
 
-<div class="stats-bar" style="margin-bottom:16px;">
-  <span class="badge">Total Records: <strong><%= @total_count %></strong></span>
-</div>
-
-<div class="filter-bar">
-  <div class="flex-row-end">
-    <div class="form-group mb-0">
-      <%= text_field_tag :unique_code, params[:unique_code], placeholder: "Unique Code", id: "code-filter", autocomplete: "off", class: "form-control" %>
+<!-- Search & Advanced Filters -->
+<div class="rp-search-section">
+  <div class="rp-search-row">
+    <div class="rp-search-box">
+      <span class="rp-search-icon">🔍</span>
+      <%= text_field_tag :search, params[:search], placeholder: "Search by Name, PAN, DIN, CIN or RP Code...", id: "search-input", autocomplete: "off", class: "rp-search-input" %>
     </div>
-    <div class="form-group mb-0">
-      <%= text_field_tag :name, params[:name], placeholder: "Name", id: "name-filter", autocomplete: "off", class: "form-control" %>
-    </div>
-    <div class="form-group mb-0">
-      <%= text_field_tag :pan, params[:pan], placeholder: "PAN", id: "pan-filter", autocomplete: "off", class: "form-control" %>
-    </div>
-    <div class="form-group mb-0">
-      <%= select_tag :category, options_for_select(Relationship::CATEGORIES, params[:category]), prompt: "All Categories", id: "category-filter", class: "form-control" %>
-    </div>
-    <a href="#" id="search-btn" class="btn-primary btn-sm">Search</a>
-    <% if params[:unique_code].present? || params[:name].present? || params[:pan].present? || params[:category].present? %>
-      <%= link_to "Clear", rp_master_path, class: "action-link" %>
+    <a href="#" id="toggle-filters" class="rp-advanced-btn">🔽 Advanced Filters</a>
+    <% if params[:search].present? || params[:category].present? || params[:relationship].present? || params[:sebi].present? || params[:companies_act].present? || params[:status].present? %>
+      <%= link_to "↺ Clear", rp_master_path, class: "rp-clear-link" %>
     <% end %>
   </div>
+
+  <div class="rp-filters-row" id="advanced-filters" style="<%= 'display:none;' unless params[:category].present? || params[:relationship].present? || params[:sebi].present? || params[:companies_act].present? || params[:status].present? %>">
+    <div class="rp-filter-group">
+      <label>Category</label>
+      <%= select_tag :category, options_for_select([["All", ""]] + Relationship::CATEGORIES.map { |c| [c, c] }, params[:category]), id: "filter-category", class: "rp-filter-select" %>
+    </div>
+    <div class="rp-filter-group">
+      <label>Relationship</label>
+      <%= select_tag :relationship, options_for_select([["All", ""]] + Relationship.pluck(:name).map { |r| [r, r] }, params[:relationship]), id: "filter-relationship", class: "rp-filter-select" %>
+    </div>
+    <div class="rp-filter-group">
+      <label>SEBI Applicability</label>
+      <%= select_tag :sebi, options_for_select([["All", ""], ["Applicable", "yes"], ["Not Applicable", "no"]], params[:sebi]), id: "filter-sebi", class: "rp-filter-select" %>
+    </div>
+    <div class="rp-filter-group">
+      <label>Companies Act</label>
+      <%= select_tag :companies_act, options_for_select([["All", ""], ["Applicable", "yes"], ["Not Applicable", "no"]], params[:companies_act]), id: "filter-companies-act", class: "rp-filter-select" %>
+    </div>
+    <div class="rp-filter-group">
+      <label>Status</label>
+      <%= select_tag :status, options_for_select([["All", ""], ["Active", "active"], ["Inactive", "inactive"]], params[:status]), id: "filter-status", class: "rp-filter-select" %>
+    </div>
+  </div>
 </div>
 
+<!-- Category Tabs -->
+<div class="rp-tabs">
+  <% tab_params = request.params.except(:tab, :page) %>
+  <%= link_to "All (#{@tab_counts[:all]})", rp_master_path(tab_params), class: "rp-tab #{'rp-tab-active' if @active_tab == 'all'}" %>
+  <%= link_to "Directors / KMP (#{@tab_counts[:directors]})", rp_master_path(tab_params.merge(tab: 'directors')), class: "rp-tab #{'rp-tab-active' if @active_tab == 'directors'}" %>
+  <%= link_to "Subsidiaries (#{@tab_counts[:subsidiaries]})", rp_master_path(tab_params.merge(tab: 'subsidiaries')), class: "rp-tab #{'rp-tab-active' if @active_tab == 'subsidiaries'}" %>
+  <%= link_to "Associates (#{@tab_counts[:associates]})", rp_master_path(tab_params.merge(tab: 'associates')), class: "rp-tab #{'rp-tab-active' if @active_tab == 'associates'}" %>
+  <%= link_to "Promoters (#{@tab_counts[:promoters]})", rp_master_path(tab_params.merge(tab: 'promoters')), class: "rp-tab #{'rp-tab-active' if @active_tab == 'promoters'}" %>
+  <%= link_to "Others (#{@tab_counts[:others]})", rp_master_path(tab_params.merge(tab: 'others')), class: "rp-tab #{'rp-tab-active' if @active_tab == 'others'}" %>
+</div>
 
-<div class="overflow-x">
-  <table class="data-table">
+<!-- Data Table -->
+<div class="rp-table-wrapper">
+  <table class="rp-table">
     <thead>
       <tr>
-        <th><%= sort_link("unique_code", "Unique Code") %></th>
-        <th>Salutation</th>
+        <th><%= sort_link("unique_code", "RP Code") %></th>
         <th><%= sort_link("name", "Name") %></th>
-        <th><%= sort_link("pan", "PAN") %></th>
         <th><%= sort_link("category", "Category") %></th>
-        <th>Specific Relationship</th>
-        <th>Related to Director</th>
-        <th>DOB / Incorporation</th>
-        <th>RP SEBI</th>
-        <th>RP Companies Act</th>
-        <th>RP AS-18</th>
-        <th>RP IND AS-24</th>
-        <th>Other Guidelines</th>
+        <th><%= sort_link("specific_relationship", "Relationship") %></th>
+        <th>SEBI</th>
+        <th>Companies Act</th>
         <th>Status</th>
-        <th>Created By</th>
-        <th>Approved By</th>
-        <th>Admin Approved By</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
       <% if @rp_masters.present? %>
         <% @rp_masters.each do |rp| %>
-          <tr style="cursor:pointer;" onclick="window.location='<%= show_rp_master_path(rp) %>';">
-            <td><%= rp.unique_code %></td>
-            <td><%= rp.salutation %></td>
+          <tr>
+            <td class="rp-code"><%= rp.unique_code %></td>
             <td><%= rp.name %></td>
-            <td><%= rp.pan %></td>
             <td><%= rp.category %></td>
             <td><%= rp.specific_relationship %></td>
-            <td><%= rp.related_to_director %></td>
-            <td><%= rp.formatted_dob %></td>
-            <td><%= rp.related_party_sebi ? "Yes" : "No" %></td>
-            <td><%= rp.related_party_companies_act ? "Yes" : "No" %></td>
-            <td><%= rp.related_party_as18 ? "Yes" : "No" %></td>
-            <td><%= rp.related_party_ind_as24 ? "Yes" : "No" %></td>
-            <td><%= rp.other_guidelines %></td>
-            <td><%= rp.active ? "Active" : "In-Active" %></td>
-            <td><%= rp.created_by&.name %></td>
-            <td><%= rp.approved_by&.name %></td>
-            <td><%= rp.admin_approved_by&.name %></td>
-            <td class="nowrap">
-              <%= link_to "View", show_rp_master_path(rp), class: "action-link" %>
-              <%= link_to "Edit", edit_rp_master_path(rp), class: "action-link" %>
-              <%= link_to "Delete", destroy_rp_master_path(rp), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
+            <td>
+              <% if rp.related_party_sebi %>
+                <span class="rp-badge-applicable">● Applicable</span>
+              <% else %>
+                <span class="rp-badge-na">● N/A</span>
+              <% end %>
+            </td>
+            <td>
+              <% if rp.related_party_companies_act %>
+                <span class="rp-badge-applicable">● Applicable</span>
+              <% else %>
+                <span class="rp-badge-na">● N/A</span>
+              <% end %>
+            </td>
+            <td>
+              <% if rp.active %>
+                <span class="rp-status-active">Active</span>
+              <% else %>
+                <span class="rp-status-inactive">Inactive</span>
+              <% end %>
+            </td>
+            <td class="rp-actions">
+              <%= link_to "👁", show_rp_master_path(rp), title: "View", class: "rp-action-icon" %>
+              <%= link_to "✏️", edit_rp_master_path(rp), title: "Edit", class: "rp-action-icon" %>
+              <%= link_to "🗑", destroy_rp_master_path(rp), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, title: "Delete", class: "rp-action-icon" %>
             </td>
           </tr>
         <% end %>
       <% else %>
-        <tr><td colspan="18" class="empty-row">No records found.</td></tr>
+        <tr><td colspan="8" class="empty-row">No records found.</td></tr>
       <% end %>
     </tbody>
   </table>
 </div>
 
-<script>
-  var searchBtn = document.getElementById('search-btn');
+<!-- Pagination -->
+<div class="rp-pagination-bar">
+  <span class="rp-showing-text">
+    Showing <%= @rp_masters.offset_value + 1 %> to <%= [@rp_masters.offset_value + @rp_masters.limit_value, @rp_masters.total_count].min %> of <%= @rp_masters.total_count %> entries
+  </span>
+  <div class="rp-pagination-right">
+    <select id="per-page-select" class="rp-per-page-select">
+      <% [10, 25, 50, 100].each do |n| %>
+        <option value="<%= n %>" <%= 'selected' if (params[:per_page] || 10).to_i == n %>><%= n %> per page</option>
+      <% end %>
+    </select>
+    <%= render "shared/pagination", collection: @rp_masters %>
+  </div>
+</div>
 
-  function applyFilters() {
-    var params = [];
-    var code = document.getElementById('code-filter').value;
-    var name = document.getElementById('name-filter').value;
-    var pan = document.getElementById('pan-filter').value;
-    var category = document.getElementById('category-filter').value;
-    if (code) params.push('unique_code=' + encodeURIComponent(code));
-    if (name) params.push('name=' + encodeURIComponent(name));
-    if (pan) params.push('pan=' + encodeURIComponent(pan));
-    if (category) params.push('category=' + encodeURIComponent(category));
-    window.location.href = '/rp_master' + (params.length ? '?' + params.join('&') : '');
+<!-- Action Buttons (floating) -->
+<div class="rp-fab-row">
+  <%= link_to "+ Create", new_rp_master_path, class: "btn-primary btn-sm" %>
+  <%= link_to "Bulk Upload", rp_master_bulk_upload_path, class: "btn-primary btn-sm btn-outline" %>
+  <%= link_to "Export CSV", rp_master_export_path(search: params[:search], category: params[:category]), class: "btn-primary btn-sm btn-outline" %>
+</div>
+
+<script>
+  // Toggle advanced filters
+  document.getElementById('toggle-filters').addEventListener('click', function(e) {
+    e.preventDefault();
+    var el = document.getElementById('advanced-filters');
+    el.style.display = el.style.display === 'none' ? '' : 'none';
+  });
+
+  // Build URL with current params
+  function buildUrl(extraParams) {
+    var params = new URLSearchParams(window.location.search);
+    Object.keys(extraParams).forEach(function(k) {
+      if (extraParams[k]) params.set(k, extraParams[k]);
+      else params.delete(k);
+    });
+    params.delete('page');
+    return '/rp_master' + (params.toString() ? '?' + params.toString() : '');
   }
 
-  searchBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    applyFilters();
+  // Search on Enter
+  document.getElementById('search-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      window.location.href = buildUrl({ search: this.value });
+    }
   });
 
-  ['code-filter', 'name-filter', 'pan-filter'].forEach(function(id) {
-    document.getElementById(id).addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') { e.preventDefault(); applyFilters(); }
-    });
+  // Advanced filter dropdowns
+  ['filter-category', 'filter-relationship', 'filter-sebi', 'filter-companies-act', 'filter-status'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change', function() {
+        var key = id.replace('filter-', '').replace('-', '_');
+        var obj = {};
+        obj[key] = this.value;
+        window.location.href = buildUrl(obj);
+      });
+    }
   });
 
-  document.getElementById('category-filter').addEventListener('change', applyFilters);
+  // Per page
+  document.getElementById('per-page-select').addEventListener('change', function() {
+    window.location.href = buildUrl({ per_page: this.value });
+  });
 </script>
-
-<%= render "shared/pagination", collection: @rp_masters %>

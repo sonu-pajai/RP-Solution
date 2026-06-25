@@ -1,17 +1,62 @@
 class RpMasterController < ApplicationController
   def index
-    @rp_masters = RpMaster.includes(:created_by, :approved_by, :admin_approved_by)
-    @rp_masters = @rp_masters.where("unique_code ILIKE ?", "%#{params[:unique_code]}%") if params[:unique_code].present?
-    @rp_masters = @rp_masters.where("name ILIKE ?", "%#{params[:name]}%") if params[:name].present?
-    @rp_masters = @rp_masters.where("pan ILIKE ?", "%#{params[:pan]}%") if params[:pan].present?
-    @rp_masters = @rp_masters.where(category: params[:category]) if params[:category].present?
+    @all_rp = RpMaster.all
 
-    sort_column = %w[unique_code name pan category created_at].include?(params[:sort]) ? params[:sort] : "created_at"
+    # Stats
+    @total_count = @all_rp.count
+    @directors_count = @all_rp.where(category: "Director/KMP").count
+    @subsidiaries_count = @all_rp.where(category: "Subsidiary").count
+    @pending_count = @all_rp.where(approved_by: nil).count
+
+    # Tab filter
+    @active_tab = params[:tab] || "all"
+    scope = RpMaster.includes(:created_by, :approved_by, :admin_approved_by)
+
+    case @active_tab
+    when "directors"
+      scope = scope.where(category: "Director/KMP")
+    when "subsidiaries"
+      scope = scope.where(category: "Subsidiary")
+    when "associates"
+      scope = scope.where(category: "Associate/Joint Venture")
+    when "promoters"
+      scope = scope.where(category: "Holding Company")
+    when "others"
+      scope = scope.where.not(category: ["Director/KMP", "Subsidiary", "Associate/Joint Venture", "Holding Company"])
+    end
+
+    # Search
+    if params[:search].present?
+      q = "%#{params[:search]}%"
+      scope = scope.where("name ILIKE ? OR pan ILIKE ? OR unique_code ILIKE ?", q, q, q)
+    end
+
+    # Advanced filters
+    scope = scope.where(category: params[:category]) if params[:category].present?
+    scope = scope.where(specific_relationship: params[:relationship]) if params[:relationship].present?
+    scope = scope.where(related_party_sebi: params[:sebi] == "yes") if params[:sebi].present?
+    scope = scope.where(related_party_companies_act: params[:companies_act] == "yes") if params[:companies_act].present?
+    scope = scope.where(active: params[:status] == "active") if params[:status].present?
+
+    # Sort
+    sort_column = %w[unique_code name category specific_relationship created_at].include?(params[:sort]) ? params[:sort] : "created_at"
     sort_direction = params[:direction] == "desc" ? "desc" : "asc"
-    @rp_masters = @rp_masters.order("#{sort_column} #{sort_direction}")
+    scope = scope.order("#{sort_column} #{sort_direction}")
 
-    @total_count = @rp_masters.count
-    @rp_masters = @rp_masters.page(params[:page])
+    # Tab counts (after search/filters)
+    filtered_base = scope
+    @tab_counts = {
+      all: filtered_base.count,
+      directors: filtered_base.where(category: "Director/KMP").count,
+      subsidiaries: filtered_base.where(category: "Subsidiary").count,
+      associates: filtered_base.where(category: "Associate/Joint Venture").count,
+      promoters: filtered_base.where(category: "Holding Company").count,
+      others: filtered_base.where.not(category: ["Director/KMP", "Subsidiary", "Associate/Joint Venture", "Holding Company"]).count
+    }
+
+    # Pagination
+    per_page = (params[:per_page] || 10).to_i
+    @rp_masters = scope.page(params[:page]).per(per_page)
   end
 
   def new
@@ -113,18 +158,16 @@ class RpMasterController < ApplicationController
   def export
     require "csv"
     records = RpMaster.all
-    records = records.where("unique_code ILIKE ?", "%#{params[:unique_code]}%") if params[:unique_code].present?
-    records = records.where("name ILIKE ?", "%#{params[:name]}%") if params[:name].present?
-    records = records.where("pan ILIKE ?", "%#{params[:pan]}%") if params[:pan].present?
+    records = records.where("unique_code ILIKE ? OR name ILIKE ? OR pan ILIKE ?", "%#{params[:search]}%", "%#{params[:search]}%", "%#{params[:search]}%") if params[:search].present?
     records = records.where(category: params[:category]) if params[:category].present?
     records = records.order(:created_at)
 
     csv_data = CSV.generate do |csv|
-      csv << ["Salutation", "Name", "PAN", "Category", "Specific Relationship", "DOB/Incorporation Date", "Related to Director", "RP as per SEBI", "RP as per Companies Act", "RP as per AS-18", "RP as per IND AS-24", "Other Guidelines", "Active"]
+      csv << ["Unique Code", "Name", "PAN", "Category", "Specific Relationship", "DOB/Incorporation Date", "Related to Director", "RP as per SEBI", "RP as per Companies Act", "RP as per AS-18", "RP as per IND AS-24", "Other Guidelines", "Active"]
       records.each do |rp|
         csv << [
-          rp.salutation, rp.name, rp.pan,
-          rp.category, rp.specific_relationship, rp.dob_or_incorporation,
+          rp.unique_code, rp.name, rp.pan,
+          rp.category, rp.specific_relationship, rp.formatted_dob,
           rp.related_to_director,
           rp.related_party_sebi ? "Yes" : "No",
           rp.related_party_companies_act ? "Yes" : "No",
