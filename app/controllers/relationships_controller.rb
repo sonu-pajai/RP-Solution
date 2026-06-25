@@ -2,7 +2,7 @@ class RelationshipsController < ApplicationController
   load_and_authorize_resource except: [:bulk_upload, :template]
 
   def index
-    @relationships = Relationship.order(:category, :name)
+    @relationships = Relationship.order(:category, :name).page(params[:page])
   end
 
   def new

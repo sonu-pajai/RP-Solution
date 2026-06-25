@@ -31,7 +31,7 @@ class RpConsolidationOutputController < ApplicationController
         rc
       end.uniq { |rc| rc.rp_master_id }
     else
-      @rp_consolidations = scope
+      @rp_consolidations = scope.page(params[:page])
     end
   end
 end

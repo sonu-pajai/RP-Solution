@@ -2,7 +2,7 @@ class ReportingEntitiesController < ApplicationController
   load_and_authorize_resource except: [:bulk_upload, :template]
 
   def index
-    @reporting_entities = ReportingEntity.includes(:reporting_units).all
+    @reporting_entities = ReportingEntity.includes(:reporting_units).page(params[:page])
   end
 
   def new
@@ -50,7 +50,7 @@ class ReportingEntitiesController < ApplicationController
       errors = []
 
       CSV.foreach(file.path, headers: true).with_index(2) do |row, line|
-        entity = ReportingEntity.new(name: row["Name"]&.strip)
+        entity = ReportingEntity.find_or_initialize_by(name: row["Name"]&.strip)
         if entity.save
           units = row["Reporting Units"]&.strip
           if units.present?

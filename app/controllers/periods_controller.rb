@@ -2,7 +2,7 @@ class PeriodsController < ApplicationController
   load_and_authorize_resource except: [:bulk_upload, :template]
 
   def index
-    @periods = Period.order(:financial_year, :id)
+    @periods = Period.order(:financial_year, :id).page(params[:page])
   end
 
   def new
