@@ -126,6 +126,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_25_172042) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "active", default: true, null: false
+    t.index ["active"], name: "index_transactions_on_active"
     t.index ["nature", "sub_type"], name: "idx_transactions_nature_sub_type"
     t.index ["nature"], name: "index_transactions_on_nature"
   end

@@ -9,6 +9,9 @@
       <%= link_to "＋ Add New", new_transaction_path, class: "btn-primary btn-sm" %>
       <%= link_to "Bulk Upload", bulk_upload_transactions_path, class: "btn-primary btn-sm btn-outline" %>
     <% end %>
+    <% if can? :destroy, Transaction %>
+      <%= link_to "🗑 Destroy All", destroy_all_transactions_path, data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to deactivate ALL transactions?" }, class: "btn-sm btn-danger" %>
+    <% end %>
   </div>
 </div>
 

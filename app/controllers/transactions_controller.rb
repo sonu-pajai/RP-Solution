@@ -37,6 +37,11 @@ class TransactionsController < ApplicationController
     redirect_to transactions_path, notice: "Transaction deactivated."
   end
 
+  def destroy_all
+    Transaction.where(active: true).update_all(active: false)
+    redirect_to transactions_path, notice: "All transactions deactivated."
+  end
+
   def bulk_upload
     if request.post?
       file = params[:file]

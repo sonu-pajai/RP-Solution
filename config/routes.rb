@@ -20,6 +20,7 @@ Rails.application.routes.draw do
       get :bulk_upload
       post :bulk_upload
       get :template
+      delete :destroy_all
     end
   end
   resources :periods do

@@ -56,7 +56,7 @@ class RpTransactionsController < ApplicationController
     @reporting_entities = ReportingEntity.all
     @periods = Period.all
     @counterparties = RpMaster.where(active: true).pluck(:name)
-    @natures = Transaction.active.distinct.pluck(:nature).compact
+    @natures = Transaction.distinct.pluck(:nature).compact
   end
 
   def update
@@ -67,7 +67,7 @@ class RpTransactionsController < ApplicationController
       @reporting_entities = ReportingEntity.all
       @periods = Period.all
       @counterparties = RpMaster.where(active: true).pluck(:name)
-      @natures = Transaction.active.distinct.pluck(:nature).compact
+      @natures = Transaction.distinct.pluck(:nature).compact
       render :edit, status: :unprocessable_entity
     end
   end
