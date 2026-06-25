@@ -25,12 +25,12 @@
       <tr>
         <td><%= rel.name %></td>
         <td><%= rel.category %></td>
-        <td>
+        <td class="rp-actions">
           <% if can? :update, rel %>
-            <%= link_to "Edit", edit_relationship_path(rel), class: "action-link" %>
+            <%= link_to "✏️", edit_relationship_path(rel), title: "Edit", class: "rp-action-icon" %>
           <% end %>
           <% if can? :destroy, rel %>
-            <%= link_to "Delete", relationship_path(rel), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
+            <%= link_to "🗑", relationship_path(rel), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, title: "Delete", class: "rp-action-icon" %>
           <% end %>
         </td>
       </tr>

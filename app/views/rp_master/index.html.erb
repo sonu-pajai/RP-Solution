@@ -2,9 +2,16 @@
   <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP List", rp_list_path %><span class="separator">›</span> RP Master
 <% end %>
 
-<div style="margin-bottom:8px;">
-  <h2 style="margin:0;">RP Master</h2>
-  <p style="margin:4px 0 0; color:#64748b; font-size:14px;">Manage and monitor Related Party master data</p>
+<div style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+  <div>
+    <h2 style="margin:0;">RP Master</h2>
+    <p style="margin:4px 0 0; color:#64748b; font-size:14px;">Manage and monitor Related Party master data</p>
+  </div>
+  <div class="flex-row">
+    <%= link_to "+ Create", new_rp_master_path, class: "btn-primary btn-sm" %>
+    <%= link_to "Bulk Upload", rp_master_bulk_upload_path, class: "btn-primary btn-sm btn-outline" %>
+    <%= link_to "Export CSV", rp_master_export_path(search: params[:search], category: params[:category]), class: "btn-primary btn-sm btn-outline" %>
+  </div>
 </div>
 
 <!-- Stat Cards -->
@@ -93,12 +100,22 @@
     <thead>
       <tr>
         <th><%= sort_link("unique_code", "RP Code") %></th>
+        <th>Salutation</th>
         <th><%= sort_link("name", "Name") %></th>
+        <th>PAN</th>
         <th><%= sort_link("category", "Category") %></th>
         <th><%= sort_link("specific_relationship", "Relationship") %></th>
+        <th>Related to Director</th>
+        <th>DOB / Incorporation</th>
         <th>SEBI</th>
         <th>Companies Act</th>
+        <th>AS-18</th>
+        <th>IND AS-24</th>
+        <th>Other Guidelines</th>
         <th>Status</th>
+        <th>Created By</th>
+        <th>Approved By</th>
+        <th>Admin Approved By</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -107,30 +124,22 @@
         <% @rp_masters.each do |rp| %>
           <tr>
             <td class="rp-code"><%= rp.unique_code %></td>
+            <td><%= rp.salutation %></td>
             <td><%= rp.name %></td>
+            <td><%= rp.pan %></td>
             <td><%= rp.category %></td>
             <td><%= rp.specific_relationship %></td>
-            <td>
-              <% if rp.related_party_sebi %>
-                <span class="rp-badge-applicable">● Applicable</span>
-              <% else %>
-                <span class="rp-badge-na">● N/A</span>
-              <% end %>
-            </td>
-            <td>
-              <% if rp.related_party_companies_act %>
-                <span class="rp-badge-applicable">● Applicable</span>
-              <% else %>
-                <span class="rp-badge-na">● N/A</span>
-              <% end %>
-            </td>
-            <td>
-              <% if rp.active %>
-                <span class="rp-status-active">Active</span>
-              <% else %>
-                <span class="rp-status-inactive">Inactive</span>
-              <% end %>
-            </td>
+            <td><%= rp.related_to_director %></td>
+            <td><%= rp.formatted_dob %></td>
+            <td><span class="<%= rp.related_party_sebi ? 'rp-bool-yes' : 'rp-bool-no' %>"><%= rp.related_party_sebi ? 'Yes' : 'No' %></span></td>
+            <td><span class="<%= rp.related_party_companies_act ? 'rp-bool-yes' : 'rp-bool-no' %>"><%= rp.related_party_companies_act ? 'Yes' : 'No' %></span></td>
+            <td><span class="<%= rp.related_party_as18 ? 'rp-bool-yes' : 'rp-bool-no' %>"><%= rp.related_party_as18 ? 'Yes' : 'No' %></span></td>
+            <td><span class="<%= rp.related_party_ind_as24 ? 'rp-bool-yes' : 'rp-bool-no' %>"><%= rp.related_party_ind_as24 ? 'Yes' : 'No' %></span></td>
+            <td><%= rp.other_guidelines %></td>
+            <td><span class="<%= rp.active ? 'rp-bool-yes' : 'rp-bool-no' %>"><%= rp.active ? 'Active' : 'Inactive' %></span></td>
+            <td><%= rp.created_by&.name %></td>
+            <td><%= rp.approved_by&.name %></td>
+            <td><%= rp.admin_approved_by&.name %></td>
             <td class="rp-actions">
               <%= link_to "👁", show_rp_master_path(rp), title: "View", class: "rp-action-icon" %>
               <%= link_to "✏️", edit_rp_master_path(rp), title: "Edit", class: "rp-action-icon" %>
@@ -139,7 +148,7 @@
           </tr>
         <% end %>
       <% else %>
-        <tr><td colspan="8" class="empty-row">No records found.</td></tr>
+        <tr><td colspan="18" class="empty-row">No records found.</td></tr>
       <% end %>
     </tbody>
   </table>
@@ -160,12 +169,7 @@
   </div>
 </div>
 
-<!-- Action Buttons (floating) -->
-<div class="rp-fab-row">
-  <%= link_to "+ Create", new_rp_master_path, class: "btn-primary btn-sm" %>
-  <%= link_to "Bulk Upload", rp_master_bulk_upload_path, class: "btn-primary btn-sm btn-outline" %>
-  <%= link_to "Export CSV", rp_master_export_path(search: params[:search], category: params[:category]), class: "btn-primary btn-sm btn-outline" %>
-</div>
+
 
 <script>
   // Toggle advanced filters

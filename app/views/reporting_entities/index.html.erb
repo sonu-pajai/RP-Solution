@@ -27,12 +27,12 @@
         <td><%= entity.id %></td>
         <td><%= entity.name %></td>
         <td><%= entity.reporting_units.pluck(:name).join(", ") %></td>
-        <td>
+        <td class="rp-actions">
           <% if can? :update, entity %>
-            <%= link_to "Edit", edit_reporting_entity_path(entity), class: "action-link" %>
+            <%= link_to "✏️", edit_reporting_entity_path(entity), title: "Edit", class: "rp-action-icon" %>
           <% end %>
           <% if can? :destroy, entity %>
-            <%= link_to "Delete", reporting_entity_path(entity), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
+            <%= link_to "🗑", reporting_entity_path(entity), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, title: "Delete", class: "rp-action-icon" %>
           <% end %>
         </td>
       </tr>

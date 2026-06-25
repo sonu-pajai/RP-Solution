@@ -33,12 +33,12 @@
         <td><%= txn.as18 %></td>
         <td><%= txn.acb %></td>
         <td><%= txn.sebi %></td>
-        <td>
+        <td class="rp-actions">
           <% if can? :update, txn %>
-            <%= link_to "Edit", edit_transaction_path(txn), class: "action-link" %>
+            <%= link_to "✏️", edit_transaction_path(txn), title: "Edit", class: "rp-action-icon" %>
           <% end %>
           <% if can? :destroy, txn %>
-            <%= link_to "Delete", transaction_path(txn), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
+            <%= link_to "🗑", transaction_path(txn), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, title: "Delete", class: "rp-action-icon" %>
           <% end %>
         </td>
       </tr>

@@ -79,10 +79,10 @@
             <td><%= txn.nature %></td>
             <td><%= txn.sub_nature %></td>
             <td class="amount"><%= number_to_currency(txn.amount, unit: "₹") %></td>
-            <td class="nowrap">
-              <%= link_to "View", rp_transaction_path(txn), class: "action-link" %>
-              <%= link_to "Edit", edit_rp_transaction_path(txn), class: "action-link" %>
-              <%= link_to "Delete", rp_transaction_path(txn), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
+            <td class="rp-actions">
+              <%= link_to "👁", rp_transaction_path(txn), title: "View", class: "rp-action-icon" %>
+              <%= link_to "✏️", edit_rp_transaction_path(txn), title: "Edit", class: "rp-action-icon" %>
+              <%= link_to "🗑", rp_transaction_path(txn), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, title: "Delete", class: "rp-action-icon" %>
             </td>
           </tr>
         <% end %>

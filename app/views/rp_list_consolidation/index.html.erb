@@ -127,9 +127,9 @@
               <td><%= rc.related_party_upto&.strftime("%d/%m/%Y") %></td>
               <td><%= rc.custom_input %></td>
               <td><%= rc.created_at.strftime("%d-%b-%Y") %></td>
-              <td class="nowrap">
-                <%= link_to "Edit", edit_rp_consolidation_path(rc), class: "action-link" %>
-                <%= link_to "Delete", destroy_rp_consolidation_path(rc), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
+              <td class="rp-actions">
+                <%= link_to "✏️", edit_rp_consolidation_path(rc), title: "Edit", class: "rp-action-icon" %>
+                <%= link_to "🗑", destroy_rp_consolidation_path(rc), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, title: "Delete", class: "rp-action-icon" %>
               </td>
             </tr>
           <% end %>

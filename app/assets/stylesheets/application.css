@@ -632,3 +632,14 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ro
   .rp-tabs { overflow-x: auto; }
   .rp-fab-row { bottom: 12px; right: 12px; }
 }
+
+
+/* Boolean Yes/No Badges */
+.rp-bool-yes {
+  color: #16a34a; font-weight: 600; font-size: 13px;
+  background: #f0fdf4; padding: 2px 8px; border-radius: 4px;
+}
+.rp-bool-no {
+  color: #dc2626; font-weight: 600; font-size: 13px;
+  background: #fef2f2; padding: 2px 8px; border-radius: 4px;
+}

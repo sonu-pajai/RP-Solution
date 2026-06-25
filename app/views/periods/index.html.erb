@@ -25,12 +25,12 @@
       <tr>
         <td><%= period.month %></td>
         <td><%= period.financial_year %></td>
-        <td>
+        <td class="rp-actions">
           <% if can? :update, period %>
-            <%= link_to "Edit", edit_period_path(period), class: "action-link" %>
+            <%= link_to "✏️", edit_period_path(period), title: "Edit", class: "rp-action-icon" %>
           <% end %>
           <% if can? :destroy, period %>
-            <%= link_to "Delete", period_path(period), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, class: "action-link danger" %>
+            <%= link_to "🗑", period_path(period), data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, title: "Delete", class: "rp-action-icon" %>
           <% end %>
         </td>
       </tr>
