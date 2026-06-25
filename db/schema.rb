@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_24_115000) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_25_111207) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -62,6 +62,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_24_115000) do
     t.index ["period_id"], name: "index_rp_consolidations_on_period_id"
     t.index ["reporting_entity_id"], name: "index_rp_consolidations_on_reporting_entity_id"
     t.index ["rp_master_id", "reporting_entity_id", "period_id"], name: "idx_rp_consolidations_composite"
+    t.index ["rp_master_id", "reporting_entity_id", "period_id"], name: "idx_rp_consolidations_master_entity_period"
     t.index ["rp_master_id"], name: "index_rp_consolidations_on_rp_master_id"
   end
 
@@ -91,6 +92,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_24_115000) do
     t.index ["category"], name: "index_rp_masters_on_category"
     t.index ["created_by_id"], name: "index_rp_masters_on_created_by_id"
     t.index ["name"], name: "index_rp_masters_on_name"
+    t.index ["pan"], name: "index_rp_masters_on_pan"
+    t.index ["related_party_companies_act"], name: "index_rp_masters_on_related_party_companies_act"
+    t.index ["related_party_sebi"], name: "index_rp_masters_on_related_party_sebi"
+    t.index ["specific_relationship"], name: "index_rp_masters_on_specific_relationship"
     t.index ["unique_code"], name: "index_rp_masters_on_unique_code"
   end
 
