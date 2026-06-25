@@ -60,34 +60,8 @@
         <%= yield %>
       </main>
 
-      <script>
-        var toggle = document.getElementById('sidebar-toggle');
-        var sidebar = document.getElementById('sidebar');
-        var main = document.getElementById('main-content');
-        var isMobile = window.innerWidth <= 768;
-
-        toggle.addEventListener('click', function() {
-          if (isMobile) {
-            sidebar.classList.toggle('mobile-open');
-          } else {
-            sidebar.classList.toggle('collapsed');
-            main.classList.toggle('expanded');
-          }
-        });
-
-        window.addEventListener('resize', function() {
-          isMobile = window.innerWidth <= 768;
-        });
-
-        function initTomSelect() {
-          document.querySelectorAll('select.form-control:not(.tomselected)').forEach(function(el) {
-            if (el.tomselect) return;
-            new TomSelect(el, { plugins: ['dropdown_input'], allowEmptyOption: true });
-          });
-        }
-        initTomSelect();
-        document.addEventListener('turbo:render', initTomSelect);
-      </script>
+      <%= javascript_include_tag "layout" %>
+      <%= yield :page_script %>
     <% else %>
       <%= yield %>
     <% end %>

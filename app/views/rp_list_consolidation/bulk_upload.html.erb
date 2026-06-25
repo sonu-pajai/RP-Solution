@@ -17,7 +17,7 @@
   </div>
 
   <div class="flex-row-center mb-24">
-    <a href="#" id="download-template" class="sample-download">
+    <a href="#" id="download-template" class="sample-download" data-template-path="<%= rp_list_consolidation_template_path %>">
       <span class="sample-download-icon">📥</span>
       <span><strong>Download Template</strong><br><span class="sample-download-subtitle">CSV template based on selected mode</span></span>
     </a>
@@ -68,16 +68,6 @@
   <% end %>
 </div>
 
-<script>
-  var modeEl = document.getElementById('mode-select');
-  var downloadLink = document.getElementById('download-template');
-
-  function updateTemplateLink() {
-    var val = modeEl.tomselect ? modeEl.tomselect.getValue() : modeEl.value;
-    downloadLink.href = '<%= rp_list_consolidation_template_path %>' + '?mode=' + val;
-  }
-
-  updateTemplateLink();
-  if (modeEl.tomselect) { modeEl.tomselect.on('change', updateTemplateLink); }
-  else { modeEl.addEventListener('change', updateTemplateLink); }
-</script>
+<% content_for :page_script do %>
+  <%= javascript_include_tag "rp_list_consolidation_bulk_upload" %>
+<% end %>
