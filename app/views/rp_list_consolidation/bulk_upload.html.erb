@@ -28,7 +28,7 @@
     </div>
   </div>
 
-  <%= form_with(url: rp_list_consolidation_bulk_upload_path, method: :post, multipart: true, id: "bulk-upload-form") do |f| %>
+  <%= form_with(url: rp_list_consolidation_bulk_upload_path, method: :post, multipart: true, id: "bulk-upload-form", data: { turbo: false }) do |f| %>
     <div class="grid-2 mb-16">
       <div class="form-group mb-0">
         <label>Reporting Entity</label>
