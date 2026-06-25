@@ -2,7 +2,7 @@ class TransactionsController < ApplicationController
   load_and_authorize_resource except: [:bulk_upload, :template]
 
   def index
-    @transactions = Transaction.order(:nature, :transaction_type)
+    @transactions = Transaction.order(:nature, :transaction_type).page(params[:page])
   end
 
   def new
