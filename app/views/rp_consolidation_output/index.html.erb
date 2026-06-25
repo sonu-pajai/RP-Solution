@@ -45,11 +45,11 @@
           <td><%= rec[:rp_master].name %></td>
           <td><%= rec[:rp_master].pan %></td>
           <td><%= rec[:rp_master].category %></td>
-          <td><%= rec[:rp_master].dob_or_incorporation %></td>
+          <td><%= rec[:rp_master].formatted_dob %></td>
           <td><%= rec[:rp_master].specific_relationship %></td>
           <td><%= rec[:period].month %></td>
-          <td><%= rec[:related_party_from] %></td>
-          <td><%= rec[:related_party_upto] %></td>
+          <td><%= rec[:related_party_from]&.strftime("%d/%m/%Y") %></td>
+          <td><%= rec[:related_party_upto]&.strftime("%d/%m/%Y") %></td>
         </tr>
       <% end %>
       <% if @consolidated_records.empty? %>
@@ -81,12 +81,12 @@
           <td><%= rc.rp_master.name %></td>
           <td><%= rc.rp_master.pan %></td>
           <td><%= rc.rp_master.category %></td>
-          <td><%= rc.rp_master.dob_or_incorporation %></td>
+          <td><%= rc.rp_master.formatted_dob %></td>
           <td><%= rc.rp_master.specific_relationship %></td>
           <td><%= rc.reporting_entity.name %></td>
           <td><%= rc.period.month %></td>
-          <td><%= rc.first_from %></td>
-          <td><%= rc.last_upto %></td>
+          <td><%= rc.related_party_from&.strftime("%d/%m/%Y") %></td>
+          <td><%= rc.related_party_upto&.strftime("%d/%m/%Y") %></td>
         </tr>
       <% end %>
       <% if @rp_consolidations.empty? %>
@@ -120,12 +120,12 @@
           <td><%= rc.rp_master.name %></td>
           <td><%= rc.rp_master.pan %></td>
           <td><%= rc.rp_master.category %></td>
-          <td><%= rc.rp_master.dob_or_incorporation %></td>
+          <td><%= rc.rp_master.formatted_dob %></td>
           <td><%= rc.rp_master.specific_relationship %></td>
           <td><%= rc.reporting_entity.name %></td>
           <td><%= rc.period.month %></td>
-          <td><%= rc.related_party_from %></td>
-          <td><%= rc.related_party_upto %></td>
+          <td><%= rc.related_party_from&.strftime("%d/%m/%Y") %></td>
+          <td><%= rc.related_party_upto&.strftime("%d/%m/%Y") %></td>
           <td><%= rc.custom_input %></td>
           <td><%= rc.created_at.strftime("%d-%b-%Y") %></td>
         </tr>

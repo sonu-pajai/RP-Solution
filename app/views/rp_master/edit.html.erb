@@ -42,7 +42,7 @@
 
       <div class="form-group">
         <%= f.label :dob_or_incorporation, "DOB / Incorporation Date" %>
-        <%= f.date_field :dob_or_incorporation, max: Date.today %>
+        <%= f.text_field :dob_or_incorporation, value: @rp_master.dob_or_incorporation&.strftime("%d/%m/%Y"), placeholder: "DD/MM/YYYY", class: "form-control date-input" %>
       </div>
 
       <div class="form-group" style="grid-column: span 2;">

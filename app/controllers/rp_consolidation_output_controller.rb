@@ -1,11 +1,11 @@
 class RpConsolidationOutputController < ApplicationController
   def index
-    scope = RpConsolidation.includes(:rp_master, :reporting_entity, :period)
-    scope = scope.where(reporting_entity_id: params[:reporting_entity_id]) if params[:reporting_entity_id].present?
-    scope = scope.where(period_id: params[:period_id]) if params[:period_id].present?
-    scope = scope.order(:created_at)
-
     @view_type = params[:view_type] || "list"
+
+    scope = RpConsolidation.includes(:rp_master, :reporting_entity, :period)
+    scope = scope.where(period_id: params[:period_id]) if params[:period_id].present?
+    scope = scope.where(reporting_entity_id: params[:reporting_entity_id]) if @view_type == "standalone" && params[:reporting_entity_id].present?
+    scope = scope.order(:created_at)
 
     case @view_type
     when "consolidated"

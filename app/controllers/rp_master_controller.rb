@@ -2,7 +2,15 @@ class RpMasterController < ApplicationController
   def index
     @rp_masters = RpMaster.includes(:created_by, :approved_by, :admin_approved_by)
     @rp_masters = @rp_masters.where("unique_code ILIKE ?", "%#{params[:unique_code]}%") if params[:unique_code].present?
-    @rp_masters = @rp_masters.order(:created_at)
+    @rp_masters = @rp_masters.where("name ILIKE ?", "%#{params[:name]}%") if params[:name].present?
+    @rp_masters = @rp_masters.where("pan ILIKE ?", "%#{params[:pan]}%") if params[:pan].present?
+    @rp_masters = @rp_masters.where(category: params[:category]) if params[:category].present?
+
+    sort_column = %w[unique_code name pan category created_at].include?(params[:sort]) ? params[:sort] : "created_at"
+    sort_direction = params[:direction] == "desc" ? "desc" : "asc"
+    @rp_masters = @rp_masters.order("#{sort_column} #{sort_direction}")
+
+    @total_count = @rp_masters.count
     @rp_masters = @rp_masters.page(params[:page])
   end
 
@@ -13,6 +21,7 @@ class RpMasterController < ApplicationController
 
   def create
     @rp_master = RpMaster.new(rp_master_params)
+    @rp_master.dob_or_incorporation = parse_date(params[:rp_master][:dob_or_incorporation]) if params[:rp_master][:dob_or_incorporation].present?
     @rp_master.created_by = current_user
     if @rp_master.save
       redirect_to rp_master_path, notice: "RP Master record created."
@@ -32,7 +41,9 @@ class RpMasterController < ApplicationController
 
   def update
     @rp_master = RpMaster.find(params[:id])
-    if @rp_master.update(rp_master_params)
+    attrs = rp_master_params.to_h
+    attrs[:dob_or_incorporation] = parse_date(attrs[:dob_or_incorporation]) if attrs[:dob_or_incorporation].present?
+    if @rp_master.update(attrs)
       redirect_to rp_master_path, notice: "RP Master record updated."
     else
       render :edit, status: :unprocessable_entity
@@ -103,6 +114,9 @@ class RpMasterController < ApplicationController
     require "csv"
     records = RpMaster.all
     records = records.where("unique_code ILIKE ?", "%#{params[:unique_code]}%") if params[:unique_code].present?
+    records = records.where("name ILIKE ?", "%#{params[:name]}%") if params[:name].present?
+    records = records.where("pan ILIKE ?", "%#{params[:pan]}%") if params[:pan].present?
+    records = records.where(category: params[:category]) if params[:category].present?
     records = records.order(:created_at)
 
     csv_data = CSV.generate do |csv|
@@ -133,5 +147,11 @@ class RpMasterController < ApplicationController
       :related_party_companies_act, :related_party_as18, :related_party_ind_as24,
       :other_guidelines, :active
     )
+  end
+
+  def parse_date(str)
+    Date.strptime(str, "%d/%m/%Y")
+  rescue
+    str
   end
 end

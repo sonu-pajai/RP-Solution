@@ -7,30 +7,45 @@
   <div class="flex-row">
     <%= link_to "Create", new_rp_master_path, class: "btn-primary btn-sm" %>
     <%= link_to "Bulk Upload", rp_master_bulk_upload_path, class: "btn-primary btn-sm btn-outline" %>
-    <%= link_to "Export CSV", rp_master_export_path(unique_code: params[:unique_code]), class: "btn-primary btn-sm btn-outline" %>
+    <%= link_to "Export CSV", rp_master_export_path(unique_code: params[:unique_code], name: params[:name], pan: params[:pan], category: params[:category]), class: "btn-primary btn-sm btn-outline" %>
   </div>
+</div>
+
+<div class="stats-bar" style="margin-bottom:16px;">
+  <span class="badge">Total Records: <strong><%= @total_count %></strong></span>
 </div>
 
 <div class="filter-bar">
   <div class="flex-row-end">
-    <div class="form-group mb-0" style="max-width:500px;">
-      <%= text_field_tag :unique_code, params[:unique_code], placeholder: "Type Unique Code..", id: "code-filter", autocomplete: "off", class: "form-control" %>
+    <div class="form-group mb-0">
+      <%= text_field_tag :unique_code, params[:unique_code], placeholder: "Unique Code", id: "code-filter", autocomplete: "off", class: "form-control" %>
+    </div>
+    <div class="form-group mb-0">
+      <%= text_field_tag :name, params[:name], placeholder: "Name", id: "name-filter", autocomplete: "off", class: "form-control" %>
+    </div>
+    <div class="form-group mb-0">
+      <%= text_field_tag :pan, params[:pan], placeholder: "PAN", id: "pan-filter", autocomplete: "off", class: "form-control" %>
+    </div>
+    <div class="form-group mb-0">
+      <%= select_tag :category, options_for_select(Relationship::CATEGORIES, params[:category]), prompt: "All Categories", id: "category-filter", class: "form-control" %>
     </div>
     <a href="#" id="search-btn" class="btn-primary btn-sm">Search</a>
-    <% if params[:unique_code].present? %>
+    <% if params[:unique_code].present? || params[:name].present? || params[:pan].present? || params[:category].present? %>
       <%= link_to "Clear", rp_master_path, class: "action-link" %>
     <% end %>
   </div>
 </div>
+
+
 <div class="overflow-x">
   <table class="data-table">
     <thead>
       <tr>
-        <th>Unique Code</th>
+        <th><%= sort_link("unique_code", "Unique Code") %></th>
         <th>Salutation</th>
-        <th>Name</th>
-        <th>PAN</th>
-        <th>Category</th>
+        <th><%= sort_link("name", "Name") %></th>
+        <th><%= sort_link("pan", "PAN") %></th>
+        <th><%= sort_link("category", "Category") %></th>
         <th>Specific Relationship</th>
         <th>Related to Director</th>
         <th>DOB / Incorporation</th>
@@ -49,7 +64,7 @@
     <tbody>
       <% if @rp_masters.present? %>
         <% @rp_masters.each do |rp| %>
-          <tr>
+          <tr style="cursor:pointer;" onclick="window.location='<%= show_rp_master_path(rp) %>';">
             <td><%= rp.unique_code %></td>
             <td><%= rp.salutation %></td>
             <td><%= rp.name %></td>
@@ -81,14 +96,19 @@
   </table>
 </div>
 
-
 <script>
-  var codeFilter = document.getElementById('code-filter');
   var searchBtn = document.getElementById('search-btn');
 
   function applyFilters() {
     var params = [];
-    if (codeFilter.value) params.push('unique_code=' + encodeURIComponent(codeFilter.value));
+    var code = document.getElementById('code-filter').value;
+    var name = document.getElementById('name-filter').value;
+    var pan = document.getElementById('pan-filter').value;
+    var category = document.getElementById('category-filter').value;
+    if (code) params.push('unique_code=' + encodeURIComponent(code));
+    if (name) params.push('name=' + encodeURIComponent(name));
+    if (pan) params.push('pan=' + encodeURIComponent(pan));
+    if (category) params.push('category=' + encodeURIComponent(category));
     window.location.href = '/rp_master' + (params.length ? '?' + params.join('&') : '');
   }
 
@@ -97,12 +117,13 @@
     applyFilters();
   });
 
-  codeFilter.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      applyFilters();
-    }
+  ['code-filter', 'name-filter', 'pan-filter'].forEach(function(id) {
+    document.getElementById(id).addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); applyFilters(); }
+    });
   });
+
+  document.getElementById('category-filter').addEventListener('change', applyFilters);
 </script>
 
 <%= render "shared/pagination", collection: @rp_masters %>

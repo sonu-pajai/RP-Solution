@@ -14,7 +14,7 @@ class RpMaster < ApplicationRecord
   validate :dob_must_be_in_past
 
   def formatted_dob
-    dob_or_incorporation&.strftime("%d-%m-%Y")
+    dob_or_incorporation&.strftime("%d/%m/%Y")
   end
 
   private
