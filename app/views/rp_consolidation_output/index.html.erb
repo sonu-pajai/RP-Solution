@@ -145,24 +145,27 @@
   var entityFilter = document.getElementById('entity-filter');
   var entityGroup = document.getElementById('entity-filter-group');
 
+  function getTS(el) { return el.tomselect; }
+
   function toggleEntityFilter() {
-    entityGroup.style.display = viewFilter.value === 'standalone' ? '' : 'none';
+    var val = getTS(viewFilter) ? getTS(viewFilter).getValue() : viewFilter.value;
+    entityGroup.style.display = val === 'standalone' ? '' : 'none';
   }
 
   function applyFilters() {
     var params = [];
-    if (viewFilter.value) params.push('view_type=' + viewFilter.value);
-    if (periodFilter.value) params.push('period_id=' + periodFilter.value);
-    if (viewFilter.value === 'standalone' && entityFilter.value) params.push('reporting_entity_id=' + entityFilter.value);
+    var viewVal = getTS(viewFilter) ? getTS(viewFilter).getValue() : '';
+    var periodVal = getTS(periodFilter) ? getTS(periodFilter).getValue() : '';
+    var entityVal = getTS(entityFilter) ? getTS(entityFilter).getValue() : '';
+    if (viewVal) params.push('view_type=' + viewVal);
+    if (periodVal) params.push('period_id=' + periodVal);
+    if (viewVal === 'standalone' && entityVal) params.push('reporting_entity_id=' + entityVal);
     window.location.href = '/rp_consolidation_output' + (params.length ? '?' + params.join('&') : '');
   }
 
-  viewFilter.addEventListener('change', function() {
-    toggleEntityFilter();
-    applyFilters();
-  });
-  periodFilter.addEventListener('change', applyFilters);
-  entityFilter.addEventListener('change', applyFilters);
+  if (getTS(viewFilter)) getTS(viewFilter).on('change', function() { toggleEntityFilter(); applyFilters(); });
+  if (getTS(periodFilter)) getTS(periodFilter).on('change', applyFilters);
+  if (getTS(entityFilter)) getTS(entityFilter).on('change', applyFilters);
 
   toggleEntityFilter();
 </script>

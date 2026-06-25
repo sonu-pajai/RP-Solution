@@ -201,7 +201,14 @@
   // Advanced filter dropdowns
   ['filter-category', 'filter-relationship', 'filter-sebi', 'filter-companies-act', 'filter-status'].forEach(function(id) {
     var el = document.getElementById(id);
-    if (el) {
+    if (el && el.tomselect) {
+      el.tomselect.on('change', function(val) {
+        var key = id.replace('filter-', '').replace('-', '_');
+        var obj = {};
+        obj[key] = val;
+        window.location.href = buildUrl(obj);
+      });
+    } else if (el) {
       el.addEventListener('change', function() {
         var key = id.replace('filter-', '').replace('-', '_');
         var obj = {};
@@ -212,7 +219,14 @@
   });
 
   // Per page
-  document.getElementById('per-page-select').addEventListener('change', function() {
-    window.location.href = buildUrl({ per_page: this.value });
-  });
+  var perPageEl = document.getElementById('per-page-select');
+  if (perPageEl && perPageEl.tomselect) {
+    perPageEl.tomselect.on('change', function(val) {
+      window.location.href = buildUrl({ per_page: val });
+    });
+  } else if (perPageEl) {
+    perPageEl.addEventListener('change', function() {
+      window.location.href = buildUrl({ per_page: this.value });
+    });
+  }
 </script>

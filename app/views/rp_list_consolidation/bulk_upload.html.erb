@@ -69,13 +69,15 @@
 </div>
 
 <script>
-  var modeSelect = document.getElementById('mode-select');
+  var modeEl = document.getElementById('mode-select');
   var downloadLink = document.getElementById('download-template');
 
   function updateTemplateLink() {
-    downloadLink.href = '<%= rp_list_consolidation_template_path %>' + '?mode=' + modeSelect.value;
+    var val = modeEl.tomselect ? modeEl.tomselect.getValue() : modeEl.value;
+    downloadLink.href = '<%= rp_list_consolidation_template_path %>' + '?mode=' + val;
   }
 
   updateTemplateLink();
-  modeSelect.addEventListener('change', updateTemplateLink);
+  if (modeEl.tomselect) { modeEl.tomselect.on('change', updateTemplateLink); }
+  else { modeEl.addEventListener('change', updateTemplateLink); }
 </script>

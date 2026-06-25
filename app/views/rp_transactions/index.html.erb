@@ -96,62 +96,52 @@
 
 <%= render "shared/pagination", collection: @rp_transactions %>
 <script>
-  var entitySelect = document.getElementById('reporting_entity');
-  var unitSelect = document.getElementById('reporting_unit');
-  var periodSelect = document.getElementById('period');
+  var entityEl = document.getElementById('reporting_entity');
+  var unitEl = document.getElementById('reporting_unit');
+  var periodEl = document.getElementById('period');
+
+  function getTS(el) { return el.tomselect; }
+
+  function refreshTS(el, options, placeholder) {
+    var ts = getTS(el);
+    if (ts) {
+      ts.clear();
+      ts.clearOptions();
+      ts.addOption({ value: '', text: placeholder });
+      options.forEach(function(o) { ts.addOption(o); });
+      ts.refreshOptions(false);
+      if (el.disabled) { ts.disable(); } else { ts.enable(); }
+    }
+  }
 
   function applyFilter() {
     var params = [];
-    if (entitySelect.value) params.push('reporting_entity_id=' + entitySelect.value);
-    if (unitSelect.value) params.push('reporting_unit_id=' + unitSelect.value);
-    if (periodSelect.value) params.push('period_id=' + periodSelect.value);
+    var entityVal = getTS(entityEl) ? getTS(entityEl).getValue() : '';
+    var unitVal = getTS(unitEl) ? getTS(unitEl).getValue() : '';
+    var periodVal = getTS(periodEl) ? getTS(periodEl).getValue() : '';
+    if (entityVal) params.push('reporting_entity_id=' + entityVal);
+    if (unitVal) params.push('reporting_unit_id=' + unitVal);
+    if (periodVal) params.push('period_id=' + periodVal);
     window.location = '/rp_transactions' + (params.length ? '?' + params.join('&') : '');
   }
 
-  entitySelect.addEventListener('change', function() {
-    var entityId = this.value;
-    if (!entityId) {
-      unitSelect.innerHTML = '<option value="">-- Select Reporting Entity first --</option>';
-      unitSelect.disabled = true;
+  getTS(entityEl).on('change', function(value) {
+    if (!value) {
+      refreshTS(unitEl, [], '-- Select Reporting Entity first --');
+      unitEl.disabled = true;
       applyFilter();
       return;
     }
-
-    fetch('/rp_transactions/reporting_units?reporting_entity_id=' + entityId)
-      .then(function(response) { return response.json(); })
+    fetch('/rp_transactions/reporting_units?reporting_entity_id=' + value)
+      .then(function(r) { return r.json(); })
       .then(function(units) {
-        unitSelect.innerHTML = '<option value="">-- All Reporting Units --</option>';
-        units.forEach(function(unit) {
-          unitSelect.innerHTML += '<option value="' + unit.id + '">' + unit.name + '</option>';
-        });
-        unitSelect.disabled = false;
+        var opts = units.map(function(u) { return { value: u.id, text: u.name }; });
+        unitEl.disabled = false;
+        refreshTS(unitEl, opts, '-- All Reporting Units --');
         applyFilter();
       });
   });
 
-  unitSelect.addEventListener('change', applyFilter);
-  periodSelect.addEventListener('change', applyFilter);
-
-  document.querySelectorAll('.clickable-row').forEach(function(row) {
-    row.addEventListener('click', function(e) {
-      if (e.target.closest('a')) return;
-      var entityId = this.dataset.entityId;
-      var unitId = this.dataset.unitId;
-      var periodId = this.dataset.periodId;
-
-      entitySelect.value = entityId;
-      periodSelect.value = periodId;
-
-      fetch('/rp_transactions/reporting_units?reporting_entity_id=' + entityId)
-        .then(function(response) { return response.json(); })
-        .then(function(units) {
-          unitSelect.innerHTML = '<option value="">-- All Reporting Units --</option>';
-          units.forEach(function(unit) {
-            unitSelect.innerHTML += '<option value="' + unit.id + '">' + unit.name + '</option>';
-          });
-          unitSelect.value = unitId;
-          unitSelect.disabled = false;
-        });
-    });
-  });
+  getTS(unitEl).on('change', applyFilter);
+  getTS(periodEl).on('change', applyFilter);
 </script>

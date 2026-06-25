@@ -145,27 +145,35 @@
 <% end %>
 
 <script>
-  var entitySelect = document.getElementById('entity-select');
-  var periodSelect = document.getElementById('period-select');
+  var entityEl = document.getElementById('entity-select');
+  var periodEl = document.getElementById('period-select');
   var searchFilter = document.getElementById('search-filter');
   var debounceTimer;
 
+  function getTS(el) { return el.tomselect; }
+
   function loadRecords() {
-    if (entitySelect.value && periodSelect.value) {
-      window.location.href = '/rp_list_consolidation?reporting_entity_id=' + entitySelect.value + '&period_id=' + periodSelect.value;
+    var entityVal = getTS(entityEl) ? getTS(entityEl).getValue() : entityEl.value;
+    var periodVal = getTS(periodEl) ? getTS(periodEl).getValue() : periodEl.value;
+    if (entityVal && periodVal) {
+      window.location.href = '/rp_list_consolidation?reporting_entity_id=' + entityVal + '&period_id=' + periodVal;
     }
   }
 
-  entitySelect.addEventListener('change', loadRecords);
-  periodSelect.addEventListener('change', loadRecords);
+  if (getTS(entityEl)) getTS(entityEl).on('change', loadRecords);
+  else entityEl.addEventListener('change', loadRecords);
+  if (getTS(periodEl)) getTS(periodEl).on('change', loadRecords);
+  else periodEl.addEventListener('change', loadRecords);
 
   if (searchFilter) {
     searchFilter.addEventListener('input', function() {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(function() {
+        var entityVal = getTS(entityEl) ? getTS(entityEl).getValue() : entityEl.value;
+        var periodVal = getTS(periodEl) ? getTS(periodEl).getValue() : periodEl.value;
         var params = [];
-        params.push('reporting_entity_id=' + entitySelect.value);
-        params.push('period_id=' + periodSelect.value);
+        params.push('reporting_entity_id=' + entityVal);
+        params.push('period_id=' + periodVal);
         params.push('tab=<%= @tab %>');
         if (searchFilter.value) params.push('search=' + encodeURIComponent(searchFilter.value));
         window.location.href = '/rp_list_consolidation?' + params.join('&');

@@ -79,33 +79,58 @@
 </div>
 
 <script>
-  document.getElementById('form_reporting_entity').addEventListener('change', function() {
-    var entityId = this.value;
-    var unitSelect = document.getElementById('form_reporting_unit');
-    if (!entityId) { unitSelect.innerHTML = '<option value="">-- Select Reporting Entity first --</option>'; unitSelect.disabled = true; return; }
-    fetch('/rp_transactions/reporting_units?reporting_entity_id=' + entityId)
+  function getTS(el) { return el.tomselect; }
+
+  var entityEl = document.getElementById('form_reporting_entity');
+  var unitEl = document.getElementById('form_reporting_unit');
+  var natureEl = document.getElementById('form_nature');
+  var subNatureEl = document.getElementById('form_sub_nature');
+  var typeEl = document.getElementById('form_transaction_type');
+
+  function refreshTS(el, options, placeholder) {
+    var ts = getTS(el);
+    if (ts) {
+      ts.clear();
+      ts.clearOptions();
+      ts.addOption({ value: '', text: placeholder });
+      options.forEach(function(o) { ts.addOption(o); });
+      ts.refreshOptions(false);
+      if (el.disabled) { ts.disable(); } else { ts.enable(); }
+    }
+  }
+
+  getTS(entityEl).on('change', function(value) {
+    if (!value) { refreshTS(unitEl, [], '-- Select Reporting Entity first --'); unitEl.disabled = true; return; }
+    fetch('/rp_transactions/reporting_units?reporting_entity_id=' + value)
       .then(function(r) { return r.json(); })
-      .then(function(units) { unitSelect.innerHTML = '<option value="">-- Select Reporting Unit --</option>'; units.forEach(function(u) { unitSelect.innerHTML += '<option value="' + u.id + '">' + u.name + '</option>'; }); unitSelect.disabled = false; });
+      .then(function(units) {
+        var opts = units.map(function(u) { return { value: u.id, text: u.name }; });
+        unitEl.disabled = false;
+        refreshTS(unitEl, opts, '-- Select Reporting Unit --');
+      });
   });
 
-  document.getElementById('form_nature').addEventListener('change', function() {
-    var nature = this.value;
-    var subSelect = document.getElementById('form_sub_nature');
-    var typeSelect = document.getElementById('form_transaction_type');
-    typeSelect.innerHTML = '<option value="">-- Select Sub-Nature first --</option>'; typeSelect.disabled = true;
-    if (!nature) { subSelect.innerHTML = '<option value="">-- Select Nature first --</option>'; subSelect.disabled = true; return; }
-    fetch('/rp_transactions/sub_natures?nature=' + encodeURIComponent(nature))
+  getTS(natureEl).on('change', function(value) {
+    refreshTS(typeEl, [], '-- Select Sub-Nature first --'); typeEl.disabled = true;
+    if (!value) { refreshTS(subNatureEl, [], '-- Select Nature first --'); subNatureEl.disabled = true; return; }
+    fetch('/rp_transactions/sub_natures?nature=' + encodeURIComponent(value))
       .then(function(r) { return r.json(); })
-      .then(function(items) { subSelect.innerHTML = '<option value="">-- Select --</option>'; items.forEach(function(i) { subSelect.innerHTML += '<option value="' + i + '">' + i + '</option>'; }); subSelect.disabled = false; });
+      .then(function(items) {
+        var opts = items.map(function(i) { return { value: i, text: i }; });
+        subNatureEl.disabled = false;
+        refreshTS(subNatureEl, opts, '-- Select --');
+      });
   });
 
-  document.getElementById('form_sub_nature').addEventListener('change', function() {
-    var subNature = this.value;
-    var nature = document.getElementById('form_nature').value;
-    var typeSelect = document.getElementById('form_transaction_type');
-    if (!subNature) { typeSelect.innerHTML = '<option value="">-- Select Sub-Nature first --</option>'; typeSelect.disabled = true; return; }
-    fetch('/rp_transactions/transaction_types?nature=' + encodeURIComponent(nature) + '&sub_type=' + encodeURIComponent(subNature))
+  getTS(subNatureEl).on('change', function(value) {
+    var nature = getTS(natureEl).getValue();
+    if (!value) { refreshTS(typeEl, [], '-- Select Sub-Nature first --'); typeEl.disabled = true; return; }
+    fetch('/rp_transactions/transaction_types?nature=' + encodeURIComponent(nature) + '&sub_type=' + encodeURIComponent(value))
       .then(function(r) { return r.json(); })
-      .then(function(items) { typeSelect.innerHTML = '<option value="">-- Select --</option>'; items.forEach(function(i) { typeSelect.innerHTML += '<option value="' + i + '">' + i + '</option>'; }); typeSelect.disabled = false; });
+      .then(function(items) {
+        var opts = items.map(function(i) { return { value: i, text: i }; });
+        typeEl.disabled = false;
+        refreshTS(typeEl, opts, '-- Select --');
+      });
   });
 </script>
