@@ -53,21 +53,27 @@
           typeEl.disabled = false;
           refreshTS(typeEl, opts, '-- Select --');
         });
+      // Auto-fill sub_code and ic_code on sub-nature selection
+      fetch('/rp_transactions/transaction_codes?nature=' + encodeURIComponent(nature) + '&sub_type=' + encodeURIComponent(value))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (subCodeEl) subCodeEl.value = data.sub_code || '';
+          if (icCodeEl) icCodeEl.value = data.ic_code || '';
+        });
     });
   }
 
   var typeTS = getTS(typeEl);
   if (typeTS) {
     typeTS.on('change', function(value) {
-      if (!value) { clearCodes(); return; }
+      if (!value) { if (mainCodeEl) mainCodeEl.value = ''; return; }
       var nature = getTS(natureEl).getValue();
       var subNature = getTS(subNatureEl).getValue();
+      // Auto-fill main_code on transaction type selection
       fetch('/rp_transactions/transaction_codes?nature=' + encodeURIComponent(nature) + '&sub_type=' + encodeURIComponent(subNature) + '&transaction_type=' + encodeURIComponent(value))
         .then(function(r) { return r.json(); })
         .then(function(data) {
           if (mainCodeEl) mainCodeEl.value = data.main_code || '';
-          if (subCodeEl) subCodeEl.value = data.sub_code || '';
-          if (icCodeEl) icCodeEl.value = data.ic_code || '';
         });
     });
   }

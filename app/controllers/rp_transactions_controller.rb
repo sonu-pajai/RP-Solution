@@ -236,7 +236,9 @@ class RpTransactionsController < ApplicationController
   end
 
   def transaction_codes
-    txn = Transaction.active.find_by(nature: params[:nature], sub_type: params[:sub_type], transaction_type: params[:transaction_type])
+    scope = Transaction.active.where(nature: params[:nature], sub_type: params[:sub_type])
+    scope = scope.where(transaction_type: params[:transaction_type]) if params[:transaction_type].present?
+    txn = scope.first
     if txn
       render json: { main_code: txn.main_code, sub_code: txn.sub_code, ic_code: txn.ic_code }
     else
