@@ -24,6 +24,11 @@
       <th>AS-18</th>
       <th>ACB</th>
       <th>SEBI</th>
+      <th>Elimination Required</th>
+      <th>IC Code</th>
+      <th>Main Code</th>
+      <th>Sub Code</th>
+      <th>Opposite Sub Code</th>
       <th>Actions</th>
     </tr>
   </thead>
@@ -36,6 +41,11 @@
         <td><%= txn.as18 %></td>
         <td><%= txn.acb %></td>
         <td><%= txn.sebi %></td>
+        <td><%= txn.elimination_required ? 'Yes' : 'No' %></td>
+        <td><%= txn.ic_code %></td>
+        <td><%= txn.main_code %></td>
+        <td><%= txn.sub_code %></td>
+        <td><%= txn.opposite_sub_code %></td>
         <td class="rp-actions">
           <% if can? :update, txn %>
             <%= link_to "✏️", edit_transaction_path(txn), title: "Edit", class: "rp-action-icon" %>
@@ -47,7 +57,7 @@
       </tr>
     <% end %>
     <% if @transactions.empty? %>
-      <tr><td colspan="7" class="empty-row">No transactions yet.</td></tr>
+      <tr><td colspan="12" class="empty-row">No transactions yet.</td></tr>
     <% end %>
   </tbody>
 </table>

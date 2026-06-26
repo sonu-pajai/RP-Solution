@@ -1,5 +1,5 @@
 class TransactionsController < ApplicationController
-  load_and_authorize_resource except: [:bulk_upload, :template]
+  load_and_authorize_resource except: [ :bulk_upload, :template ]
 
   def index
     @transactions = Transaction.active.order(:nature, :transaction_type).page(params[:page])
@@ -61,7 +61,12 @@ class TransactionsController < ApplicationController
           sub_type: row["Sub Type"]&.strip,
           as18: row["AS-18"]&.strip,
           acb: row["ACB"]&.strip,
-          sebi: row["SEBI"]&.strip
+          sebi: row["SEBI"]&.strip,
+          ic_code: row["IC Code"]&.strip,
+          main_code: row["Main Code"]&.strip,
+          sub_code: row["Sub Code"]&.strip,
+          opposite_sub_code: row["Opposite Sub Code"]&.strip,
+          elimination_required: row["Elimination Required"]&.strip&.downcase == "yes"
         )
         txn.save ? count += 1 : (errors << "Row #{line}: #{txn.errors.full_messages.join(', ')}")
       end
@@ -76,13 +81,13 @@ class TransactionsController < ApplicationController
 
   def template
     require "csv"
-    csv_data = CSV.generate { |csv| csv << ["Nature", "Transaction Type", "Sub Type", "AS-18", "ACB", "SEBI"] }
+    csv_data = CSV.generate { |csv| csv << [ "Nature", "Transaction Type", "Sub Type", "AS-18", "ACB", "SEBI", "Elimination Required", "IC Code", "Main Code", "Sub Code", "Opposite Sub Code" ] }
     send_data csv_data, filename: "transactions_template.csv", type: "text/csv"
   end
 
   private
 
   def transaction_params
-    params.require(:transaction).permit(:nature, :transaction_type, :sub_type, :as18, :acb, :sebi)
+    params.require(:transaction).permit(:nature, :transaction_type, :sub_type, :as18, :acb, :sebi, :elimination_required, :ic_code, :main_code, :sub_code, :opposite_sub_code)
   end
 end

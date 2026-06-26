@@ -37,6 +37,31 @@
     <%= f.text_field :sebi %>
   </div>
 
+  <div class="form-group">
+    <%= f.label :ic_code, "IC Code" %>
+    <%= f.text_field :ic_code %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :main_code, "Main Code" %>
+    <%= f.text_field :main_code %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :sub_code, "Sub Code" %>
+    <%= f.text_field :sub_code %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :opposite_sub_code, "Opposite Sub Code" %>
+    <%= f.text_field :opposite_sub_code %>
+  </div>
+
+  <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+    <%= f.label :elimination_required, "Elimination Required", style: "margin-bottom:0" %>
+    <%= f.check_box :elimination_required %>
+  </div>
+
   <div class="form-actions">
     <%= f.submit class: "btn-primary btn-submit" %>
     <%= link_to "Cancel", transactions_path, class: "cancel-link" %>
