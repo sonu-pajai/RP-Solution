@@ -2,7 +2,10 @@
   <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "RP List", rp_list_path %><span class="separator">›</span> Consolidation Output
 <% end %>
 
-<h2>RP List Consolidation Output</h2>
+<div class="page-header">
+  <h2>RP List Consolidation Output</h2>
+  <%= link_to "Export CSV", rp_consolidation_output_export_path(view_type: @view_type, period_id: params[:period_id], reporting_entity_id: params[:reporting_entity_id]), class: "btn-primary btn-sm btn-outline" %>
+</div>
 
 <div style="background:#fff; padding:24px; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:24px;">
   <div style="display:flex; gap:16px; align-items:flex-end;">

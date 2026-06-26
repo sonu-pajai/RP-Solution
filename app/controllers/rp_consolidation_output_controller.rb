@@ -34,4 +34,24 @@ class RpConsolidationOutputController < ApplicationController
       @rp_consolidations = scope.page(params[:page])
     end
   end
+
+  def export
+    require "csv"
+    scope = RpConsolidation.includes(:rp_master, :reporting_entity, :period)
+    scope = scope.where(period_id: params[:period_id]) if params[:period_id].present?
+    scope = scope.where(reporting_entity_id: params[:reporting_entity_id]) if params[:reporting_entity_id].present?
+    scope = scope.order(:created_at)
+
+    csv_data = CSV.generate do |csv|
+      csv << ["Unique Code", "Name", "Category", "Reporting Entity", "Period", "Related Party From", "Related Party Upto", "Custom Input"]
+      scope.each do |rc|
+        csv << [
+          rc.rp_master.unique_code, rc.rp_master.name, rc.rp_master.category,
+          rc.reporting_entity.name, rc.period.month,
+          rc.related_party_from, rc.related_party_upto, rc.custom_input
+        ]
+      end
+    end
+    send_data csv_data, filename: "rp_consolidation_output_#{Date.today}.csv", type: "text/csv"
+  end
 end
