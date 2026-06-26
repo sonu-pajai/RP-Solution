@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_06_26_174209) do
+ActiveRecord::Schema[8.0].define(version: 2026_06_26_175325) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -112,7 +112,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_26_174209) do
     t.datetime "updated_at", null: false
     t.string "main_code"
     t.string "sub_code"
-    t.integer "ic_code"
+    t.string "ic_code"
     t.index ["period_id"], name: "index_rp_transactions_on_period_id"
     t.index ["reporting_entity_id", "reporting_unit_id", "period_id", "counterparty", "nature", "sub_nature", "transaction_type"], name: "idx_rp_transactions_upsert_match"
     t.index ["reporting_entity_id"], name: "index_rp_transactions_on_reporting_entity_id"
@@ -130,10 +130,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_06_26_174209) do
     t.datetime "updated_at", null: false
     t.boolean "active", default: true, null: false
     t.boolean "elimination_required"
-    t.integer "ic_code"
     t.string "main_code"
     t.string "sub_code"
     t.string "opposite_sub_code"
+    t.string "ic_code"
     t.index ["active"], name: "index_transactions_on_active"
     t.index ["nature", "sub_type"], name: "idx_transactions_nature_sub_type"
     t.index ["nature"], name: "index_transactions_on_nature"

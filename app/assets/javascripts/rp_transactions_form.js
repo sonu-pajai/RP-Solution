@@ -69,11 +69,12 @@
       if (!value) { if (mainCodeEl) mainCodeEl.value = ''; return; }
       var nature = getTS(natureEl).getValue();
       var subNature = getTS(subNatureEl).getValue();
-      // Auto-fill main_code on transaction type selection
+      // Auto-fill main_code and ic_code on transaction type selection
       fetch('/rp_transactions/transaction_codes?nature=' + encodeURIComponent(nature) + '&sub_type=' + encodeURIComponent(subNature) + '&transaction_type=' + encodeURIComponent(value))
         .then(function(r) { return r.json(); })
         .then(function(data) {
           if (mainCodeEl) mainCodeEl.value = data.main_code || '';
+          if (icCodeEl) icCodeEl.value = data.ic_code || '';
         });
     });
   }
