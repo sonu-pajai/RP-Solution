@@ -178,11 +178,13 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Ro
 .cancel-link { margin-left: 12px; color: #64748b; text-decoration: none; font-size: 14px; }
 .form-group select {
   width: 100%; padding: 10px 12px;
-  border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;
+  border: none; border-radius: 6px; font-size: 14px;
   background: #fff; appearance: auto;
+  box-shadow: none; outline: none;
 }
 .form-group select.form-control {
   border: 1px solid #d1d5db;
+  box-shadow: none;
 }
 
 /* Radio Buttons */

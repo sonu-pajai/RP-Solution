@@ -155,7 +155,7 @@ class RpTransactionsController < ApplicationController
           is_new = txn.new_record?
           txn.amount = row["Amount"]
           txn.main_code = master_txn&.main_code
-          txn.sub_code = master_txn&.sub_code]
+          txn.sub_code = master_txn&.sub_code
         else
           txn = RpTransaction.new(
             reporting_entity: entity,
