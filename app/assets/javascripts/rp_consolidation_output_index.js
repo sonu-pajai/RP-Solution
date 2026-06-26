@@ -1,4 +1,3 @@
-// RP Consolidation Output index - filters
 (function() {
   var viewFilter = document.getElementById('view-filter');
   var periodFilter = document.getElementById('period-filter');
@@ -8,24 +7,22 @@
   if (!viewFilter) return;
 
   function toggleEntityFilter() {
-    var val = getTS(viewFilter) ? getTS(viewFilter).getValue() : viewFilter.value;
-    entityGroup.style.display = val === 'standalone' ? '' : 'none';
+    if (entityGroup) {
+      entityGroup.style.display = viewFilter.value === 'standalone' ? '' : 'none';
+    }
   }
 
   function applyFilters() {
     var params = [];
-    var viewVal = getTS(viewFilter) ? getTS(viewFilter).getValue() : '';
-    var periodVal = getTS(periodFilter) ? getTS(periodFilter).getValue() : '';
-    var entityVal = getTS(entityFilter) ? getTS(entityFilter).getValue() : '';
-    if (viewVal) params.push('view_type=' + viewVal);
-    if (periodVal) params.push('period_id=' + periodVal);
-    if (viewVal === 'standalone' && entityVal) params.push('reporting_entity_id=' + entityVal);
+    if (viewFilter.value) params.push('view_type=' + viewFilter.value);
+    if (periodFilter && periodFilter.value) params.push('period_id=' + periodFilter.value);
+    if (viewFilter.value === 'standalone' && entityFilter && entityFilter.value) params.push('reporting_entity_id=' + entityFilter.value);
     window.location.href = '/rp_consolidation_output' + (params.length ? '?' + params.join('&') : '');
   }
 
-  if (getTS(viewFilter)) getTS(viewFilter).on('change', function() { toggleEntityFilter(); applyFilters(); });
-  if (getTS(periodFilter)) getTS(periodFilter).on('change', applyFilters);
-  if (getTS(entityFilter)) getTS(entityFilter).on('change', applyFilters);
+  viewFilter.addEventListener('change', function() { toggleEntityFilter(); applyFilters(); });
+  if (periodFilter) periodFilter.addEventListener('change', applyFilters);
+  if (entityFilter) entityFilter.addEventListener('change', applyFilters);
 
   toggleEntityFilter();
 })();

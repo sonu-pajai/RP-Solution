@@ -143,5 +143,30 @@
 <% end %>
 
 <% content_for :page_script do %>
-  <%= javascript_include_tag "rp_consolidation_output_index" %>
+<script>
+  var viewFilter = document.getElementById('view-filter');
+  var periodFilter = document.getElementById('period-filter');
+  var entityFilter = document.getElementById('entity-filter');
+  var entityGroup = document.getElementById('entity-filter-group');
+
+  function toggleEntityFilter() {
+    if (entityGroup) {
+      entityGroup.style.display = viewFilter.value === 'standalone' ? '' : 'none';
+    }
+  }
+
+  function applyFilters() {
+    var params = [];
+    if (viewFilter.value) params.push('view_type=' + viewFilter.value);
+    if (periodFilter.value) params.push('period_id=' + periodFilter.value);
+    if (viewFilter.value === 'standalone' && entityFilter && entityFilter.value) params.push('reporting_entity_id=' + entityFilter.value);
+    window.location.href = '/rp_consolidation_output' + (params.length ? '?' + params.join('&') : '');
+  }
+
+  viewFilter.addEventListener('change', function() { toggleEntityFilter(); applyFilters(); });
+  periodFilter.addEventListener('change', applyFilters);
+  if (entityFilter) entityFilter.addEventListener('change', applyFilters);
+
+  toggleEntityFilter();
+</script>
 <% end %>
