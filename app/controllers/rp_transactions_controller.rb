@@ -156,6 +156,7 @@ class RpTransactionsController < ApplicationController
           txn.amount = row["Amount"]
           txn.main_code = master_txn&.main_code
           txn.sub_code = master_txn&.sub_code
+          txn.ic_code = master_txn&.ic_code
         else
           txn = RpTransaction.new(
             reporting_entity: entity,
@@ -167,7 +168,8 @@ class RpTransactionsController < ApplicationController
             sub_nature: sub_nature_val,
             amount: row["Amount"],
             main_code: master_txn&.main_code,
-            sub_code: master_txn&.sub_code
+            sub_code: master_txn&.sub_code,
+            ic_code: master_txn&.ic_code
           )
           is_new = true
         end
@@ -233,10 +235,19 @@ class RpTransactionsController < ApplicationController
     render json: items
   end
 
+  def transaction_codes
+    txn = Transaction.active.find_by(nature: params[:nature], sub_type: params[:sub_type], transaction_type: params[:transaction_type])
+    if txn
+      render json: { main_code: txn.main_code, sub_code: txn.sub_code, ic_code: txn.ic_code }
+    else
+      render json: { main_code: nil, sub_code: nil, ic_code: nil }
+    end
+  end
+
   private
 
   def rp_transaction_params
     params.require(:rp_transaction).permit(:reporting_entity_id, :reporting_unit_id, :period_id,
-                                           :counterparty, :transaction_type, :nature, :sub_nature, :amount, :main_code, :sub_code)
+                                           :counterparty, :transaction_type, :nature, :sub_nature, :amount, :main_code, :sub_code, :ic_code)
   end
 end

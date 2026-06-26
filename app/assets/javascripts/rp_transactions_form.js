@@ -5,6 +5,9 @@
   var natureEl = document.getElementById('form_nature');
   var subNatureEl = document.getElementById('form_sub_nature');
   var typeEl = document.getElementById('form_transaction_type');
+  var mainCodeEl = document.getElementById('form_main_code');
+  var subCodeEl = document.getElementById('form_sub_code');
+  var icCodeEl = document.getElementById('form_ic_code');
 
   if (!entityEl || !natureEl) return;
 
@@ -42,7 +45,7 @@
   if (subNatureTS) {
     subNatureTS.on('change', function(value) {
       var nature = getTS(natureEl).getValue();
-      if (!value) { refreshTS(typeEl, [], '-- Select Sub-Nature first --'); typeEl.disabled = true; return; }
+      if (!value) { refreshTS(typeEl, [], '-- Select Sub-Nature first --'); typeEl.disabled = true; clearCodes(); return; }
       fetch('/rp_transactions/transaction_types?nature=' + encodeURIComponent(nature) + '&sub_type=' + encodeURIComponent(value))
         .then(function(r) { return r.json(); })
         .then(function(items) {
@@ -51,5 +54,27 @@
           refreshTS(typeEl, opts, '-- Select --');
         });
     });
+  }
+
+  var typeTS = getTS(typeEl);
+  if (typeTS) {
+    typeTS.on('change', function(value) {
+      if (!value) { clearCodes(); return; }
+      var nature = getTS(natureEl).getValue();
+      var subNature = getTS(subNatureEl).getValue();
+      fetch('/rp_transactions/transaction_codes?nature=' + encodeURIComponent(nature) + '&sub_type=' + encodeURIComponent(subNature) + '&transaction_type=' + encodeURIComponent(value))
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (mainCodeEl) mainCodeEl.value = data.main_code || '';
+          if (subCodeEl) subCodeEl.value = data.sub_code || '';
+          if (icCodeEl) icCodeEl.value = data.ic_code || '';
+        });
+    });
+  }
+
+  function clearCodes() {
+    if (mainCodeEl) mainCodeEl.value = '';
+    if (subCodeEl) subCodeEl.value = '';
+    if (icCodeEl) icCodeEl.value = '';
   }
 })();

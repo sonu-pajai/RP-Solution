@@ -56,6 +56,21 @@
         <%= f.label :amount %>
         <%= f.text_field :amount, placeholder: "Enter Amount", class: "form-control" %>
       </div>
+
+      <div class="form-group">
+        <%= f.label :main_code, "Main Code" %>
+        <%= f.text_field :main_code, class: "form-control", id: "form_main_code", readonly: true %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :sub_code, "Sub Code" %>
+        <%= f.text_field :sub_code, class: "form-control", id: "form_sub_code", readonly: true %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :ic_code, "IC Code" %>
+        <%= f.number_field :ic_code, class: "form-control", id: "form_ic_code", readonly: true %>
+      </div>
     </div>
 
     <div class="mt-16">

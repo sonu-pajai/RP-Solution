@@ -63,6 +63,7 @@ Rails.application.routes.draw do
   get "rp_transactions/reporting_units", to: "rp_transactions#reporting_units"
   get "rp_transactions/sub_natures", to: "rp_transactions#sub_natures"
   get "rp_transactions/transaction_types", to: "rp_transactions#transaction_types"
+  get "rp_transactions/transaction_codes", to: "rp_transactions#transaction_codes"
   get "rp_transactions/:id", to: "rp_transactions#show", as: :rp_transaction
   get "rp_transactions/:id/edit", to: "rp_transactions#edit", as: :edit_rp_transaction
   patch "rp_transactions/:id", to: "rp_transactions#update"
