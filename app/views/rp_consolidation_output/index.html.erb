@@ -16,12 +16,12 @@
 
     <div class="form-group" style="flex:1; margin-bottom:0;">
       <%= label_tag :period_id, "Period" %>
-      <%= select_tag :period_id, options_from_collection_for_select(Period.all, :id, :month, params[:period_id].to_i), prompt: "All Periods", id: "period-filter" %>
+      <%= select_tag :period_id, options_from_collection_for_select(Period.all, :id, :month, params[:period_id].to_i), prompt: "Select Period", id: "period-filter" %>
     </div>
 
     <div class="form-group" style="flex:1; margin-bottom:0; <%= 'display:none;' unless @view_type == 'standalone' %>" id="entity-filter-group">
       <%= label_tag :reporting_entity_id, "Reporting Entity" %>
-      <%= select_tag :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name, params[:reporting_entity_id].to_i), prompt: "All Entities", id: "entity-filter" %>
+      <%= select_tag :reporting_entity_id, options_from_collection_for_select(ReportingEntity.all, :id, :name, params[:reporting_entity_id].to_i), prompt: "Select Entity", id: "entity-filter" %>
     </div>
   </div>
 </div>
