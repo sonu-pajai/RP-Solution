@@ -140,6 +140,8 @@ class RpTransactionsController < ApplicationController
           next
         end
 
+        master_txn = Transaction.find_by(nature: nature_val, sub_type: sub_nature_val, transaction_type: txn_type_val)
+
         if mode == "upsert"
           txn = RpTransaction.find_or_initialize_by(
             reporting_entity: entity,
@@ -152,6 +154,8 @@ class RpTransactionsController < ApplicationController
           )
           is_new = txn.new_record?
           txn.amount = row["Amount"]
+          txn.main_code = master_txn&.main_code
+          txn.sub_code = master_txn&.sub_code]
         else
           txn = RpTransaction.new(
             reporting_entity: entity,
@@ -161,7 +165,9 @@ class RpTransactionsController < ApplicationController
             transaction_type: txn_type_val,
             nature: nature_val,
             sub_nature: sub_nature_val,
-            amount: row["Amount"]
+            amount: row["Amount"],
+            main_code: master_txn&.main_code,
+            sub_code: master_txn&.sub_code
           )
           is_new = true
         end
@@ -185,8 +191,8 @@ class RpTransactionsController < ApplicationController
   def sample
     require "csv"
     csv_data = CSV.generate do |csv|
-      csv << ["Reporting Entity", "Reporting Unit", "Period", "Counterparty", "Nature of Transaction", "Sub-Nature of Transaction", "Type of Transaction", "Amount"]
-      csv << ["Sample Entity", "Sample Unit", "April", "Sample Name", "Asset", "Investment", "Purchase", "10000"]
+      csv << ["Reporting Entity", "Reporting Unit", "Period", "Counterparty", "Nature of Transaction", "Sub-Nature of Transaction", "Type of Transaction", "Amount", "Main Code", "Sub Code"]
+      csv << ["Sample Entity", "Sample Unit", "April", "Sample Name", "Asset", "Investment", "Purchase", "10000", "MC01", "SC01"]
     end
     send_data csv_data, filename: "rp_transactions_sample.csv", type: "text/csv"
   end
@@ -199,12 +205,13 @@ class RpTransactionsController < ApplicationController
     records = records.where(period_id: params[:period_id]) if params[:period_id].present?
 
     csv_data = CSV.generate do |csv|
-      csv << ["Reporting Entity", "Reporting Unit", "Period", "Counterparty", "Nature of Transaction", "Sub-Nature of Transaction", "Type of Transaction", "Amount"]
+      csv << ["Reporting Entity", "Reporting Unit", "Period", "Counterparty", "Nature of Transaction", "Sub-Nature of Transaction", "Type of Transaction", "Amount", "Main Code", "Sub Code"]
       records.each do |txn|
         csv << [
           txn.reporting_entity.name, txn.reporting_unit.name,
           txn.period.month, txn.counterparty,
-          txn.nature, txn.sub_nature, txn.transaction_type, txn.amount
+          txn.nature, txn.sub_nature, txn.transaction_type, txn.amount,
+          txn.main_code, txn.sub_code
         ]
       end
     end
@@ -230,6 +237,6 @@ class RpTransactionsController < ApplicationController
 
   def rp_transaction_params
     params.require(:rp_transaction).permit(:reporting_entity_id, :reporting_unit_id, :period_id,
-                                           :counterparty, :transaction_type, :nature, :sub_nature, :amount)
+                                           :counterparty, :transaction_type, :nature, :sub_nature, :amount, :main_code, :sub_code)
   end
 end

@@ -45,5 +45,13 @@
       <p class="detail-label">Amount</p>
       <p class="detail-value amount"><%= number_to_currency(@rp_transaction.amount, unit: "₹") %></p>
     </div>
+    <div>
+      <p class="detail-label">Main Code</p>
+      <p class="detail-value"><%= @rp_transaction.main_code %></p>
+    </div>
+    <div>
+      <p class="detail-label">Sub Code</p>
+      <p class="detail-value"><%= @rp_transaction.sub_code %></p>
+    </div>
   </div>
 </div>

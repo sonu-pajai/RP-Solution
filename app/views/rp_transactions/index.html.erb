@@ -42,7 +42,7 @@
       <select id="period" class="form-control">
         <option value="">-- All Periods --</option>
         <% @periods.each do |period| %>
-          <option value="<%= period.id %>" <%= period.id == @selected_period_id ? "selected" : "" %>><%= period.month %> - <%= period.financial_year %></option>
+          <option value="<%= period.id %>" <%= period.id == @selected_period_id ? "selected" : "" %>><%= period.month %></option>
         <% end %>
       </select>
     </div>
@@ -61,6 +61,8 @@
           <th>Type</th>
           <th>Nature</th>
           <th>Sub-Nature</th>
+          <th>Main Code</th>
+          <th>Sub Code</th>
           <th>Amount</th>
           <th>Actions</th>
         </tr>
@@ -73,11 +75,13 @@
               data-period-id="<%= txn.period_id %>">
             <td><%= txn.reporting_entity.name %></td>
             <td><%= txn.reporting_unit.name %></td>
-            <td><%= txn.period.month %> - <%= txn.period.financial_year %></td>
+            <td><%= txn.period.month %></td>
             <td><%= txn.counterparty %></td>
             <td><%= txn.transaction_type %></td>
             <td><%= txn.nature %></td>
             <td><%= txn.sub_nature %></td>
+            <td><%= txn.main_code %></td>
+            <td><%= txn.sub_code %></td>
             <td class="amount"><%= number_to_currency(txn.amount, unit: "₹") %></td>
             <td class="rp-actions">
               <%= link_to "👁", rp_transaction_path(txn), title: "View", class: "rp-action-icon" %>
@@ -87,7 +91,7 @@
           </tr>
         <% end %>
         <% if @rp_transactions.empty? %>
-          <tr><td colspan="9" class="empty-row text-center text-muted">No transactions found.</td></tr>
+          <tr><td colspan="11" class="empty-row text-center text-muted">No transactions found.</td></tr>
         <% end %>
       </tbody>
     </table>
