@@ -55,7 +55,7 @@ class ReportDocumentsController < ApplicationController
     case format_type
     when "pdf"
       html = render_to_string(template: "report_documents/pdf_view", layout: "report_pdf", locals: { document: @document, resolved_content: content })
-      pdf = Grover.new(html, format: "A4", margin: { top: "1cm", bottom: "1cm", left: "1cm", right: "1cm" }).to_pdf
+      pdf = WickedPdf.new.pdf_from_string(html, page_size: "A4", margin: { top: 10, bottom: 10, left: 10, right: 10 })
       send_data pdf, filename: "#{@document.title.parameterize}.pdf", type: "application/pdf"
     else
       docx = html_to_docx(@document.title, content)
