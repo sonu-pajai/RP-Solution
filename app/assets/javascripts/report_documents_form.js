@@ -53,4 +53,11 @@
         document.execCommand('insertHTML', false, data.html);
       });
   };
+
+  // Insert variable placeholder
+  window.insertVar = function(name) {
+    editor.focus();
+    var tag = '<span style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-family:monospace; font-size:12px;">{{' + name + '}}</span>&nbsp;';
+    document.execCommand('insertHTML', false, tag);
+  };
 })();

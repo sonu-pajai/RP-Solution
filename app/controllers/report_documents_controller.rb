@@ -50,14 +50,15 @@ class ReportDocumentsController < ApplicationController
   def download
     @document = ReportDocument.find(params[:id])
     format_type = params[:format_type] || "docx"
+    content = replace_variables(@document.content, @document)
 
     case format_type
     when "pdf"
-      html = render_to_string(template: "report_documents/pdf_view", layout: "report_pdf", locals: { document: @document })
+      html = render_to_string(template: "report_documents/pdf_view", layout: "report_pdf", locals: { document: @document, resolved_content: content })
       pdf = Grover.new(html, format: "A4", margin: { top: "1cm", bottom: "1cm", left: "1cm", right: "1cm" }).to_pdf
       send_data pdf, filename: "#{@document.title.parameterize}.pdf", type: "application/pdf"
     else
-      docx = html_to_docx(@document.title, @document.content)
+      docx = html_to_docx(@document.title, content)
       send_data docx, filename: "#{@document.title.parameterize}.docx",
         type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     end
@@ -89,6 +90,37 @@ class ReportDocumentsController < ApplicationController
 
   def document_params
     params.require(:report_document).permit(:title, :content, :reporting_entity_id, :period_id)
+  end
+
+  def replace_variables(content, document)
+    entity = document.reporting_entity
+    period = document.period
+    txns = RpTransaction.where(reporting_entity_id: entity&.id, period_id: period&.id)
+
+    variables = {
+      "entity_name" => entity&.name || "—",
+      "period" => period&.month || "—",
+      "financial_year" => period&.financial_year || "—",
+      "today" => Date.today.strftime("%d-%b-%Y"),
+      "prepared_by" => current_user&.name || current_user&.email || "—",
+      "total_rp_count" => RpMaster.where(active: true).count.to_s,
+      "total_txn_count" => txns.count.to_s,
+      "total_txn_amount" => txns.sum(:amount).to_s
+    }
+
+    result = content.to_s
+    variables.each do |key, value|
+      result = result.gsub(/\{\{\s*#{key}\s*\}\}/, value)
+    end
+    # Strip the styled span wrappers around variables
+    result.gsub(/<span[^>]*>([^<]*)<\/span>/) do |match|
+      inner = $1
+      if inner.match?(/\{\{.*\}\}/)
+        inner
+      else
+        match
+      end
+    end
   end
 
   def html_to_docx(title, html)
