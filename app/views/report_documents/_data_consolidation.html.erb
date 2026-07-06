@@ -1,0 +1,18 @@
+<h3>RP List Consolidation</h3>
+<% if records.any? %>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse; width:100%;">
+  <tr><th>Unique Code</th><th>Name</th><th>Category</th><th>From</th><th>Upto</th><th>Custom Input</th></tr>
+  <% records.each do |c| %>
+    <tr>
+      <td><%= c.rp_master.unique_code %></td>
+      <td><%= c.rp_master.name %></td>
+      <td><%= c.rp_master.category %></td>
+      <td><%= c.related_party_from %></td>
+      <td><%= c.related_party_upto %></td>
+      <td><%= c.custom_input %></td>
+    </tr>
+  <% end %>
+</table>
+<% else %>
+<p><em>No consolidation records found for selected entity/period.</em></p>
+<% end %>

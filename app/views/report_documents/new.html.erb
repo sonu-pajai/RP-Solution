@@ -1,0 +1,67 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> <%= link_to "Report Documents", report_documents_path %><span class="separator">›</span> Compose
+<% end %>
+
+<div class="page-header">
+  <h2>Compose Report Document</h2>
+</div>
+
+<div class="card">
+  <%= form_with model: @document, url: report_documents_path, id: "doc-form", data: { turbo: false } do |f| %>
+    <% if @document.errors.any? %>
+      <div class="form-errors mb-16">
+        <% @document.errors.full_messages.each do |msg| %><p><%= msg %></p><% end %>
+      </div>
+    <% end %>
+
+    <div class="grid-2 mb-16">
+      <div class="form-group mb-0">
+        <label>Title</label>
+        <%= f.text_field :title, class: "form-control", placeholder: "Report title" %>
+      </div>
+      <div class="form-group mb-0">
+        <label>Reporting Entity</label>
+        <%= f.select :reporting_entity_id, @reporting_entities.map { |e| [e.name, e.id] }, { prompt: "-- Optional --" }, { class: "form-control", id: "doc-entity" } %>
+      </div>
+      <div class="form-group mb-0">
+        <label>Period</label>
+        <%= f.select :period_id, @periods.map { |p| ["#{p.month} - #{p.financial_year}", p.id] }, { prompt: "-- Optional --" }, { class: "form-control", id: "doc-period" } %>
+      </div>
+    </div>
+
+    <div class="mb-16">
+      <label>Insert Data Section</label>
+      <div class="flex-row" style="gap:8px;">
+        <button type="button" class="btn-primary btn-sm btn-outline" onclick="insertData('consolidation')">📋 RP Consolidation</button>
+        <button type="button" class="btn-primary btn-sm btn-outline" onclick="insertData('transactions')">⇌ RP Transactions</button>
+        <button type="button" class="btn-primary btn-sm btn-outline" onclick="insertData('rp_list')">◆ RP Master List</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Content</label>
+      <div id="editor-toolbar" style="margin-bottom:8px; display:flex; gap:4px; flex-wrap:wrap;">
+        <button type="button" class="btn-sm btn-outline" onclick="execCmd('bold')"><b>B</b></button>
+        <button type="button" class="btn-sm btn-outline" onclick="execCmd('italic')"><i>I</i></button>
+        <button type="button" class="btn-sm btn-outline" onclick="execCmd('underline')"><u>U</u></button>
+        <button type="button" class="btn-sm btn-outline" onclick="execCmd('insertUnorderedList')">• List</button>
+        <button type="button" class="btn-sm btn-outline" onclick="execCmd('insertOrderedList')">1. List</button>
+        <button type="button" class="btn-sm btn-outline" onclick="execHeading('h1')">H1</button>
+        <button type="button" class="btn-sm btn-outline" onclick="execHeading('h2')">H2</button>
+        <button type="button" class="btn-sm btn-outline" onclick="execHeading('h3')">H3</button>
+        <button type="button" class="btn-sm btn-outline" onclick="insertTable()">⊞ Table</button>
+      </div>
+      <div id="editor" contenteditable="true" style="min-height:400px; border:1px solid #d1d5db; border-radius:6px; padding:16px; background:#fff; font-size:14px; line-height:1.6; overflow-y:auto;"><%= @document.content&.html_safe %></div>
+      <%= f.hidden_field :content, id: "content-field" %>
+    </div>
+
+    <div class="flex-row mt-16">
+      <%= f.submit "💾 Save Document", class: "btn-primary" %>
+      <%= link_to "Cancel", report_documents_path, class: "btn-secondary ml-8" %>
+    </div>
+  <% end %>
+</div>
+
+<% content_for :page_script do %>
+  <%= javascript_include_tag "report_documents_form" %>
+<% end %>

@@ -56,6 +56,13 @@ Rails.application.routes.draw do
 
   get "reports", to: "reports#index", as: :reports
   post "reports/generate", to: "reports#generate", as: :generate_report
+
+  resources :report_documents, except: [:show] do
+    member do
+      get :download
+    end
+  end
+  get "report_documents/insert_data", to: "report_documents#insert_data", as: :insert_data_report_documents
   get "rp_transactions", to: "rp_transactions#index", as: :rp_transactions
   get "rp_transactions/new", to: "rp_transactions#new", as: :new_rp_transaction
   post "rp_transactions", to: "rp_transactions#create"

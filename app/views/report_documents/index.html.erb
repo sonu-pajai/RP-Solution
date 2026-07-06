@@ -1,0 +1,43 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> Report Documents
+<% end %>
+
+<div class="page-header">
+  <h2>Report Documents</h2>
+  <%= link_to "＋ Compose New", new_report_document_path, class: "btn-primary btn-sm" %>
+</div>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Reporting Entity</th>
+      <th>Period</th>
+      <th>Created By</th>
+      <th>Created At</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @documents.each do |doc| %>
+      <tr>
+        <td><%= doc.title %></td>
+        <td><%= doc.reporting_entity&.name || "—" %></td>
+        <td><%= doc.period ? "#{doc.period.month} - #{doc.period.financial_year}" : "—" %></td>
+        <td><%= doc.created_by&.name || doc.created_by&.email || "—" %></td>
+        <td><%= doc.created_at.strftime("%d-%b-%Y") %></td>
+        <td class="rp-actions">
+          <%= link_to "✏️", edit_report_document_path(doc), title: "Edit", class: "rp-action-icon" %>
+          <%= link_to "📥", download_report_document_path(doc, format_type: "docx"), title: "Download Word", class: "rp-action-icon" %>
+          <%= link_to "📄", download_report_document_path(doc, format_type: "pdf"), title: "Download PDF", class: "rp-action-icon" %>
+          <%= link_to "🗑", report_document_path(doc), data: { turbo_method: :delete, turbo_confirm: "Delete this document?" }, title: "Delete", class: "rp-action-icon" %>
+        </td>
+      </tr>
+    <% end %>
+    <% if @documents.empty? %>
+      <tr><td colspan="6" class="empty-row">No documents yet. Compose your first report.</td></tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= paginate @documents %>

@@ -1,0 +1,17 @@
+<h3>RP Master List</h3>
+<% if records.any? %>
+<table border="1" cellpadding="4" cellspacing="0" style="border-collapse:collapse; width:100%;">
+  <tr><th>Unique Code</th><th>Name</th><th>PAN</th><th>Category</th><th>Relationship</th></tr>
+  <% records.each do |rp| %>
+    <tr>
+      <td><%= rp.unique_code %></td>
+      <td><%= rp.name %></td>
+      <td><%= rp.pan %></td>
+      <td><%= rp.category %></td>
+      <td><%= rp.specific_relationship %></td>
+    </tr>
+  <% end %>
+</table>
+<% else %>
+<p><em>No active RP Master records found.</em></p>
+<% end %>
