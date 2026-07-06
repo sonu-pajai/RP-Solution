@@ -53,6 +53,9 @@ Rails.application.routes.draw do
   delete "rp_list_consolidation/:id", to: "rp_list_consolidation#destroy", as: :destroy_rp_consolidation
   get "rp_consolidation_output", to: "rp_consolidation_output#index", as: :rp_consolidation_output
   get "rp_consolidation_output/export", to: "rp_consolidation_output#export", as: :rp_consolidation_output_export
+
+  get "reports", to: "reports#index", as: :reports
+  post "reports/generate", to: "reports#generate", as: :generate_report
   get "rp_transactions", to: "rp_transactions#index", as: :rp_transactions
   get "rp_transactions/new", to: "rp_transactions#new", as: :new_rp_transaction
   post "rp_transactions", to: "rp_transactions#create"

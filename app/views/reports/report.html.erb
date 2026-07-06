@@ -1,0 +1,47 @@
+<h1>Related Party Transaction Report</h1>
+<h2><%= reporting_entity.name %> — <%= period.month %> <%= period.financial_year %></h2>
+
+<h3>RP List Consolidation</h3>
+<% if consolidations.any? %>
+  <table>
+    <thead>
+      <tr><th>Unique Code</th><th>Name</th><th>Category</th><th>From</th><th>Upto</th><th>Custom Input</th></tr>
+    </thead>
+    <tbody>
+      <% consolidations.each do |c| %>
+        <tr>
+          <td><%= c.rp_master.unique_code %></td>
+          <td><%= c.rp_master.name %></td>
+          <td><%= c.rp_master.category %></td>
+          <td><%= c.related_party_from %></td>
+          <td><%= c.related_party_upto %></td>
+          <td><%= c.custom_input %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="empty">No consolidation records found.</p>
+<% end %>
+
+<h3>RP Transactions</h3>
+<% if transactions.any? %>
+  <table>
+    <thead>
+      <tr><th>Counterparty</th><th>Nature</th><th>Sub-Nature</th><th>Type</th><th>Amount</th></tr>
+    </thead>
+    <tbody>
+      <% transactions.each do |t| %>
+        <tr>
+          <td><%= t.counterparty %></td>
+          <td><%= t.nature %></td>
+          <td><%= t.sub_nature %></td>
+          <td><%= t.transaction_type %></td>
+          <td><%= number_to_currency(t.amount, unit: "₹") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="empty">No transactions found.</p>
+<% end %>

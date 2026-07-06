@@ -1,0 +1,43 @@
+<% content_for :breadcrumb do %>
+  <%= link_to "Dashboard", root_path %><span class="separator">›</span> Reports
+<% end %>
+
+<div class="page-header">
+  <h2>Generate Report</h2>
+</div>
+
+<div class="card">
+  <%= form_with url: generate_report_path, method: :post, data: { turbo: false } do |f| %>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>Reporting Entity</label>
+        <%= select_tag :reporting_entity_id, options_from_collection_for_select(@reporting_entities, :id, :name), prompt: "-- Select --", class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <label>Period</label>
+        <%= select_tag :period_id, options_from_collection_for_select(@periods, :id, proc { |p| "#{p.month} - #{p.financial_year}" }), prompt: "-- Select --", class: "form-control" %>
+      </div>
+
+      <div class="form-group">
+        <label>Format</label>
+        <%= select_tag :format_type, options_for_select([["Word (.docx)", "docx"], ["PDF", "pdf"]]), class: "form-control" %>
+      </div>
+    </div>
+
+    <div class="mt-16">
+      <%= f.submit "📄 Generate Report", class: "btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<div class="card mt-16">
+  <div class="info-box">
+    <p class="info-box-title">📋 Report Contents</p>
+    <p class="info-box-text">
+      The generated report includes:<br>
+      • RP List Consolidation data (Unique Code, Name, Category, From/Upto dates)<br>
+      • RP Transactions (Counterparty, Nature, Sub-Nature, Type, Amount)
+    </p>
+  </div>
+</div>

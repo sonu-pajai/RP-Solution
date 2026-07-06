@@ -84,10 +84,13 @@ GEM
       racc
     builder (3.3.0)
     cancancan (3.6.1)
+    caracal (1.4.1)
+      nokogiri (~> 1.6)
+      rubyzip (~> 1.1)
+      tilt (>= 1.4)
     concurrent-ruby (1.3.7)
     connection_pool (3.0.2)
     crass (1.0.6)
-    csv (3.3.5)
     date (3.5.1)
     debug (1.11.1)
       irb (~> 1.10)
@@ -103,6 +106,8 @@ GEM
     erubi (1.13.1)
     globalid (1.3.0)
       activesupport (>= 6.1)
+    grover (1.2.10)
+      nokogiri (~> 1)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
     importmap-rails (2.2.3)
@@ -248,12 +253,9 @@ GEM
     responders (3.2.0)
       actionpack (>= 7.0)
       railties (>= 7.0)
-    roo (3.0.0)
-      base64 (~> 0.2)
-      csv (~> 3)
-      logger (~> 1)
+    roo (2.10.1)
       nokogiri (~> 1)
-      rubyzip (>= 3.0.0, < 4.0.0)
+      rubyzip (>= 1.3.0, < 3.0.0)
     rubocop (1.88.0)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
@@ -283,12 +285,13 @@ GEM
       rubocop-performance (>= 1.24)
       rubocop-rails (>= 2.30)
     ruby-progressbar (1.13.0)
-    rubyzip (3.4.0)
+    rubyzip (1.3.0)
     securerandom (0.4.1)
     stimulus-rails (1.3.4)
       railties (>= 6.0.0)
     stringio (3.2.0)
     thor (1.5.0)
+    tilt (2.7.0)
     timeout (0.6.1)
     tsort (0.2.0)
     turbo-rails (2.0.23)
@@ -329,8 +332,10 @@ DEPENDENCIES
   bootsnap
   brakeman
   cancancan
+  caracal
   debug
   devise (~> 4.9)
+  grover
   importmap-rails
   kaminari
   pg (~> 1.1)
@@ -366,10 +371,10 @@ CHECKSUMS
   brakeman (8.0.5) sha256=03735f9690d3fd4b32d66aacbf0a6d15a84266bdd06b32c05c8ecc8f6021d2be
   builder (3.3.0) sha256=497918d2f9dca528fdca4b88d84e4ef4387256d984b8154e9d5d3fe5a9c8835f
   cancancan (3.6.1) sha256=975c1d5cbf58d5df48a9452a7f61ae3d254608cd87570402f5925a8864c56b62
+  caracal (1.4.1) sha256=230ff744e79cd8d9aa449bb350aab986c29bbc6b489d54021ac99add6bb3fcfb
   concurrent-ruby (1.3.7) sha256=4412caec3a5ea2e5fdc52076724c071a81f2c0593d83b2ac8cbb8ca63b3151b0
   connection_pool (3.0.2) sha256=33fff5ba71a12d2aa26cb72b1db8bba2a1a01823559fb01d29eb74c286e62e0a
   crass (1.0.6) sha256=dc516022a56e7b3b156099abc81b6d2b08ea1ed12676ac7a5657617f012bd45d
-  csv (3.3.5) sha256=6e5134ac3383ef728b7f02725d9872934f523cb40b961479f69cf3afa6c8e73f
   date (3.5.1) sha256=750d06384d7b9c15d562c76291407d89e368dda4d4fff957eb94962d325a0dc0
   debug (1.11.1) sha256=2e0b0ac6119f2207a6f8ac7d4a73ca8eb4e440f64da0a3136c30343146e952b6
   devise (4.9.4) sha256=920042fe5e704c548aa4eb65ebdd65980b83ffae67feb32c697206bfd975a7f8
@@ -377,6 +382,7 @@ CHECKSUMS
   erb (6.0.4) sha256=38e3803694be357fe2bfe312487c74beaf9fb4e5beb3e22498952fe1645b95d9
   erubi (1.13.1) sha256=a082103b0885dbc5ecf1172fede897f9ebdb745a4b97a5e8dc63953db1ee4ad9
   globalid (1.3.0) sha256=05c639ad6eb4594522a0b07983022f04aa7254626ab69445a0e493aa3786ff11
+  grover (1.2.10) sha256=989b21d1a0048e3793b9939b392152fb309c7a107911ad04c10e422de4e1479b
   i18n (1.15.2) sha256=00f9eb62412fe593b2a65a97daa75300d37abb8f7202ec748e94b6d46a9dd1b5
   importmap-rails (2.2.3) sha256=7101be2a4dc97cf1558fb8f573a718404c5f6bcfe94f304bf1f39e444feeb16a
   io-console (0.8.2) sha256=d6e3ae7a7cc7574f4b8893b4fca2162e57a825b223a177b7afa236c5ef9814cc
@@ -439,18 +445,19 @@ CHECKSUMS
   regexp_parser (2.12.0) sha256=35a916a1d63190ab5c9009457136ae5f3c0c7512d60291d0d1378ba18ce08ebb
   reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835
   responders (3.2.0) sha256=89c2d6ac0ae16f6458a11524cae4a8efdceba1a3baea164d28ee9046bd3df55a
-  roo (3.0.0) sha256=6fdd7a9158d657c69768b4168754ff2110cc21fdc01a1bec1010820cb05c91b1
+  roo (2.10.1) sha256=cbb43bc955f9c110e74b721c835fb9bd3515b63af88ec709ac87fbf30f8be70e
   rubocop (1.88.0) sha256=e420ddf1662d0ef34bc8a2910ac4b396a7ddda0b51a708264405241734b08e0b
   rubocop-ast (1.49.1) sha256=4412f3ee70f6fe4546cc489548e0f6fcf76cafcfa80fa03af67098ffed755035
   rubocop-performance (1.26.1) sha256=cd19b936ff196df85829d264b522fd4f98b6c89ad271fa52744a8c11b8f71834
   rubocop-rails (2.35.5) sha256=f00b3c936002ba8e9ac62e8607c54bb24cda44b36e41b9c7e4f3872e1b0f3fe3
   rubocop-rails-omakase (1.1.0) sha256=2af73ac8ee5852de2919abbd2618af9c15c19b512c4cfc1f9a5d3b6ef009109d
   ruby-progressbar (1.13.0) sha256=80fc9c47a9b640d6834e0dc7b3c94c9df37f08cb072b7761e4a71e22cff29b33
-  rubyzip (3.4.0) sha256=6de39bc9eba302b635a476d16c9e16b0872ad24517c2f98f2b3a7ea23caff57b
+  rubyzip (1.3.0) sha256=149dd90386c5eef837353b21cd9a0cfd4ec5a07b24ab18f734f546cefb17ace3
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
   stimulus-rails (1.3.4) sha256=765676ffa1f33af64ce026d26b48e8ffb2e0b94e0f50e9119e11d6107d67cb06
   stringio (3.2.0) sha256=c37cb2e58b4ffbd33fe5cd948c05934af997b36e0b6ca6fdf43afa234cf222e1
   thor (1.5.0) sha256=e3a9e55fe857e44859ce104a84675ab6e8cd59c650a49106a05f55f136425e73
+  tilt (2.7.0) sha256=0d5b9ba69f6a36490c64b0eee9f6e9aad517e20dcc848800a06eb116f08c6ab3
   timeout (0.6.1) sha256=78f57368a7e7bbadec56971f78a3f5ecbcfb59b7fcbb0a3ed6ddc08a5094accb
   tsort (0.2.0) sha256=9650a793f6859a43b6641671278f79cfead60ac714148aabe4e3f0060480089f
   turbo-rails (2.0.23) sha256=ee0d90733aafff056cf51ff11e803d65e43cae258cc55f6492020ec1f9f9315f
