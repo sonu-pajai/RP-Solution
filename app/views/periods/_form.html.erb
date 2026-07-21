@@ -14,7 +14,9 @@
 
   <div class="form-group">
     <%= f.label :financial_year, "Financial Year" %>
-    <%= f.text_field :financial_year, placeholder: "e.g. 2025-2026" %>
+    <% current_year = Date.today.year
+       fy_options = (-10..10).map { |i| y = current_year + i; "#{y}-#{y+1}" } %>
+    <%= f.select :financial_year, options_for_select(fy_options, @period.financial_year), { prompt: "Select Financial Year" } %>
   </div>
 
   <div class="form-actions">
