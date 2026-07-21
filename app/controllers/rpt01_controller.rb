@@ -32,7 +32,7 @@ class Rpt01Controller < ApplicationController
       end_month = QUARTER_END_MONTH["Q#{q}"]
       rep = periods.find { |p| p.month.to_s.start_with?(end_month) } || periods.last
       { key: key, label: rep.month, period_ids: periods.map(&:id), rep_period: rep }
-    end.sort_by { |q| [q[:rep_period].financial_year.to_s, q[:rep_period].month_number.to_i] }
+    end.sort_by { |q| [q[:rep_period].financial_year.to_s, q[:rep_period].month_number.to_i == 0 ? 99 : (q[:rep_period].month_number.to_i >= 4 ? q[:rep_period].month_number.to_i : q[:rep_period].month_number.to_i + 12)] }
 
     # Find quarter of selected period — this becomes the LAST (current) quarter
     selected_period = all_periods.find { |p| p.id == @selected_period_id }
