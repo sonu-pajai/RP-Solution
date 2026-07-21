@@ -1,13 +1,14 @@
 class Rpt01Controller < ApplicationController
   MONTH_TO_QUARTER = {
-    "April" => "Q1", "May" => "Q1", "June" => "Q1",
-    "July" => "Q2", "August" => "Q2", "September" => "Q2",
-    "October" => "Q3", "November" => "Q3", "December" => "Q3",
-    "January" => "Q4", "February" => "Q4", "March" => "Q4"
+    "April" => 1, "May" => 1, "June" => 1,
+    "July" => 2, "August" => 2, "September" => 2,
+    "October" => 3, "November" => 3, "December" => 3,
+    "January" => 4, "February" => 4, "March" => 4
   }.freeze
 
-  QUARTER_END_MONTH = {
-    "Q1" => "June", "Q2" => "September", "Q3" => "December", "Q4" => "March"
+  QUARTER_LABEL = { 1 => "Jun", 2 => "Sep", 3 => "Dec", 4 => "Mar" }.freeze
+  QUARTER_MONTHS = {
+    1 => [4, 5, 6], 2 => [7, 8, 9], 3 => [10, 11, 12], 4 => [1, 2, 3]
   }.freeze
 
   def index
@@ -15,38 +16,30 @@ class Rpt01Controller < ApplicationController
     @all_periods = all_periods
     @selected_period_id = params[:period_id].present? ? params[:period_id].to_i : all_periods.last&.id
 
-    # Group into quarters: key = "FY-Q", value = array of periods
-    quarters = {}
-    all_periods.each do |p|
-      month_name = p.month.to_s.split("-").first
-      q = MONTH_TO_QUARTER[month_name]
-      next unless q
-      key = "#{p.financial_year}-#{q}"
-      quarters[key] ||= []
-      quarters[key] << p
+    selected_period = all_periods.find { |p| p.id == @selected_period_id } || all_periods.last
+    return @quarter_cols = [] unless selected_period
+
+    month_name = selected_period.month.to_s.split("-").first
+    current_q  = MONTH_TO_QUARTER[month_name] || 4
+    fy_parts   = selected_period.financial_year.to_s.split("-")
+    fy_start   = fy_parts[0].to_i
+
+    # Generate last 5 quarters ending at selected period's quarter
+    @quarter_cols = []
+    q = current_q
+    fy = fy_start
+    5.times do
+      end_month_num = QUARTER_MONTHS[q].last
+      end_year = end_month_num >= 4 ? fy : fy + 1
+      label = "#{QUARTER_LABEL[q]}-#{end_year.to_s.slice(-2, 2)}"
+      period_ids = all_periods.select { |p| QUARTER_MONTHS[q].include?(p.month_number.to_i) && p.financial_year == "#{fy}-#{fy+1}" }.map(&:id)
+      @quarter_cols.unshift({ key: "#{fy}-#{fy+1}-Q#{q}", label: label, period_ids: period_ids })
+      q -= 1
+      if q == 0
+        q = 4
+        fy -= 1
+      end
     end
-
-    # Build quarter list, representative period = end-of-quarter month
-    quarter_list = quarters.map do |key, periods|
-      fy, q = key.split("-Q")
-      end_month = QUARTER_END_MONTH["Q#{q}"]
-      rep = periods.find { |p| p.month.to_s.start_with?(end_month) } || periods.last
-      { key: key, label: rep.month, period_ids: periods.map(&:id), rep_period: rep }
-    end.sort_by { |q| [q[:rep_period].financial_year.to_s, q[:rep_period].month_number.to_i == 0 ? 99 : (q[:rep_period].month_number.to_i >= 4 ? q[:rep_period].month_number.to_i : q[:rep_period].month_number.to_i + 12)] }
-
-    # Find quarter of selected period — this becomes the LAST (current) quarter
-    selected_period = all_periods.find { |p| p.id == @selected_period_id }
-    if selected_period
-      month_name = selected_period.month.to_s.split("-").first
-      q = MONTH_TO_QUARTER[month_name]
-      selected_qkey = "#{selected_period.financial_year}-#{q}"
-      idx = quarter_list.index { |qp| qp[:key] == selected_qkey } || (quarter_list.size - 1)
-    else
-      idx = quarter_list.size - 1
-    end
-
-    # Show 5 quarters: 4 before + selected as current (last)
-    @quarter_cols = quarter_list[[idx - 4, 0].max..idx]
 
     all_period_ids = @quarter_cols.flat_map { |q| q[:period_ids] }
 
@@ -81,7 +74,6 @@ class Rpt01Controller < ApplicationController
       }
     end.sort_by { |r| [r[:reporting_entity], r[:reporting_unit], r[:transaction_type]] }
 
-    # Group by reporting entity for subtotals
     @rows_by_entity = @rows.group_by { |r| r[:reporting_entity] }
   end
 end
