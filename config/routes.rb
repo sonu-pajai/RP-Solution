@@ -55,6 +55,7 @@ Rails.application.routes.draw do
   get "rp_consolidation_output/export", to: "rp_consolidation_output#export", as: :rp_consolidation_output_export
 
   get "reports", to: "reports#index", as: :reports
+  get "rpt01", to: "rpt01#index", as: :rpt01
   post "reports/generate", to: "reports#generate", as: :generate_report
 
   resources :report_documents, except: [:show] do
