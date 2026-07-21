@@ -6,6 +6,22 @@
   <h2>RPT-01 — RP Transactions Summary</h2>
 </div>
 
+<div class="card mb-16">
+  <div class="flex-row" style="align-items:flex-end; gap:16px;">
+    <div class="form-group flex-1 mb-0">
+      <label for="period_id">Period</label>
+      <select id="period_id" class="form-control">
+        <option value="">-- Current Quarter (Default) --</option>
+        <% @all_periods.each do |p| %>
+          <option value="<%= p.id %>" <%= @selected_period_id == p.id ? 'selected' : '' %>>
+            <%= p.month %>
+          </option>
+        <% end %>
+      </select>
+    </div>
+  </div>
+</div>
+
 <div style="overflow-x:auto;">
   <table class="data-table" style="min-width:max-content; font-size:13px;">
     <thead>
@@ -15,16 +31,15 @@
         <th style="white-space:nowrap;">Type of Transaction</th>
         <th style="white-space:nowrap;">Counter Reporting Entity</th>
         <th style="white-space:nowrap;">Sub-Type of Transaction</th>
-        <% @periods.each do |p| %>
-          <th style="white-space:nowrap; text-align:right;"><%= p.month %></th>
+        <% @quarter_cols.each do |q| %>
+          <th style="white-space:nowrap; text-align:right;"><%= q[:label] %></th>
         <% end %>
-        <th style="white-space:nowrap; text-align:right; background:#f0f9ff;">Current Qtr</th>
         <th style="white-space:nowrap; text-align:right; background:#f0fdf4;">Total</th>
       </tr>
     </thead>
     <tbody>
       <% if @rows.empty? %>
-        <tr><td colspan="<%= 5 + @periods.size + 2 %>" class="empty-row">No transactions found.</td></tr>
+        <tr><td colspan="<%= 5 + @quarter_cols.size + 1 %>" class="empty-row">No transactions found.</td></tr>
       <% else %>
         <% @rows.each do |row| %>
           <tr>
@@ -33,37 +48,39 @@
             <td><%= row[:transaction_type] %></td>
             <td><%= row[:counterparty] %></td>
             <td><%= row[:sub_nature] %></td>
-            <% @period_months.each do |month| %>
+            <% @quarter_cols.each do |q| %>
               <td style="text-align:right;">
-                <% val = row[:amounts][month].to_f %>
+                <% val = row[:amounts][q[:key]].to_f %>
                 <%= val > 0 ? number_with_delimiter(val.round(2)) : "-" %>
               </td>
             <% end %>
-            <td style="text-align:right; background:#f0f9ff; font-weight:600;">
-              <%= number_with_delimiter(row[:current_quarter_total].round(2)) %>
-            </td>
             <td style="text-align:right; background:#f0fdf4; font-weight:600;">
-              <%= number_with_delimiter(row[:grand_total].round(2)) %>
+              <%= number_with_delimiter(row[:total].round(2)) %>
             </td>
           </tr>
         <% end %>
 
-        <%# Grand total row %>
         <tr style="font-weight:700; border-top:2px solid #cbd5e1; background:#f8fafc;">
           <td colspan="5">Total</td>
-          <% @period_months.each do |month| %>
+          <% @quarter_cols.each do |q| %>
             <td style="text-align:right;">
-              <%= number_with_delimiter(@rows.sum { |r| r[:amounts][month].to_f }.round(2)) %>
+              <%= number_with_delimiter(@rows.sum { |r| r[:amounts][q[:key]].to_f }.round(2)) %>
             </td>
           <% end %>
-          <td style="text-align:right; background:#f0f9ff;">
-            <%= number_with_delimiter(@rows.sum { |r| r[:current_quarter_total] }.round(2)) %>
-          </td>
           <td style="text-align:right; background:#f0fdf4;">
-            <%= number_with_delimiter(@rows.sum { |r| r[:grand_total] }.round(2)) %>
+            <%= number_with_delimiter(@rows.sum { |r| r[:total] }.round(2)) %>
           </td>
         </tr>
       <% end %>
     </tbody>
   </table>
 </div>
+
+<% content_for :page_script do %>
+<script>
+  document.getElementById('period_id').addEventListener('change', function() {
+    var val = this.value;
+    window.location.href = '/rpt01' + (val ? '?period_id=' + val : '');
+  });
+</script>
+<% end %>

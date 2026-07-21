@@ -14,6 +14,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_06_150331) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
+  create_table "alembic_version", primary_key: "version_num", id: { type: :string, limit: 32 }, force: :cascade do |t|
+  end
+
   create_table "periods", force: :cascade do |t|
     t.string "month"
     t.string "financial_year"
