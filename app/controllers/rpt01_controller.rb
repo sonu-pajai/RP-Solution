@@ -79,6 +79,9 @@ class Rpt01Controller < ApplicationController
         amounts:          amounts,
         total:            amounts.values.sum
       }
-    end
+    end.sort_by { |r| [r[:reporting_entity], r[:reporting_unit], r[:transaction_type]] }
+
+    # Group by reporting entity for subtotals
+    @rows_by_entity = @rows.group_by { |r| r[:reporting_entity] }
   end
 end

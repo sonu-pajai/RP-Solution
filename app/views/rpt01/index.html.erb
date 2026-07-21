@@ -41,27 +41,43 @@
       <% if @rows.empty? %>
         <tr><td colspan="<%= 5 + @quarter_cols.size + 1 %>" class="empty-row">No transactions found.</td></tr>
       <% else %>
-        <% @rows.each do |row| %>
-          <tr>
-            <td><%= row[:reporting_entity] %></td>
-            <td><%= row[:reporting_unit] %></td>
-            <td><%= row[:transaction_type] %></td>
-            <td><%= row[:counterparty] %></td>
-            <td><%= row[:sub_nature] %></td>
+        <% @rows_by_entity.each do |entity_name, entity_rows| %>
+          <% entity_rows.each do |row| %>
+            <tr>
+              <td><%= row[:reporting_entity] %></td>
+              <td><%= row[:reporting_unit] %></td>
+              <td><%= row[:transaction_type] %></td>
+              <td><%= row[:counterparty] %></td>
+              <td><%= row[:sub_nature] %></td>
+              <% @quarter_cols.each do |q| %>
+                <td style="text-align:right;">
+                  <% val = row[:amounts][q[:key]].to_f %>
+                  <%= val > 0 ? number_with_delimiter(val.round(2)) : "-" %>
+                </td>
+              <% end %>
+              <td style="text-align:right; background:#f0fdf4; font-weight:600;">
+                <%= number_with_delimiter(row[:total].round(2)) %>
+              </td>
+            </tr>
+          <% end %>
+
+          <%# Entity subtotal row %>
+          <tr style="font-weight:700; background:#eff6ff; border-top:1px solid #bfdbfe;">
+            <td colspan="5" style="color:#1d4ed8;"><%= entity_name %> — Subtotal</td>
             <% @quarter_cols.each do |q| %>
-              <td style="text-align:right;">
-                <% val = row[:amounts][q[:key]].to_f %>
-                <%= val > 0 ? number_with_delimiter(val.round(2)) : "-" %>
+              <td style="text-align:right; color:#1d4ed8;">
+                <%= number_with_delimiter(entity_rows.sum { |r| r[:amounts][q[:key]].to_f }.round(2)) %>
               </td>
             <% end %>
-            <td style="text-align:right; background:#f0fdf4; font-weight:600;">
-              <%= number_with_delimiter(row[:total].round(2)) %>
+            <td style="text-align:right; background:#dbeafe; color:#1d4ed8;">
+              <%= number_with_delimiter(entity_rows.sum { |r| r[:total] }.round(2)) %>
             </td>
           </tr>
         <% end %>
 
+        <%# Grand total %>
         <tr style="font-weight:700; border-top:2px solid #cbd5e1; background:#f8fafc;">
-          <td colspan="5">Total</td>
+          <td colspan="5">Grand Total</td>
           <% @quarter_cols.each do |q| %>
             <td style="text-align:right;">
               <%= number_with_delimiter(@rows.sum { |r| r[:amounts][q[:key]].to_f }.round(2)) %>
