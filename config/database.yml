@@ -22,11 +22,18 @@ default: &default
 
 development:
   <<: *default
+  # database: railway
+  # username: postgres
+  # password: IrzWZKqZsFBmpJvmXqqOPHwiVMjhvgXD
+  # host: reseau.proxy.rlwy.net
+  # port: 28676
+
   database: railway
   username: postgres
   password: IrzWZKqZsFBmpJvmXqqOPHwiVMjhvgXD
   host: reseau.proxy.rlwy.net
   port: 28676
+  url: postgresql://postgres:IrzWZKqZsFBmpJvmXqqOPHwiVMjhvgXD@reseau.proxy.rlwy.net:28676/railway
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".

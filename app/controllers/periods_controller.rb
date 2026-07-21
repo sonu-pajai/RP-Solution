@@ -71,6 +71,6 @@ class PeriodsController < ApplicationController
   private
 
   def period_params
-    params.require(:period).permit(:month, :financial_year)
+    params.require(:period).permit(:month, :financial_year, :month_number)
   end
 end

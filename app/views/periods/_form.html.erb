@@ -8,15 +8,16 @@
   <% end %>
 
   <div class="form-group">
-    <%= f.label :month %>
-    <%= f.text_field :month, placeholder: "e.g. Apr-25" %>
-  </div>
-
-  <div class="form-group">
     <%= f.label :financial_year, "Financial Year" %>
     <% current_year = Date.today.year
        fy_options = (-10..10).map { |i| y = current_year + i; "#{y}-#{y+1}" } %>
-    <%= f.select :financial_year, options_for_select(fy_options, @period.financial_year), { prompt: "Select Financial Year" } %>
+    <%= f.select :financial_year, options_for_select(fy_options, @period.financial_year), { prompt: "Select Financial Year" }, { id: "period_financial_year" } %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :month, "Month" %>
+    <%= f.select :month, [], { prompt: "Select Financial Year first" }, { id: "period_month" } %>
+    <%= f.hidden_field :month_number, id: "period_month_number" %>
   </div>
 
   <div class="form-actions">
@@ -24,3 +25,56 @@
     <%= link_to "Cancel", periods_path, class: "cancel-link" %>
   </div>
 <% end %>
+
+<script>
+  var FY_MONTHS = [
+    { num: 4,  label: "April" },
+    { num: 5,  label: "May" },
+    { num: 6,  label: "June" },
+    { num: 7,  label: "July" },
+    { num: 8,  label: "August" },
+    { num: 9,  label: "September" },
+    { num: 10, label: "October" },
+    { num: 11, label: "November" },
+    { num: 12, label: "December" },
+    { num: 1,  label: "January" },
+    { num: 2,  label: "February" },
+    { num: 3,  label: "March" }
+  ];
+
+  var fyEl = document.getElementById('period_financial_year');
+  var monthEl = document.getElementById('period_month');
+  var monthNumEl = document.getElementById('period_month_number');
+  var currentMonth = "<%= @period.month %>";
+
+  function populateMonths(fy) {
+    monthEl.innerHTML = '<option value="">-- Select Month --</option>';
+    if (!fy) return;
+    var parts = fy.split('-');
+    var y1 = parseInt(parts[0]);
+    var y2 = parseInt(parts[1]);
+    FY_MONTHS.forEach(function(m) {
+      var year = m.num >= 4 ? y1 : y2;
+      var shortYear = String(year).slice(-2);
+      var label = m.label + '-' + shortYear;  // e.g. April-25
+      var opt = document.createElement('option');
+      opt.value = label;
+      opt.text = label;
+      opt.dataset.num = m.num;
+      if (label === currentMonth) opt.selected = true;
+      monthEl.appendChild(opt);
+    });
+    updateMonthNumber();
+  }
+
+  function updateMonthNumber() {
+    var selected = monthEl.options[monthEl.selectedIndex];
+    monthNumEl.value = selected && selected.dataset.num ? selected.dataset.num : '';
+  }
+
+  fyEl.addEventListener('change', function() { populateMonths(this.value); });
+  monthEl.addEventListener('change', updateMonthNumber);
+
+  // Init on page load if editing
+  if (fyEl.value) populateMonths(fyEl.value);
+</script>
