@@ -55,8 +55,7 @@
     var y2 = parseInt(parts[1]);
     FY_MONTHS.forEach(function(m) {
       var year = m.num >= 4 ? y1 : y2;
-      var shortYear = String(year).slice(-2);
-      var label = m.label + '-' + shortYear;  // e.g. April-25
+      var label = m.label + '-' + year;  // e.g. March-2026
       var opt = document.createElement('option');
       opt.value = label;
       opt.text = label;
